@@ -16,7 +16,6 @@ pub struct Props {
 /// User context provider.
 #[function_component]
 pub fn UserContextProvider(props: &Props) -> Html {
-    //let user_ctx = use_state(FilteredUser::default);
     let user_ctx = use_state( || None::<FilteredUser>);
     let current_user = use_async(async move { request_me().await });
 

@@ -2,11 +2,12 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::routes::AppRoute;
+use crate::hooks::user_context::use_user_context;
 
 
 #[function_component]
 pub fn NavBar() -> Html {
-    let logout= true;
+    let user_ctx = use_user_context();
     let menu_state = use_state(|| false);
     let toggle_menu = {
         let menu_state = menu_state.clone();
@@ -71,10 +72,10 @@ pub fn NavBar() -> Html {
             </div>
 
             {
-                if logout {
-                    logged_out_view()
-                } else {
+                if user_ctx.is_authenticated() {
                     logged_in_view()
+                } else {
+                    logged_out_view()
                 }
             }
 
@@ -110,7 +111,7 @@ fn logged_in_view() -> Html {
                     <Link<AppRoute> to={AppRoute::Register} classes="button is-light">
                         { "Configuracion" }
                     </Link<AppRoute>>
-                    <Link<AppRoute> to={AppRoute::Login} classes="button is-primary">
+                    <Link<AppRoute> to={AppRoute::Logout} classes="button is-primary">
                         { "Cerrar sesion" }
                     </Link<AppRoute>>
                 </div>

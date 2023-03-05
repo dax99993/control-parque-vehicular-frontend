@@ -3,7 +3,7 @@ use web_sys::HtmlInputElement;
 
 use crate::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
-use crate::types::user::FilteredUser;
+//use crate::types::user::FilteredUser;
 use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
 
@@ -14,7 +14,7 @@ use validator::{validate_email, validate_length};
 
 
 #[function_component]
-pub fn LoginForm() -> Html {
+pub fn Login() -> Html {
 
     let user_ctx = use_user_context();
     let login_user = use_state(|| LoginUser::default());
@@ -87,7 +87,7 @@ pub fn LoginForm() -> Html {
                 form_valid.set(false);
                 log::debug!("Invalid login info {:?}", *login_user); 
             }
-            })
+        })
     };
 
     let oninput_email = {

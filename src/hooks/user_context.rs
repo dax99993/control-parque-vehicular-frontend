@@ -38,6 +38,10 @@ impl UseUserContextHandle {
         // Return to home page
         self.navigator.push(&AppRoute::Home)
     }
+
+    pub fn is_authenticated(&self) -> bool {
+        self.inner.is_some()
+    }
 }
 
 
