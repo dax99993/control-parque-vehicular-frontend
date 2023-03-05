@@ -1,21 +1,22 @@
-use reqwasm::{Error, http::Request};
+use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 use gloo::storage::{LocalStorage, Storage};
 
 use crate::api_response::ApiResponse;
+use crate::error::Error;
 
 const TOKEN_KEY: &str = "yew.token";
 
-fn store_token(token: Option<String>) {
+pub fn store_token(token: Option<String>) {
     if let Some(t) = token {
         LocalStorage::set(TOKEN_KEY, t).expect("failed to set token");
     } else {
-        LocalStorage::delete(TOKEN_KEY) ;
+        LocalStorage::delete(TOKEN_KEY);
     }
 }
 
-fn get_token() -> Option<String> {
+pub fn get_token() -> Option<String> {
     match LocalStorage::get(TOKEN_KEY) {
         Ok(token) => Some(token),
         Err(_) => None
@@ -60,12 +61,24 @@ where
         request = request.body(body);
     }
 
-    let result = request.send().await;
+    let response = request.send().await
+        .map_err(|_| Error::FailedRequestError)?;
 
-    let response = result?;
-    //log::debug!("{:?}", response);
+
+    if response.ok() {
+        response.json::<ApiResponse::<T>>().await
+            .map_err(|_| Error::DeserializeError)
+    } else {
+        match response.status() {
+            400 => Err(Error::BadRequestError),
+            401 => Err(Error::UnathorizedError),
+            403 => Err(Error::ForbiddenError),
+            404 => Err(Error::NotFoundError),
+            500 => Err(Error::InternalServerError),
+            _ => Err(Error::UnexpectedError),
+        }
+    }
     
-    response.json::<ApiResponse::<T>>().await
 }
 
 
@@ -80,9 +93,10 @@ pub async fn request_delete(url: String) -> Result<ApiResponse, Error> {
     request(HttpMethod::Delete, url, "").await
 }
 
-pub async fn request_post<B>(url: String, body: B) -> Result<ApiResponse, Error> 
+pub async fn request_post<B, T>(url: String, body: B) -> Result<ApiResponse<T>, Error> 
 where
     B: Serialize + 'static,
+    T: serde::de::DeserializeOwned
 {
     request(HttpMethod::Post, url, body).await
 }
@@ -93,3 +107,4 @@ where
 {
     request(HttpMethod::Patch, url, body).await
 }
+

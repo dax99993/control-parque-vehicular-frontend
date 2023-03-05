@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use validator::Validate;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FilteredUser {
     pub first_name: String,
     pub last_name: String,
@@ -11,7 +11,7 @@ pub struct FilteredUser {
     pub picture: String,
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize, Default, Clone)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, Default, Clone, PartialEq)]
 pub struct LoginUser {
     pub email: String,
     pub password: String,

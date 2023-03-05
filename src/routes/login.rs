@@ -1,81 +1,117 @@
 use yew::prelude::*;
-use reqwasm::http::Request;
-use web_sys::{console, window, HtmlInputElement};
-use wasm_bindgen::UnwrapThrowExt;
-use js_sys::JsString;
+use web_sys::HtmlInputElement;
 
-use crate::{types::user::LoginUser, services::auth::login};
+use crate::services::auth::{request_login, request_me};
+use crate::services::request::store_token;
+use crate::types::user::FilteredUser;
+use crate::hooks::user_context::use_user_context;
+use crate::types::user::LoginUser;
 
 use crate::components::form::item::FormItem;
-
-
-/*
-#[derive(Clone, PartialEq, Properties)]
-pub struct LoginFormProps {
-    #[prop_or(String::from(""))]
-    pub email: String,
-    #[prop_or(String::from(""))]
-    pub password: String,
-    //#[prop_or_else(submit_login_form)]
-    pub submit: Callback<MouseEvent>
-}
-*/
 
 use yew_hooks::prelude::*;
 use validator::{validate_email, validate_length};
 
+
 #[function_component]
 pub fn LoginForm() -> Html {
 
-    let login_info = use_state(|| LoginUser::default());
+    let user_ctx = use_user_context();
+    let login_user = use_state(|| LoginUser::default());
     let email_valid = use_state(|| true);
     let password_valid= use_state(|| true);
     let form_valid = use_state(|| true);
+    //let token = use_state(|| None::<String>);
+
+    let login_request = {
+        let login_user = login_user.clone();
+        // Make request
+        use_async(async move {
+            request_login((*login_user).clone()).await
+        })
+    };
+
+    
+    let get_me_request = {
+        use_async(async move {
+            request_me().await
+        })
+    };
+    
+
+    {
+    let get_me_request = get_me_request.clone();
+    use_effect_with_deps(
+        move |login_request| {
+            if let Some(response) = &login_request.data {
+                log::debug!("Login response {}", &response);
+                let token = response.data.clone();
+                // Store token to be able to make requests
+                store_token(token.clone());
+                // execute get me request
+                get_me_request.run();
+            }
+        },
+        login_request.clone() 
+    );
+    }
+
+    
+    use_effect_with_deps(
+        move |get_me_request| {
+            if let Some(response) = &get_me_request.data {
+                log::debug!("Get me {}", &response);
+                user_ctx.login(&response.data.clone().unwrap());
+            }
+        },
+        get_me_request.clone() 
+    );
+    
 
     let onsubmit = {
-        let login_info = login_info.clone();
+        let login_user = login_user.clone();
         let email_valid = email_valid.clone();
         let password_valid = password_valid.clone();
         let form_valid = form_valid.clone();
-        Callback::from(move |_: MouseEvent| {
+        Callback::from(move |e: MouseEvent| {
             if *email_valid && *password_valid
-               && (*login_info).is_filled()
+               && (*login_user).is_filled()
             {
                 form_valid.set(true);
-                log::debug!("Valid login info {:?}", *login_info); 
+                log::debug!("Valid login info {:?}", *login_user); 
+                e.prevent_default(); /* Prevent event propagation */
+                login_request.run();
+
 
             } else {
                 form_valid.set(false);
-                log::debug!("Invalid login info {:?}", *login_info); 
+                log::debug!("Invalid login info {:?}", *login_user); 
             }
-            //use_async(move ||{
-                //login(*login_info).await;
-            //})
-        })
+            })
     };
 
     let oninput_email = {
-        let login_info = login_info.clone();
+        let login_user = login_user.clone();
         let email_valid = email_valid.clone();
         Callback::from(move |e: InputEvent| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            //let mut info = login_info.clone();
-            let mut info = (*login_info).clone();
+            //let mut info = login_user.clone();
+            let mut info = (*login_user).clone();
             info.email = input.value();
             email_valid.set(validate_email(input.value()));
             //log::debug!("input email {}", &info.email);
-            login_info.set(info);
+            login_user.set(info);
         })
     };
     let oninput_password = {
-        let login_info = login_info.clone();
+        let login_user = login_user.clone();
         let password_valid = password_valid.clone();
         Callback::from(move |e: InputEvent| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            let mut info = (*login_info).clone();
+            let mut info = (*login_user).clone();
             info.password = input.value();
             password_valid.set(validate_length(input.value(), Some(6), Some(128), None));
-            login_info.set(info);
+            login_user.set(info);
         })
     };
 

@@ -1,17 +1,17 @@
 use serde::{Serialize, Deserialize};
 use std::borrow::Cow;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ApiResponse<T= ()>
 {
     //#[serde(skip_serializing)]
     //status_code: u16,
     #[serde(skip_serializing_if = "Option::is_none")]
-    status: Option<Cow<'static, str>>,
+    pub status: Option<Cow<'static, str>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    message: Option<Cow<'static, str>>,
+    pub message: Option<Cow<'static, str>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    data: Option<T>
+    pub data: Option<T>
 }
 pub type ApiError = ApiResponse<()>;
 
