@@ -13,6 +13,8 @@ use logout::Logout;
 use register::Register;
 use home::Home;
 
+use crate::components::vehicule::vehicule_list::VehiculeList;
+
 
 ///App Routes
 #[derive(Debug, Clone, PartialEq, Eq, Routable)]
@@ -25,6 +27,8 @@ pub enum AppRoute {
     Register,
     #[at("/logout")]
     Logout,
+    #[at("/vehicules")]
+    Vehicules,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -33,10 +37,18 @@ pub enum AppRoute {
 
 pub fn switch(route: AppRoute) -> Html {
     match route {
+        // Auth routes
         AppRoute::Register => html! { <Register /> },
         AppRoute::Login=> html! { <Login /> },
         AppRoute::Logout=> html! { <Logout /> },
+        // Home route
         AppRoute::Home=> html! { <Home /> },
+        // Vehicule routes
+        AppRoute::Vehicules=> html! { <VehiculeList /> },
+        // User routes
+        // Request routes
+        // Report routes
+        // Nofound route
         AppRoute::NotFound=> html! { "Page not found" },
     }
 }

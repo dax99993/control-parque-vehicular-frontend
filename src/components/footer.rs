@@ -6,7 +6,7 @@ use yew::prelude::*;
 #[function_component]
 pub fn Footer() -> Html {
     html! {
-        <footer class="footer">
+        <ybc::Footer>
             <div class="content has-text-centered">
                 <p>
                     <strong>{"CPV"}</strong>
@@ -19,6 +19,6 @@ pub fn Footer() -> Html {
                     {"."}
                 </p>
             </div>
-        </footer>
+        </ybc::Footer>
     }
 }

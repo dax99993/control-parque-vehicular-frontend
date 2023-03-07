@@ -2,75 +2,22 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::routes::AppRoute;
-use crate::hooks::user_context::use_user_context;
+use crate::hooks::user_context::{use_user_context, UseUserContextHandle};
 
 
 #[function_component]
 pub fn NavBar() -> Html {
     let user_ctx = use_user_context();
-    let menu_state = use_state(|| false);
-    let toggle_menu = {
-        let menu_state = menu_state.clone();
-        Callback::from(move |_| {
-            menu_state.set(! *menu_state);
-        })
+
+    let nav_brand = html! {
+        <a>
+        <Link<AppRoute> to={AppRoute::Home} >
+            <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
+        </Link<AppRoute>>
+        </a>
     };
+    let nav_end = 
     html! {
-        <nav class="navbar" role="navigation" aria-label="main navigation">
-            <div class="navbar-brand">
-                <a class="navbar-item">
-                    <Link<AppRoute> to={AppRoute::Home} >
-                        <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
-                    </Link<AppRoute>>
-                </a>
-
-                <div class={classes!(
-                        "navbar-burger",
-                        "burger",
-                        (*menu_state).then(|| Some("is-active"))
-                    )}
-                    onclick={toggle_menu}
-                >
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                </div>
-            </div>
-
-            <div class={classes!(
-                    "navbar-menu",
-                    (*menu_state).then(|| Some("is-active"))
-                    )}
-            >
-                <div class="navbar-start">
-
-                <a class="navbar-item">
-                {"Documentation"}
-                </a>
-
-                <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link">
-                        {"More"}
-                    </a>
-
-                    <div class="navbar-dropdown">
-                        <a class="navbar-item">
-                            {"About"}
-                        </a>
-                        <a class="navbar-item">
-                            {"Jobs"}
-                        </a>
-                        <a class="navbar-item">
-                            {"Contact"}
-                        </a>
-                        <hr class="navbar-divider" />
-                        <a class="navbar-item">
-                            {"Report an issue"}
-                        </a>
-                    </div>
-                </div>
-            </div>
-
             {
                 if user_ctx.is_authenticated() {
                     logged_in_view()
@@ -78,9 +25,14 @@ pub fn NavBar() -> Html {
                     logged_out_view()
                 }
             }
-
-            </div>
-        </nav>
+    };
+    html! {
+        <ybc::Navbar 
+            navburger=true 
+            navbrand={Some(nav_brand)} 
+            navend={Some(nav_end)}
+        >
+        </ybc::Navbar>
     }
 
 }
@@ -88,34 +40,30 @@ pub fn NavBar() -> Html {
 
 fn logged_out_view() -> Html {
     html! {
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <Link<AppRoute> to={AppRoute::Login} classes="button is-light">
-                        { "Iniciar sesion" }
-                    </Link<AppRoute>>
-                    <Link<AppRoute> to={AppRoute::Register} classes="button is-primary">
-                        { "Registrar" }
-                    </Link<AppRoute>>
-                </div>
-            </div>
-        </div>
+        <ybc::NavbarItem>
+            <ybc::Buttons>
+                <Link<AppRoute> to={AppRoute::Login} classes="button is-light">
+                    { "Iniciar sesion" }
+                </Link<AppRoute>>
+                <Link<AppRoute> to={AppRoute::Register} classes="button is-primary">
+                    { "Registrar" }
+                </Link<AppRoute>>
+            </ybc::Buttons>
+        </ybc::NavbarItem>
     }
 }
 
 fn logged_in_view() -> Html {
     html! {
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <Link<AppRoute> to={AppRoute::Register} classes="button is-light">
-                        { "Configuracion" }
-                    </Link<AppRoute>>
-                    <Link<AppRoute> to={AppRoute::Logout} classes="button is-primary">
-                        { "Cerrar sesion" }
-                    </Link<AppRoute>>
-                </div>
-            </div>
-        </div>
+        <ybc::NavbarItem>
+            <ybc::Buttons>
+                <Link<AppRoute> to={AppRoute::Register} classes="button is-light">
+                    { "Configuracion" }
+                </Link<AppRoute>>
+                <Link<AppRoute> to={AppRoute::Logout} classes="button is-primary">
+                    { "Cerrar sesion" }
+                </Link<AppRoute>>
+            </ybc::Buttons>
+        </ybc::NavbarItem>
     }
 }

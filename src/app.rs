@@ -4,7 +4,6 @@ use yew_router::prelude::*;
 
 use crate::components::navbar::NavBar;
 use crate::components::footer::Footer;
-use crate::components::tabs::Tabs;
 use crate::components::user_context_provider::UserContextProvider;
 use crate::routes::{switch, AppRoute};
 
@@ -16,7 +15,6 @@ pub fn App() -> Html {
         <HashRouter>
             <UserContextProvider>
                 <NavBar />
-                <Tabs />
                 <Switch<AppRoute> render={switch} />
                 <Footer />
             </UserContextProvider>
