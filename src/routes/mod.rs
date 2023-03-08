@@ -2,6 +2,7 @@ pub mod login;
 pub mod logout;
 pub mod home;
 pub mod register;
+pub mod vehicule;
 
 
 use yew::prelude::*;
@@ -13,7 +14,8 @@ use logout::Logout;
 use register::Register;
 use home::Home;
 
-use crate::components::vehicule::vehicule_list::VehiculeList;
+
+use self::vehicule::get::GetVehicules;
 
 
 ///App Routes
@@ -44,7 +46,7 @@ pub fn switch(route: AppRoute) -> Html {
         // Home route
         AppRoute::Home=> html! { <Home /> },
         // Vehicule routes
-        AppRoute::Vehicules=> html! { <VehiculeList /> },
+        AppRoute::Vehicules=> html! { <GetVehicules/> },
         // User routes
         // Request routes
         // Report routes

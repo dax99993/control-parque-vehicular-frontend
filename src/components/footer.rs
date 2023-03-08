@@ -7,7 +7,9 @@ use yew::prelude::*;
 pub fn Footer() -> Html {
     html! {
         <ybc::Footer>
-            <div class="content has-text-centered">
+            <ybc::Content
+                classes={classes!("has-text-centered")}
+            >
                 <p>
                     <strong>{"CPV"}</strong>
                     {" por "}
@@ -18,7 +20,7 @@ pub fn Footer() -> Html {
                     <a href="https://cozcyt.gob.mx/">{"CoZyT"}</a>
                     {"."}
                 </p>
-            </div>
+            </ybc::Content>
         </ybc::Footer>
     }
 }

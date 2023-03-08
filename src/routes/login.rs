@@ -3,11 +3,9 @@ use web_sys::HtmlInputElement;
 
 use crate::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
-//use crate::types::user::FilteredUser;
 use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
 
-//use crate::components::form::item::FormItem;
 
 use yew_hooks::prelude::*;
 use validator::{validate_email, validate_length};
@@ -49,32 +47,35 @@ pub fn Login() -> Html {
 
 
     {
-    let get_me_request = get_me_request.clone();
-    use_effect_with_deps(
-        move |login_request| {
-            if let Some(response) = &login_request.data {
-                log::debug!("Login response {}", &response);
-                let token = response.data.clone();
-                // Store token to be able to make requests
-                store_token(token.clone());
-                // execute get me request
-                get_me_request.run();
-            }
-        },
-        login_request.clone() 
-    );
+        let get_me_request = get_me_request.clone();
+        use_effect_with_deps(
+            move |login_request| {
+                if let Some(response) = &login_request.data {
+                    log::debug!("Login response {}", &response);
+                    let token = response.data.clone();
+                    // Store token to be able to make requests
+                    store_token(token.clone());
+                    // execute get me request
+                    get_me_request.run();
+                }
+            },
+            login_request.clone() 
+        );
     }
 
     
-    use_effect_with_deps(
-        move |get_me_request| {
-            if let Some(response) = &get_me_request.data {
-                log::debug!("Get me {}", &response);
-                user_ctx.login(&response.data.clone().unwrap());
-            }
-        },
-        get_me_request.clone() 
-    );
+    {
+        let user_ctx = user_ctx.clone();
+        use_effect_with_deps(
+            move |get_me_request| {
+                if let Some(response) = &get_me_request.data {
+                    log::debug!("Get me {}", &response);
+                    user_ctx.login(&response.data.clone().unwrap());
+                }
+            },
+            get_me_request.clone() 
+        );
+    }
     
 
     let onsubmit = {
@@ -136,90 +137,106 @@ pub fn Login() -> Html {
     {
         let email_value = email_value.clone();
         let password_value = password_value.clone();
-    html! {
-        <ybc::Box>
-            if !*(form_valid) {
-                <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
-                <p class="help is-danger"> {"por favor corrige los datos"} </p>
-            }
-            <ybc::Field 
-                label={Some("Email")}
-                icons_right={!(*email_valid)}
-                help_has_error={!(*email_valid)}
-                help={(!(*email_valid)).then(|| "Correo electronico invalido".to_string())}
-            >
-                <ybc::Control
-                    classes={classes!(
-                            "has-icons-right"
-                            )}
-                    expanded=true
-                >
-                    <ybc::Input
-                        name="email"
-                        placeholder="e.g. alex@example.com"
-                        value={(*email_value).to_owned()}
-                        update={update_email_value}
-                        classes={classes!(
-                                (!(*email_valid))
-                                .then(|| "is-danger")
-                                )}
-                    >
-                    </ybc::Input>
-                    if !(*email_valid) {
-                        <span class="icon is-small is-right">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </span>
-                    }
-                </ybc::Control>
-            </ybc::Field>
+        let user_ctx = user_ctx.clone();
 
-
-            <ybc::Field 
-                label={Some("Contraseña")}
-                icons_left=true
-                icons_right={!(*password_valid)}
-                help_has_error={!(*password_valid)}
-                help={(!(*password_valid)).then(|| "Password debe consistir de entre 6 y 128 caracteres".to_string())}
-            >
-                <ybc::Control
-                    classes={classes!(
-                            "has-icons-right",
-                            "has-icons-left"
-                            )}
-                    expanded=true
-                >
-                    <span class="icon is-small is-left">
-                        <i class="fa-solid fa-lock"></i>
-                    </span>
-                    <ybc::Input
-                        name="password"
-                        placeholder="********"
-                        r#type={ybc::InputType::Password}
-                        value={(*password_value).to_owned()}
-                        update={update_password_value}
-                        classes={classes!(
-                                (!(*password_valid))
-                                .then(|| "is-danger")
-                                )}
-                    >
-                    </ybc::Input>
-                    if !(*password_valid) {
-                        <span class="icon is-small is-right">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </span>
-                    }
-                </ybc::Control>
-            </ybc::Field>
-
-            <ybc::Button
+        if user_ctx.is_authenticated() {
+            user_ctx.redirect_home();
+        }
+        html! {
+            <ybc::Section
                 classes={classes!(
-                    "is-primary"
-                    )}
-                onclick={onsubmit}
+                        "hero",
+                        "is-fullheight",
+                        "is-primary",
+                        )}
             >
-                {"Iniciar sesion"}
-            </ybc::Button>
-        </ybc::Box>
-    }
+            <ybc::Box>
+                if !*(form_valid) {
+                    <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
+                    <p class="help is-danger"> {"por favor corrige los datos"} </p>
+                }
+                <ybc::Field 
+                    label={Some("Email")}
+                    icons_right={!(*email_valid)}
+                    help_has_error={!(*email_valid)}
+                    help={(!(*email_valid)).then(|| "Correo electronico invalido".to_string())}
+                >
+                    <ybc::Control
+                        classes={classes!(
+                                "has-icons-left"
+                                )}
+                        expanded=true
+                    >
+                        <span class="icon is-small is-left">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <ybc::Input
+                            name="email"
+                            placeholder="e.g. alex@example.com"
+                            value={(*email_value).to_owned()}
+                            update={update_email_value}
+                            classes={classes!(
+                                    (!(*email_valid))
+                                    .then(|| "is-danger")
+                                    )}
+                        >
+                        </ybc::Input>
+                        if !(*email_valid) {
+                            <span class="icon is-small is-right">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </span>
+                        }
+                    </ybc::Control>
+                </ybc::Field>
+
+
+                <ybc::Field 
+                    label={Some("Contraseña")}
+                    icons_left=true
+                    icons_right={!(*password_valid)}
+                    help_has_error={!(*password_valid)}
+                    help={(!(*password_valid)).then(|| "Password debe consistir de entre 6 y 128 caracteres".to_string())}
+                >
+                    <ybc::Control
+                        classes={classes!(
+                                "has-icons-right",
+                                "has-icons-left"
+                                )}
+                        expanded=true
+                    >
+                        <span class="icon is-small is-left">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <ybc::Input
+                            name="password"
+                            placeholder="********"
+                            r#type={ybc::InputType::Password}
+                            value={(*password_value).to_owned()}
+                            update={update_password_value}
+                            classes={classes!(
+                                    (!(*password_valid))
+                                    .then(|| "is-danger")
+                                    )}
+                        >
+                        </ybc::Input>
+                        if !(*password_valid) {
+                            <span class="icon is-small is-right">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </span>
+                        }
+                    </ybc::Control>
+                </ybc::Field>
+
+                <ybc::Button
+                    classes={classes!(
+                        "is-primary"
+                        )}
+                    onclick={onsubmit}
+                >
+                    {"Iniciar sesion"}
+                </ybc::Button>
+            </ybc::Box>
+        </ybc::Section>
+        }
     }
 }

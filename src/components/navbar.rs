@@ -2,7 +2,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::routes::AppRoute;
-use crate::hooks::user_context::{use_user_context, UseUserContextHandle};
+use crate::hooks::user_context::use_user_context;
 
 
 #[function_component]
@@ -16,6 +16,7 @@ pub fn NavBar() -> Html {
         </Link<AppRoute>>
         </a>
     };
+
     let nav_end = 
     html! {
             {
@@ -26,6 +27,7 @@ pub fn NavBar() -> Html {
                 }
             }
     };
+
     html! {
         <ybc::Navbar 
             navburger=true 
@@ -57,8 +59,8 @@ fn logged_in_view() -> Html {
     html! {
         <ybc::NavbarItem>
             <ybc::Buttons>
-                <Link<AppRoute> to={AppRoute::Register} classes="button is-light">
-                    { "Configuracion" }
+                <Link<AppRoute> to={AppRoute::Vehicules} classes="button is-light">
+                    { "Vehicules" }
                 </Link<AppRoute>>
                 <Link<AppRoute> to={AppRoute::Logout} classes="button is-primary">
                     { "Cerrar sesion" }

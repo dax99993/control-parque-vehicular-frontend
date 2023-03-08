@@ -6,7 +6,7 @@ use yew_hooks::prelude::*;
 use crate::error::Error;
 use crate::services::auth::*;
 use crate::services::request::{get_token, store_token};
-use crate::types::user::FilteredUser;
+use crate::types::user::User;
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {
@@ -16,7 +16,7 @@ pub struct Props {
 /// User context provider.
 #[function_component]
 pub fn UserContextProvider(props: &Props) -> Html {
-    let user_ctx = use_state( || None::<FilteredUser>);
+    let user_ctx = use_state( || None::<User>);
     let current_user = use_async(async move { request_me().await });
 
     {
@@ -49,8 +49,8 @@ pub fn UserContextProvider(props: &Props) -> Html {
     }
 
     html! {
-        <ContextProvider<UseStateHandle<Option<FilteredUser>>> context={user_ctx}>
+        <ContextProvider<UseStateHandle<Option<User>>> context={user_ctx}>
             { for props.children.iter() }
-        </ContextProvider<UseStateHandle<Option<FilteredUser>>>>
+        </ContextProvider<UseStateHandle<Option<User>>>>
     }
 }
