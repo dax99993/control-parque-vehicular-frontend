@@ -6,6 +6,7 @@ pub mod hooks;
 pub mod routes;
 pub mod services;
 pub mod types;
+pub mod utils;
 
 
 use crate::app::App;

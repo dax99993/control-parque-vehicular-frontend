@@ -10304,16 +10304,6 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   padding: 0.495rem 1.5rem;
 }
 
-/*
-@import "bulma/sass/utilities/_all";
-@import "bulma/sass/base/_all";
-@import "bulma/sass/elements/_all";
-@import "bulma/sass/form/_all";
-@import "bulma/sass/components/_all";
-@import "bulma/sass/grid/_all";
-@import "bulma/sass/helpers/_all";
-@import "bulma/sass/layout/_all";
-*/
 /* Mixins */
 /* Theme Components */
 @media screen and (min-width: 1024px) {
@@ -10524,4 +10514,52 @@ nav.navbar .navbar-item .control .input::placeholder {
   nav.navbar .navbar-item.is-desktop-icon-only span:not(.icon) {
     display: none;
   }
+}
+section.section.is-title-bar {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(24, 28, 33, 0.06);
+}
+section.section.is-title-bar ul li {
+  display: inline-block;
+  padding: 0 0.75rem 0 0;
+  font-size: 1.5rem;
+  color: hsl(0, 0%, 48%);
+}
+section.section.is-title-bar ul li:after {
+  display: inline-block;
+  content: "/";
+  padding-left: 0.75rem;
+}
+section.section.is-title-bar ul li:last-child {
+  padding-right: 0;
+  font-weight: 900;
+  color: hsl(0, 0%, 14%);
+}
+section.section.is-title-bar ul li:last-child:after {
+  display: none;
+}
+
+section.hero.is-hero-bar {
+  background-color: hsl(0, 0%, 100%);
+  border-bottom: 1px solid rgba(24, 28, 33, 0.06);
+}
+section.hero.is-hero-bar .hero-body {
+  padding: 1.5rem;
+}
+section.hero.is-hero-bar .hero-body .level-item.is-hero-avatar-item {
+  margin-right: 1.5rem;
+}
+section.hero.is-hero-bar .hero-body .level-item > div > .level {
+  margin-bottom: 0.75rem;
+}
+section.hero.is-hero-bar .hero-body .level-item .subtitle + p {
+  margin-top: 0.75rem;
+}
+section.hero.is-hero-bar .hero-body .button.is-hero-button {
+  background-color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+  transition: background-color 250ms ease-in-out 50ms;
+}
+section.hero.is-hero-bar .hero-body .button.is-hero-button:hover {
+  background-color: hsl(0, 0%, 100%);
 }

@@ -17,8 +17,8 @@ pub fn App() -> Html {
         <BrowserRouter>
             <UserContextProvider>
                 <NavBar />
+                <Sidebar/>
                 <MainSection>
-                    <Sidebar/>
                     <Switch<AppRoute> render={switch} />
                 </MainSection>
                 <Footer />

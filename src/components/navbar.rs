@@ -1,11 +1,10 @@
-use std::ops::Deref;
 
-use web_sys::Element;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::routes::AppRoute;
 use crate::hooks::user_context::use_user_context;
+use crate::utils::toggle_class;
 
 use gloo::utils::{document, document_element};
 
@@ -49,7 +48,7 @@ pub fn NavBar() -> Html {
     html!{
         <nav id="navbar-main" class="navbar is-fixed-top has-shadow">
             { 
-                navbar_brand(aside_mobile_toggle) 
+                navbar_brand(user_ctx.is_authenticated(), aside_mobile_toggle) 
             }
             {
                 navbar_brand_right(navbar_menu_mobile_toggle)
@@ -69,12 +68,14 @@ pub fn NavBar() -> Html {
     }
 }
 
-fn navbar_brand(onclick: Callback<MouseEvent>) -> Html {
+fn navbar_brand(logged_in: bool, onclick: Callback<MouseEvent>) -> Html {
     html!{
         <div class="navbar-brand">
+            if logged_in {
             <a class="navbar-item is-hidden-desktop jb-aside-mobile-toggle" {onclick}>
                 <span class="icon"><i class="fa-solid fa-bars"></i></span>
             </a>
+            }
             <div class="navbar-item" href="https://bulma.io">
                 <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
             </div>
@@ -134,17 +135,4 @@ fn navbar_end_logged_out() -> Html {
             </div>
         </div>
     }
-}
-
-fn toggle_class(e: Element, class: &str) {
-    let e_classes = e.class_name();
-    let mut classes: Vec<&str> = e_classes
-        .split_whitespace()
-        .collect();
-    if classes.contains(&class) {
-        classes.retain(|&c| c != class);
-    } else {
-        classes.push(class);
-    };
-    e.set_class_name(&classes.join(" "));
 }
