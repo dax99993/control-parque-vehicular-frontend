@@ -29,8 +29,14 @@ pub enum AppRoute {
     Register,
     #[at("/logout")]
     Logout,
+    #[at("/users")]
+    Users,
     #[at("/vehicules")]
     Vehicules,
+    #[at("/requests")]
+    Requests,
+    #[at("/reports")]
+    Reports,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -48,8 +54,11 @@ pub fn switch(route: AppRoute) -> Html {
         // Vehicule routes
         AppRoute::Vehicules=> html! { <GetVehicules/> },
         // User routes
+        AppRoute::Users=> html! { {"users"} },
         // Request routes
+        AppRoute::Requests=> html! { {"requests"} },
         // Report routes
+        AppRoute::Reports=> html! { {"reports"} },
         // Nofound route
         AppRoute::NotFound=> html! { "Page not found" },
     }

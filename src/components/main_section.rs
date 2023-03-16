@@ -10,7 +10,7 @@ pub struct MainSectionProps {
 #[function_component]
 pub fn MainSection(props: &MainSectionProps) -> Html {
 
-    log::debug!("{}", props.children.len());
+    //log::debug!("{}", props.children.len());
 
     let props = props.clone();
     let mut iter = props.children.iter();
@@ -18,12 +18,13 @@ pub fn MainSection(props: &MainSectionProps) -> Html {
     let rightpart = iter.next();
     html!{
         <ybc::Section>
-            <ybc::Columns>
+            <ybc::Columns classes={classes!("is-fullheight")}>
                 <ybc::Column 
                     classes={classes!(
                             "is-4-tablet",
                             "is-3-desktop",
                             "is-2-widescreen",
+                            "is-sidebar-menu",
                             )}>
                     { sidebar }
                 </ybc::Column>

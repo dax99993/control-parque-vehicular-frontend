@@ -1,6 +1,6 @@
 pub mod navbar;
 pub mod main_section;
-pub mod menu;
+pub mod sidebar;
 pub mod footer;
 pub mod form;
 pub mod tabs;

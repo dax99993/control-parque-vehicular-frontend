@@ -6,6 +6,8 @@ use crate::services::request::store_token;
 //use crate::types::user::FilteredUser;
 use crate::types::user::User;
 
+use std::ops::Deref;
+
 
 /// State handle for the ['use_user_context'] hook
 pub struct UseUserContextHandle {
@@ -54,6 +56,13 @@ impl Clone for UseUserContextHandle {
             inner: self.inner.clone(),
             navigator: self.navigator.clone(),
         }
+    }
+}
+impl Deref for UseUserContextHandle {
+    type Target = Option<User>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
     }
 }
 
