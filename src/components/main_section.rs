@@ -4,14 +4,18 @@ use yew::prelude::*;
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct MainSectionProps {
     pub children: Children,
+    pub route: String,
+    pub subroute: String,
+    pub title: String,
 }
 
 #[function_component]
 pub fn MainSection(props: &MainSectionProps) -> Html {
+    let props = props.clone();
     html! {
         <>
-            <TitleBarSection privilege="Administrator" route="Some Route"/>
-            <HeroBarSection title="Some Title"/>
+            <TitleBarSection route={ props.route } subroute={ props.subroute }/>
+            <HeroBarSection title={ props.title }/>
             <section class="section is-main-section">
                 { props.children.clone() }
             </section>
@@ -28,8 +32,8 @@ fn TitleBarSection(props: &TitleBarSectionProps) -> Html {
                 <div class="level-left">
                     <div class="level-item">
                         <ul>
-                            <li>{"Admin"}</li>
                             <li>{props.route}</li>
+                            <li>{props.subroute}</li>
                         </ul>
                     </div>
                 </div>
@@ -40,8 +44,8 @@ fn TitleBarSection(props: &TitleBarSectionProps) -> Html {
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct TitleBarSectionProps {
-    pub privilege: String,
     pub route: String,
+    pub subroute: String,
 }
 
 #[function_component]

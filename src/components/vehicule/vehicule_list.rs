@@ -3,7 +3,6 @@ use yew::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
 use super::vehicule_item::VehiculeItem;
-use crate::components::tabs::Tabs;
 
 #[function_component]
 pub fn VehiculeList() -> Html {
@@ -15,8 +14,6 @@ pub fn VehiculeList() -> Html {
     
     html! {
         <>
-            <Tabs >
-            </Tabs>
             <VehiculeItem>
             </VehiculeItem>
         </>
@@ -25,11 +22,3 @@ pub fn VehiculeList() -> Html {
 
 }
 
-
-fn admin_view() {
-
-}
-
-fn normal_view() {
-
-}

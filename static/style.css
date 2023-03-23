@@ -22,6 +22,1835 @@
 /* Progress: Bulma override */
 /* Icon: specifics */
 /* Core libs & libs config */
+.table-wrapper .table {
+  margin-bottom: 0;
+}
+.table-wrapper:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+@media screen and (max-width: 1023px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+.b-table {
+  transition: opacity 86ms ease-out;
+  /*.level:not(.top) {
+    padding-bottom: $size-base * 1.5;
+  }*/
+}
+@media screen and (min-width: 769px), print {
+  .b-table .table-mobile-sort {
+    display: none;
+  }
+}
+.b-table .icon {
+  transition: transform 150ms ease-out, opacity 86ms ease-out;
+}
+.b-table .icon.is-desc {
+  transform: rotate(180deg);
+}
+.b-table .icon.is-expanded {
+  transform: rotate(90deg);
+}
+.b-table .table {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  border-collapse: separate;
+}
+.b-table .table th {
+  font-weight: 600;
+}
+.b-table .table th .th-wrap {
+  display: flex;
+  align-items: center;
+}
+.b-table .table th .th-wrap .icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+  font-size: 1rem;
+}
+.b-table .table th .th-wrap.is-numeric {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.b-table .table th .th-wrap.is-numeric .icon {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+.b-table .table th .th-wrap.is-centered {
+  justify-content: center;
+  text-align: center;
+}
+.b-table .table th.is-current-sort {
+  border-color: hsl(0, 0%, 48%);
+  font-weight: 700;
+}
+.b-table .table th.is-sortable:hover {
+  border-color: hsl(0, 0%, 48%);
+}
+.b-table .table th.is-sortable, .b-table .table th.is-sortable .th-wrap {
+  cursor: pointer;
+}
+.b-table .table th .multi-sort-cancel-icon {
+  margin-left: 10px;
+}
+.b-table .table th.is-sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 3 !important;
+  background: hsl(0, 0%, 100%);
+}
+.b-table .table tr.is-selected .checkbox input:checked + .check {
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:hsl(171, 100%25, 41%25)' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+}
+.b-table .table tr.is-selected .checkbox input + .check {
+  border-color: #fff;
+}
+.b-table .table tr.is-empty:hover {
+  background-color: transparent;
+}
+.b-table .table .is-chevron-cell, .b-table .table .is-checkbox-cell {
+  width: 40px;
+}
+.b-table .table .is-chevron-cell {
+  vertical-align: middle;
+}
+.b-table .table .is-checkbox-cell .checkbox {
+  vertical-align: middle;
+}
+.b-table .table .is-checkbox-cell .checkbox.b-checkbox {
+  margin-right: 0;
+}
+.b-table .table .is-checkbox-cell .checkbox .check {
+  transition: none;
+}
+.b-table .table tr.detail {
+  box-shadow: inset 0 1px 3px hsl(0, 0%, 86%);
+  background: hsl(0, 0%, 98%);
+}
+.b-table .table tr.detail .detail-container {
+  padding: 1rem;
+}
+.b-table .table:focus {
+  border-color: hsl(229, 53%, 53%);
+  box-shadow: 0 0 0 0.125em rgba(72, 95, 199, 0.25);
+}
+.b-table .table.is-bordered th.is-current-sort,
+.b-table .table.is-bordered th.is-sortable:hover {
+  border-color: hsl(0, 0%, 86%);
+  background: hsl(0, 0%, 96%);
+}
+.b-table .table td.is-sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: hsl(0, 0%, 100%);
+}
+.b-table .table td.is-image-cell .image {
+  margin: 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.b-table .table td.is-progress-cell {
+  min-width: 5rem;
+  vertical-align: middle;
+}
+.b-table .table-wrapper.has-sticky-header {
+  height: 300px;
+  overflow-y: auto;
+}
+@media screen and (max-width: 768px) {
+  .b-table .table-wrapper.has-sticky-header.has-mobile-cards {
+    height: initial !important;
+    overflow-y: initial !important;
+  }
+}
+.b-table .table-wrapper.has-sticky-header tr:first-child th {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: hsl(0, 0%, 100%);
+}
+@media screen and (max-width: 768px) {
+  .b-table .table-wrapper.has-mobile-cards thead {
+    display: none;
+  }
+  .b-table .table-wrapper.has-mobile-cards tfoot th {
+    border: 0;
+    display: inherit;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr {
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+    max-width: 100%;
+    position: relative;
+    display: block;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr td {
+    border: 0;
+    display: inherit;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr td:last-child {
+    border-bottom: 0;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not([class*=is-]) {
+    background: inherit;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not([class*=is-]):hover {
+    background-color: inherit;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr.detail {
+    margin-top: -1rem;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td {
+    display: flex;
+    width: auto;
+    justify-content: space-between;
+    text-align: right;
+    border-bottom: 1px solid hsl(0, 0%, 96%);
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    padding-right: 0.5rem;
+    text-align: left;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell .image {
+    width: 6rem;
+    height: 6rem;
+    margin: 0 auto 0.5rem;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-progress-cell span, .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-progress-cell progress {
+    display: flex;
+    width: 45%;
+    align-items: center;
+    align-self: center;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-checkbox-cell, .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell {
+    border-bottom: 0 !important;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-checkbox-cell:before, .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-actions-cell:before {
+    display: none;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden:before, .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell:before {
+    display: none;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden span {
+    display: block;
+    width: 100%;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden.is-progress-col progress {
+    width: 100%;
+  }
+}
+.b-table .table-wrapper.is-card-list thead {
+  display: none;
+}
+.b-table .table-wrapper.is-card-list tfoot th {
+  border: 0;
+  display: inherit;
+}
+.b-table .table-wrapper.is-card-list tr {
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+  max-width: 100%;
+  position: relative;
+  display: block;
+}
+.b-table .table-wrapper.is-card-list tr td {
+  border: 0;
+  display: inherit;
+}
+.b-table .table-wrapper.is-card-list tr td:last-child {
+  border-bottom: 0;
+}
+.b-table .table-wrapper.is-card-list tr:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.b-table .table-wrapper.is-card-list tr:not([class*=is-]) {
+  background: inherit;
+}
+.b-table .table-wrapper.is-card-list tr:not([class*=is-]):hover {
+  background-color: inherit;
+}
+.b-table .table-wrapper.is-card-list tr.detail {
+  margin-top: -1rem;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td {
+  display: flex;
+  width: auto;
+  justify-content: space-between;
+  text-align: right;
+  border-bottom: 1px solid hsl(0, 0%, 96%);
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td:before {
+  content: attr(data-label);
+  font-weight: 600;
+  padding-right: 0.5rem;
+  text-align: left;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell .image {
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 0.5rem;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-progress-cell span, .b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-progress-cell progress {
+  display: flex;
+  width: 45%;
+  align-items: center;
+  align-self: center;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-checkbox-cell, .b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell {
+  border-bottom: 0 !important;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-checkbox-cell:before, .b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-actions-cell:before {
+  display: none;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden:before, .b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell:before {
+  display: none;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden span {
+  display: block;
+  width: 100%;
+}
+.b-table .table-wrapper.is-card-list tr:not(.detail):not(.is-empty):not(.table-footer) td.is-label-hidden.is-progress-col progress {
+  width: 100%;
+}
+.b-table.is-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.b-table.is-loading:after {
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid hsl(0, 0%, 86%);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  position: relative;
+  width: 1em;
+  position: absolute;
+  top: 4em;
+  left: calc(50% - 2.5em);
+  width: 5em;
+  height: 5em;
+  border-width: 0.25em;
+}
+.b-table.has-pagination .table-wrapper {
+  margin-bottom: 0;
+}
+.b-table.has-pagination .table-wrapper + .notification {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Bulma Utilities */
+.pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .file-cta,
+.file-name, .select select, .textarea, .input, .button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 2.5em;
+  justify-content: flex-start;
+  line-height: 1.5;
+  padding-bottom: calc(0.5em - 1px);
+  padding-left: calc(0.75em - 1px);
+  padding-right: calc(0.75em - 1px);
+  padding-top: calc(0.5em - 1px);
+  position: relative;
+  vertical-align: top;
+}
+.pagination-previous:focus,
+.pagination-next:focus,
+.pagination-link:focus,
+.pagination-ellipsis:focus, .file-cta:focus,
+.file-name:focus, .select select:focus, .textarea:focus, .input:focus, .button:focus, .is-focused.pagination-previous,
+.is-focused.pagination-next,
+.is-focused.pagination-link,
+.is-focused.pagination-ellipsis, .is-focused.file-cta,
+.is-focused.file-name, .select select.is-focused, .is-focused.textarea, .is-focused.input, .is-focused.button, .pagination-previous:active,
+.pagination-next:active,
+.pagination-link:active,
+.pagination-ellipsis:active, .file-cta:active,
+.file-name:active, .select select:active, .textarea:active, .input:active, .button:active, .is-active.pagination-previous,
+.is-active.pagination-next,
+.is-active.pagination-link,
+.is-active.pagination-ellipsis, .is-active.file-cta,
+.is-active.file-name, .select select.is-active, .is-active.textarea, .is-active.input, .is-active.button {
+  outline: none;
+}
+[disabled].pagination-previous,
+[disabled].pagination-next,
+[disabled].pagination-link,
+[disabled].pagination-ellipsis, [disabled].file-cta,
+[disabled].file-name, .select select[disabled], [disabled].textarea, [disabled].input, [disabled].button, fieldset[disabled] .pagination-previous,
+fieldset[disabled] .pagination-next,
+fieldset[disabled] .pagination-link,
+fieldset[disabled] .pagination-ellipsis, fieldset[disabled] .file-cta,
+fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fieldset[disabled] select, fieldset[disabled] .textarea, fieldset[disabled] .input, fieldset[disabled] .button {
+  cursor: not-allowed;
+}
+
+.is-unselectable, .tabs, .pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .breadcrumb, .file, .button, .switch, .b-radio.radio, .b-checkbox.checkbox {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.navbar-link:not(.is-arrowless)::after, .select:not(.is-multiple):not(.is-loading)::after {
+  border: 3px solid transparent;
+  border-radius: 2px;
+  border-right: 0;
+  border-top: 0;
+  content: " ";
+  display: block;
+  height: 0.625em;
+  margin-top: -0.4375em;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  width: 0.625em;
+}
+
+.tabs:not(:last-child), .pagination:not(:last-child), .message:not(:last-child), .level:not(:last-child), .breadcrumb:not(:last-child), .block:not(:last-child), .title:not(:last-child),
+.subtitle:not(:last-child), .table-container:not(:last-child), .table:not(:last-child), .progress:not(:last-child), .notification:not(:last-child), .content:not(:last-child), .box:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.modal-close, .delete {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(10, 10, 10, 0.2);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0;
+  height: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  outline: none;
+  position: relative;
+  vertical-align: top;
+  width: 20px;
+}
+.modal-close::before, .delete::before, .modal-close::after, .delete::after {
+  background-color: hsl(0, 0%, 100%);
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform-origin: center center;
+}
+.modal-close::before, .delete::before {
+  height: 2px;
+  width: 50%;
+}
+.modal-close::after, .delete::after {
+  height: 50%;
+  width: 2px;
+}
+.modal-close:hover, .delete:hover, .modal-close:focus, .delete:focus {
+  background-color: rgba(10, 10, 10, 0.3);
+}
+.modal-close:active, .delete:active {
+  background-color: rgba(10, 10, 10, 0.4);
+}
+.is-small.modal-close, .is-small.delete {
+  height: 16px;
+  max-height: 16px;
+  max-width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  width: 16px;
+}
+.is-medium.modal-close, .is-medium.delete {
+  height: 24px;
+  max-height: 24px;
+  max-width: 24px;
+  min-height: 24px;
+  min-width: 24px;
+  width: 24px;
+}
+.is-large.modal-close, .is-large.delete {
+  height: 32px;
+  max-height: 32px;
+  max-width: 32px;
+  min-height: 32px;
+  min-width: 32px;
+  width: 32px;
+}
+
+.control.is-loading::after, .select.is-loading::after, .loader, .button.is-loading::after {
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid hsl(0, 0%, 86%);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  position: relative;
+  width: 1em;
+}
+
+.hero-video, .is-overlay, .modal-background, .modal, .image.is-square img,
+.image.is-square .has-ratio, .image.is-1by1 img,
+.image.is-1by1 .has-ratio, .image.is-5by4 img,
+.image.is-5by4 .has-ratio, .image.is-4by3 img,
+.image.is-4by3 .has-ratio, .image.is-3by2 img,
+.image.is-3by2 .has-ratio, .image.is-5by3 img,
+.image.is-5by3 .has-ratio, .image.is-16by9 img,
+.image.is-16by9 .has-ratio, .image.is-2by1 img,
+.image.is-2by1 .has-ratio, .image.is-3by1 img,
+.image.is-3by1 .has-ratio, .image.is-4by5 img,
+.image.is-4by5 .has-ratio, .image.is-3by4 img,
+.image.is-3by4 .has-ratio, .image.is-2by3 img,
+.image.is-2by3 .has-ratio, .image.is-3by5 img,
+.image.is-3by5 .has-ratio, .image.is-9by16 img,
+.image.is-9by16 .has-ratio, .image.is-1by2 img,
+.image.is-1by2 .has-ratio, .image.is-1by3 img,
+.image.is-1by3 .has-ratio {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.navbar-burger {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  color: currentColor;
+  font-family: inherit;
+  font-size: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+/* Box-shadow on hover */
+.b-checkbox.checkbox {
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+}
+.b-checkbox.checkbox:not(.button) {
+  margin-right: 0.5em;
+}
+.b-checkbox.checkbox:not(.button) + .checkbox:last-child {
+  margin-right: 0;
+}
+.b-checkbox.checkbox input[type=checkbox] {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  outline: none;
+  z-index: -1;
+}
+.b-checkbox.checkbox input[type=checkbox] + .check {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid hsl(0, 0%, 48%);
+  transition: background 150ms ease-out;
+  background: transparent;
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check {
+  background: hsl(171, 100%, 41%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-white {
+  background: hsl(0, 0%, 100%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:hsl(0, 0%25, 4%25)' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 100%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-black {
+  background: hsl(0, 0%, 4%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:hsl(0, 0%25, 100%25)' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 4%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-light {
+  background: hsl(0, 0%, 96%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:rgba(0, 0, 0, 0.7)' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 96%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-dark {
+  background: hsl(0, 0%, 21%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 21%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-primary {
+  background: hsl(171, 100%, 41%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-link {
+  background: hsl(229, 53%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(229, 53%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-info {
+  background: hsl(207, 61%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(207, 61%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-success {
+  background: hsl(153, 53%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(153, 53%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-warning {
+  background: hsl(44, 100%, 77%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:rgba(0, 0, 0, 0.7)' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(44, 100%, 77%);
+}
+.b-checkbox.checkbox input[type=checkbox]:checked + .check.is-danger {
+  background: hsl(348, 86%, 61%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath style='fill:%23fff' d='M 0.04038059,0.6267767 0.14644661,0.52071068 0.42928932,0.80355339 0.3232233,0.90961941 z M 0.21715729,0.80355339 0.85355339,0.16715729 0.95961941,0.2732233 0.3232233,0.90961941 z'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(348, 86%, 61%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check {
+  background: hsl(171, 100%, 41%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-white, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-white {
+  background: hsl(0, 0%, 100%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:hsl(0, 0%25, 4%25)' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 100%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-black, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-black {
+  background: hsl(0, 0%, 4%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:hsl(0, 0%25, 100%25)' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 4%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-light, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-light {
+  background: hsl(0, 0%, 96%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:rgba(0, 0, 0, 0.7)' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 96%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-dark, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-dark {
+  background: hsl(0, 0%, 21%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(0, 0%, 21%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-primary, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-primary {
+  background: hsl(171, 100%, 41%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-link, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-link {
+  background: hsl(229, 53%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(229, 53%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-info, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-info {
+  background: hsl(207, 61%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(207, 61%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-success, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-success {
+  background: hsl(153, 53%, 53%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(153, 53%, 53%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-warning, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-warning {
+  background: hsl(44, 100%, 77%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:rgba(0, 0, 0, 0.7)' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(44, 100%, 77%);
+}
+.b-checkbox.checkbox input[type=checkbox]:indeterminate + .check.is-danger, .b-checkbox.checkbox input[type=checkbox].is-indeterminate + .check.is-danger {
+  background: hsl(348, 86%, 61%) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect style='fill:%23fff' width='0.7' height='0.2' x='.15' y='.4'%3E%3C/rect%3E%3C/svg%3E") no-repeat center center;
+  border-color: hsl(348, 86%, 61%);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus + .check {
+  box-shadow: 0 0 0.5em rgba(122, 122, 122, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check {
+  box-shadow: 0 0 0.5em rgba(0, 209, 178, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-white {
+  box-shadow: 0 0 0.5em rgba(255, 255, 255, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-black {
+  box-shadow: 0 0 0.5em rgba(10, 10, 10, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-light {
+  box-shadow: 0 0 0.5em rgba(245, 245, 245, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-dark {
+  box-shadow: 0 0 0.5em rgba(54, 54, 54, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-primary {
+  box-shadow: 0 0 0.5em rgba(0, 209, 178, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-link {
+  box-shadow: 0 0 0.5em rgba(72, 95, 199, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-info {
+  box-shadow: 0 0 0.5em rgba(62, 142, 208, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-success {
+  box-shadow: 0 0 0.5em rgba(72, 199, 142, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-warning {
+  box-shadow: 0 0 0.5em rgba(255, 224, 138, 0.8);
+}
+.b-checkbox.checkbox input[type=checkbox]:focus:checked + .check.is-danger {
+  box-shadow: 0 0 0.5em rgba(241, 70, 104, 0.8);
+}
+.b-checkbox.checkbox .control-label {
+  padding-left: calc(0.75em - 1px);
+}
+.b-checkbox.checkbox.button {
+  display: flex;
+}
+.b-checkbox.checkbox[disabled] {
+  opacity: 0.5;
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-white {
+  border-color: hsl(0, 0%, 100%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-black {
+  border-color: hsl(0, 0%, 4%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-light {
+  border-color: hsl(0, 0%, 96%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-dark {
+  border-color: hsl(0, 0%, 21%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-primary {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-link {
+  border-color: hsl(229, 53%, 53%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-info {
+  border-color: hsl(207, 61%, 53%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-success {
+  border-color: hsl(153, 53%, 53%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-warning {
+  border-color: hsl(44, 100%, 77%);
+}
+.b-checkbox.checkbox:hover input[type=checkbox]:not(:disabled) + .check.is-danger {
+  border-color: hsl(348, 86%, 61%);
+}
+.b-checkbox.checkbox.is-small {
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+.b-checkbox.checkbox.is-medium {
+  font-size: 1.25rem;
+}
+.b-checkbox.checkbox.is-large {
+  font-size: 1.5rem;
+}
+
+/* Bulma Utilities */
+.pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .file-cta,
+.file-name, .select select, .textarea, .input, .button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 2.5em;
+  justify-content: flex-start;
+  line-height: 1.5;
+  padding-bottom: calc(0.5em - 1px);
+  padding-left: calc(0.75em - 1px);
+  padding-right: calc(0.75em - 1px);
+  padding-top: calc(0.5em - 1px);
+  position: relative;
+  vertical-align: top;
+}
+.pagination-previous:focus,
+.pagination-next:focus,
+.pagination-link:focus,
+.pagination-ellipsis:focus, .file-cta:focus,
+.file-name:focus, .select select:focus, .textarea:focus, .input:focus, .button:focus, .is-focused.pagination-previous,
+.is-focused.pagination-next,
+.is-focused.pagination-link,
+.is-focused.pagination-ellipsis, .is-focused.file-cta,
+.is-focused.file-name, .select select.is-focused, .is-focused.textarea, .is-focused.input, .is-focused.button, .pagination-previous:active,
+.pagination-next:active,
+.pagination-link:active,
+.pagination-ellipsis:active, .file-cta:active,
+.file-name:active, .select select:active, .textarea:active, .input:active, .button:active, .is-active.pagination-previous,
+.is-active.pagination-next,
+.is-active.pagination-link,
+.is-active.pagination-ellipsis, .is-active.file-cta,
+.is-active.file-name, .select select.is-active, .is-active.textarea, .is-active.input, .is-active.button {
+  outline: none;
+}
+[disabled].pagination-previous,
+[disabled].pagination-next,
+[disabled].pagination-link,
+[disabled].pagination-ellipsis, [disabled].file-cta,
+[disabled].file-name, .select select[disabled], [disabled].textarea, [disabled].input, [disabled].button, fieldset[disabled] .pagination-previous,
+fieldset[disabled] .pagination-next,
+fieldset[disabled] .pagination-link,
+fieldset[disabled] .pagination-ellipsis, fieldset[disabled] .file-cta,
+fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fieldset[disabled] select, fieldset[disabled] .textarea, fieldset[disabled] .input, fieldset[disabled] .button {
+  cursor: not-allowed;
+}
+
+.is-unselectable, .tabs, .pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .breadcrumb, .file, .button, .switch, .b-radio.radio, .b-checkbox.checkbox {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.navbar-link:not(.is-arrowless)::after, .select:not(.is-multiple):not(.is-loading)::after {
+  border: 3px solid transparent;
+  border-radius: 2px;
+  border-right: 0;
+  border-top: 0;
+  content: " ";
+  display: block;
+  height: 0.625em;
+  margin-top: -0.4375em;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  width: 0.625em;
+}
+
+.tabs:not(:last-child), .pagination:not(:last-child), .message:not(:last-child), .level:not(:last-child), .breadcrumb:not(:last-child), .block:not(:last-child), .title:not(:last-child),
+.subtitle:not(:last-child), .table-container:not(:last-child), .table:not(:last-child), .progress:not(:last-child), .notification:not(:last-child), .content:not(:last-child), .box:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.modal-close, .delete {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(10, 10, 10, 0.2);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0;
+  height: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  outline: none;
+  position: relative;
+  vertical-align: top;
+  width: 20px;
+}
+.modal-close::before, .delete::before, .modal-close::after, .delete::after {
+  background-color: hsl(0, 0%, 100%);
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform-origin: center center;
+}
+.modal-close::before, .delete::before {
+  height: 2px;
+  width: 50%;
+}
+.modal-close::after, .delete::after {
+  height: 50%;
+  width: 2px;
+}
+.modal-close:hover, .delete:hover, .modal-close:focus, .delete:focus {
+  background-color: rgba(10, 10, 10, 0.3);
+}
+.modal-close:active, .delete:active {
+  background-color: rgba(10, 10, 10, 0.4);
+}
+.is-small.modal-close, .is-small.delete {
+  height: 16px;
+  max-height: 16px;
+  max-width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  width: 16px;
+}
+.is-medium.modal-close, .is-medium.delete {
+  height: 24px;
+  max-height: 24px;
+  max-width: 24px;
+  min-height: 24px;
+  min-width: 24px;
+  width: 24px;
+}
+.is-large.modal-close, .is-large.delete {
+  height: 32px;
+  max-height: 32px;
+  max-width: 32px;
+  min-height: 32px;
+  min-width: 32px;
+  width: 32px;
+}
+
+.control.is-loading::after, .select.is-loading::after, .loader, .button.is-loading::after {
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid hsl(0, 0%, 86%);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  position: relative;
+  width: 1em;
+}
+
+.hero-video, .is-overlay, .modal-background, .modal, .image.is-square img,
+.image.is-square .has-ratio, .image.is-1by1 img,
+.image.is-1by1 .has-ratio, .image.is-5by4 img,
+.image.is-5by4 .has-ratio, .image.is-4by3 img,
+.image.is-4by3 .has-ratio, .image.is-3by2 img,
+.image.is-3by2 .has-ratio, .image.is-5by3 img,
+.image.is-5by3 .has-ratio, .image.is-16by9 img,
+.image.is-16by9 .has-ratio, .image.is-2by1 img,
+.image.is-2by1 .has-ratio, .image.is-3by1 img,
+.image.is-3by1 .has-ratio, .image.is-4by5 img,
+.image.is-4by5 .has-ratio, .image.is-3by4 img,
+.image.is-3by4 .has-ratio, .image.is-2by3 img,
+.image.is-2by3 .has-ratio, .image.is-3by5 img,
+.image.is-3by5 .has-ratio, .image.is-9by16 img,
+.image.is-9by16 .has-ratio, .image.is-1by2 img,
+.image.is-1by2 .has-ratio, .image.is-1by3 img,
+.image.is-1by3 .has-ratio {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.navbar-burger {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  color: currentColor;
+  font-family: inherit;
+  font-size: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+/* Box-shadow on hover */
+.b-radio.radio {
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+}
+.b-radio.radio:not(.button) {
+  margin-right: 0.5em;
+}
+.b-radio.radio:not(.button) + .radio:last-child {
+  margin-right: 0;
+}
+.b-radio.radio + .radio {
+  margin-left: 0;
+}
+.b-radio.radio input[type=radio] {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  outline: none;
+  z-index: -1;
+}
+.b-radio.radio input[type=radio] + .check {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  width: 1.25em;
+  height: 1.25em;
+  transition: background 150ms ease-out;
+  border-radius: 50%;
+  border: 1px solid hsl(0, 0%, 48%);
+}
+.b-radio.radio input[type=radio] + .check:before {
+  content: "";
+  display: flex;
+  position: absolute;
+  left: 50%;
+  margin-left: calc(-1.25em / 2);
+  bottom: 50%;
+  margin-bottom: calc(-1.25em / 2);
+  width: 1.25em;
+  height: 1.25em;
+  transition: transform 150ms ease-out;
+  border-radius: 50%;
+  transform: scale(0);
+  background-color: hsl(171, 100%, 41%);
+}
+.b-radio.radio input[type=radio] + .check.is-white:before {
+  background: hsl(0, 0%, 100%);
+}
+.b-radio.radio input[type=radio] + .check.is-black:before {
+  background: hsl(0, 0%, 4%);
+}
+.b-radio.radio input[type=radio] + .check.is-light:before {
+  background: hsl(0, 0%, 96%);
+}
+.b-radio.radio input[type=radio] + .check.is-dark:before {
+  background: hsl(0, 0%, 21%);
+}
+.b-radio.radio input[type=radio] + .check.is-primary:before {
+  background: hsl(171, 100%, 41%);
+}
+.b-radio.radio input[type=radio] + .check.is-link:before {
+  background: hsl(229, 53%, 53%);
+}
+.b-radio.radio input[type=radio] + .check.is-info:before {
+  background: hsl(207, 61%, 53%);
+}
+.b-radio.radio input[type=radio] + .check.is-success:before {
+  background: hsl(153, 53%, 53%);
+}
+.b-radio.radio input[type=radio] + .check.is-warning:before {
+  background: hsl(44, 100%, 77%);
+}
+.b-radio.radio input[type=radio] + .check.is-danger:before {
+  background: hsl(348, 86%, 61%);
+}
+.b-radio.radio input[type=radio]:checked + .check {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-white {
+  border-color: hsl(0, 0%, 100%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-black {
+  border-color: hsl(0, 0%, 4%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-light {
+  border-color: hsl(0, 0%, 96%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-dark {
+  border-color: hsl(0, 0%, 21%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-primary {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-link {
+  border-color: hsl(229, 53%, 53%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-info {
+  border-color: hsl(207, 61%, 53%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-success {
+  border-color: hsl(153, 53%, 53%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-warning {
+  border-color: hsl(44, 100%, 77%);
+}
+.b-radio.radio input[type=radio]:checked + .check.is-danger {
+  border-color: hsl(348, 86%, 61%);
+}
+.b-radio.radio input[type=radio]:checked + .check:before {
+  transform: scale(0.5);
+}
+.b-radio.radio .control-label {
+  padding-left: 0.5em;
+}
+.b-radio.radio.button {
+  display: flex;
+}
+.b-radio.radio[disabled] {
+  opacity: 0.5;
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-white {
+  border-color: hsl(0, 0%, 100%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-black {
+  border-color: hsl(0, 0%, 4%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-light {
+  border-color: hsl(0, 0%, 96%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-dark {
+  border-color: hsl(0, 0%, 21%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-primary {
+  border-color: hsl(171, 100%, 41%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-link {
+  border-color: hsl(229, 53%, 53%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-info {
+  border-color: hsl(207, 61%, 53%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-success {
+  border-color: hsl(153, 53%, 53%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-warning {
+  border-color: hsl(44, 100%, 77%);
+}
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-danger {
+  border-color: hsl(348, 86%, 61%);
+}
+.b-radio.radio.is-small {
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+.b-radio.radio.is-medium {
+  font-size: 1.25rem;
+}
+.b-radio.radio.is-large {
+  font-size: 1.5rem;
+}
+
+/* Bulma Utilities */
+.pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .file-cta,
+.file-name, .select select, .textarea, .input, .button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 2.5em;
+  justify-content: flex-start;
+  line-height: 1.5;
+  padding-bottom: calc(0.5em - 1px);
+  padding-left: calc(0.75em - 1px);
+  padding-right: calc(0.75em - 1px);
+  padding-top: calc(0.5em - 1px);
+  position: relative;
+  vertical-align: top;
+}
+.pagination-previous:focus,
+.pagination-next:focus,
+.pagination-link:focus,
+.pagination-ellipsis:focus, .file-cta:focus,
+.file-name:focus, .select select:focus, .textarea:focus, .input:focus, .button:focus, .is-focused.pagination-previous,
+.is-focused.pagination-next,
+.is-focused.pagination-link,
+.is-focused.pagination-ellipsis, .is-focused.file-cta,
+.is-focused.file-name, .select select.is-focused, .is-focused.textarea, .is-focused.input, .is-focused.button, .pagination-previous:active,
+.pagination-next:active,
+.pagination-link:active,
+.pagination-ellipsis:active, .file-cta:active,
+.file-name:active, .select select:active, .textarea:active, .input:active, .button:active, .is-active.pagination-previous,
+.is-active.pagination-next,
+.is-active.pagination-link,
+.is-active.pagination-ellipsis, .is-active.file-cta,
+.is-active.file-name, .select select.is-active, .is-active.textarea, .is-active.input, .is-active.button {
+  outline: none;
+}
+[disabled].pagination-previous,
+[disabled].pagination-next,
+[disabled].pagination-link,
+[disabled].pagination-ellipsis, [disabled].file-cta,
+[disabled].file-name, .select select[disabled], [disabled].textarea, [disabled].input, [disabled].button, fieldset[disabled] .pagination-previous,
+fieldset[disabled] .pagination-next,
+fieldset[disabled] .pagination-link,
+fieldset[disabled] .pagination-ellipsis, fieldset[disabled] .file-cta,
+fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fieldset[disabled] select, fieldset[disabled] .textarea, fieldset[disabled] .input, fieldset[disabled] .button {
+  cursor: not-allowed;
+}
+
+.is-unselectable, .tabs, .pagination-previous,
+.pagination-next,
+.pagination-link,
+.pagination-ellipsis, .breadcrumb, .file, .button, .switch, .b-checkbox.checkbox, .b-radio.radio {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.navbar-link:not(.is-arrowless)::after, .select:not(.is-multiple):not(.is-loading)::after {
+  border: 3px solid transparent;
+  border-radius: 2px;
+  border-right: 0;
+  border-top: 0;
+  content: " ";
+  display: block;
+  height: 0.625em;
+  margin-top: -0.4375em;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  width: 0.625em;
+}
+
+.tabs:not(:last-child), .pagination:not(:last-child), .message:not(:last-child), .level:not(:last-child), .breadcrumb:not(:last-child), .block:not(:last-child), .title:not(:last-child),
+.subtitle:not(:last-child), .table-container:not(:last-child), .table:not(:last-child), .progress:not(:last-child), .notification:not(:last-child), .content:not(:last-child), .box:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.modal-close, .delete {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(10, 10, 10, 0.2);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0;
+  height: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  outline: none;
+  position: relative;
+  vertical-align: top;
+  width: 20px;
+}
+.modal-close::before, .delete::before, .modal-close::after, .delete::after {
+  background-color: hsl(0, 0%, 100%);
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform-origin: center center;
+}
+.modal-close::before, .delete::before {
+  height: 2px;
+  width: 50%;
+}
+.modal-close::after, .delete::after {
+  height: 50%;
+  width: 2px;
+}
+.modal-close:hover, .delete:hover, .modal-close:focus, .delete:focus {
+  background-color: rgba(10, 10, 10, 0.3);
+}
+.modal-close:active, .delete:active {
+  background-color: rgba(10, 10, 10, 0.4);
+}
+.is-small.modal-close, .is-small.delete {
+  height: 16px;
+  max-height: 16px;
+  max-width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  width: 16px;
+}
+.is-medium.modal-close, .is-medium.delete {
+  height: 24px;
+  max-height: 24px;
+  max-width: 24px;
+  min-height: 24px;
+  min-width: 24px;
+  width: 24px;
+}
+.is-large.modal-close, .is-large.delete {
+  height: 32px;
+  max-height: 32px;
+  max-width: 32px;
+  min-height: 32px;
+  min-width: 32px;
+  width: 32px;
+}
+
+.control.is-loading::after, .select.is-loading::after, .loader, .button.is-loading::after {
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid hsl(0, 0%, 86%);
+  border-radius: 9999px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  position: relative;
+  width: 1em;
+}
+
+.hero-video, .is-overlay, .modal-background, .modal, .image.is-square img,
+.image.is-square .has-ratio, .image.is-1by1 img,
+.image.is-1by1 .has-ratio, .image.is-5by4 img,
+.image.is-5by4 .has-ratio, .image.is-4by3 img,
+.image.is-4by3 .has-ratio, .image.is-3by2 img,
+.image.is-3by2 .has-ratio, .image.is-5by3 img,
+.image.is-5by3 .has-ratio, .image.is-16by9 img,
+.image.is-16by9 .has-ratio, .image.is-2by1 img,
+.image.is-2by1 .has-ratio, .image.is-3by1 img,
+.image.is-3by1 .has-ratio, .image.is-4by5 img,
+.image.is-4by5 .has-ratio, .image.is-3by4 img,
+.image.is-3by4 .has-ratio, .image.is-2by3 img,
+.image.is-2by3 .has-ratio, .image.is-3by5 img,
+.image.is-3by5 .has-ratio, .image.is-9by16 img,
+.image.is-9by16 .has-ratio, .image.is-1by2 img,
+.image.is-1by2 .has-ratio, .image.is-1by3 img,
+.image.is-1by3 .has-ratio {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.navbar-burger {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  color: currentColor;
+  font-family: inherit;
+  font-size: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+/* Box-shadow */
+.switch {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  margin-right: 0.5em;
+}
+.switch + .switch:last-child {
+  margin-right: 0;
+}
+.switch input[type=checkbox] {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  outline: none;
+  z-index: -1;
+}
+.switch input[type=checkbox] + .check {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 2.75em;
+  height: 1.575em;
+  padding: 0.2em;
+  background: hsl(0, 0%, 71%);
+  border-radius: 4px;
+  transition: background 150ms ease-out, box-shadow 150ms ease-out;
+}
+.switch input[type=checkbox] + .check.is-white-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(0, 0%, 100%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-black-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(0, 0%, 4%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-light-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(0, 0%, 96%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-dark-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(0, 0%, 21%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-primary-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(171, 100%, 41%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-link-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(229, 53%, 53%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-info-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(207, 61%, 53%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-success-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(153, 53%, 53%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-warning-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(44, 100%, 77%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check.is-danger-passive, .switch input[type=checkbox] + .check:hover {
+  background: hsl(348, 86%, 61%);
+}
+.switch input[type=checkbox] + .check.input[type=checkbox] + .switch input[type=checkbox] + .check.check {
+  background: "pink";
+}
+.switch input[type=checkbox] + .check:before {
+  content: "";
+  display: block;
+  border-radius: 4px;
+  width: 1.175em;
+  height: 1.175em;
+  background: hsl(0, 0%, 96%);
+  transition: transform 150ms ease-out;
+  will-change: transform;
+  transform-origin: left;
+}
+.switch input[type=checkbox] + .check.is-elastic:before {
+  transform: scaleX(1.5);
+  border-radius: 4px;
+}
+.switch input[type=checkbox]:checked + .check {
+  background: hsl(171, 100%, 41%);
+}
+.switch input[type=checkbox]:checked + .check.is-white {
+  background: hsl(0, 0%, 100%);
+}
+.switch input[type=checkbox]:checked + .check.is-black {
+  background: hsl(0, 0%, 4%);
+}
+.switch input[type=checkbox]:checked + .check.is-light {
+  background: hsl(0, 0%, 96%);
+}
+.switch input[type=checkbox]:checked + .check.is-dark {
+  background: hsl(0, 0%, 21%);
+}
+.switch input[type=checkbox]:checked + .check.is-primary {
+  background: hsl(171, 100%, 41%);
+}
+.switch input[type=checkbox]:checked + .check.is-link {
+  background: hsl(229, 53%, 53%);
+}
+.switch input[type=checkbox]:checked + .check.is-info {
+  background: hsl(207, 61%, 53%);
+}
+.switch input[type=checkbox]:checked + .check.is-success {
+  background: hsl(153, 53%, 53%);
+}
+.switch input[type=checkbox]:checked + .check.is-warning {
+  background: hsl(44, 100%, 77%);
+}
+.switch input[type=checkbox]:checked + .check.is-danger {
+  background: hsl(348, 86%, 61%);
+}
+.switch input[type=checkbox]:checked + .check:before {
+  transform: translate3d(100%, 0, 0);
+}
+.switch input[type=checkbox]:checked + .check.is-elastic:before {
+  transform: translate3d(50%, 0, 0) scaleX(1.5);
+}
+.switch input[type=checkbox]:focus, .switch input[type=checkbox]:active {
+  outline: none;
+}
+.switch .control-label {
+  padding-left: 0.5em;
+}
+.switch:hover input[type=checkbox] + .check {
+  background: rgba(181, 181, 181, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-white-passive {
+  background: rgba(255, 255, 255, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-black-passive {
+  background: rgba(10, 10, 10, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-light-passive {
+  background: rgba(245, 245, 245, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-dark-passive {
+  background: rgba(54, 54, 54, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-primary-passive {
+  background: rgba(0, 209, 178, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-link-passive {
+  background: rgba(72, 95, 199, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-info-passive {
+  background: rgba(62, 142, 208, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-success-passive {
+  background: rgba(72, 199, 142, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-warning-passive {
+  background: rgba(255, 224, 138, 0.9);
+}
+.switch:hover input[type=checkbox] + .check.is-danger-passive {
+  background: rgba(241, 70, 104, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check {
+  background: rgba(0, 209, 178, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-white {
+  background: rgba(255, 255, 255, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-black {
+  background: rgba(10, 10, 10, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-light {
+  background: rgba(245, 245, 245, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-dark {
+  background: rgba(54, 54, 54, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-primary {
+  background: rgba(0, 209, 178, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-link {
+  background: rgba(72, 95, 199, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-info {
+  background: rgba(62, 142, 208, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-success {
+  background: rgba(72, 199, 142, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-warning {
+  background: rgba(255, 224, 138, 0.9);
+}
+.switch:hover input[type=checkbox]:checked + .check.is-danger {
+  background: rgba(241, 70, 104, 0.9);
+}
+.switch.is-rounded input[type=checkbox] + .check {
+  border-radius: 9999px;
+}
+.switch.is-rounded input[type=checkbox] + .check:before {
+  border-radius: 9999px;
+}
+.switch.is-rounded input[type=checkbox].is-elastic:before {
+  transform: scaleX(1.5);
+  border-radius: 9999px;
+}
+.switch.is-outlined input[type=checkbox] + .check {
+  background: transparent;
+  border: 0.1rem solid hsl(0, 0%, 71%);
+  padding: 0.1em;
+}
+.switch.is-outlined input[type=checkbox] + .check.is-white-passive {
+  border: 0.1rem solid rgba(255, 255, 255, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-white-passive:before {
+  background: hsl(0, 0%, 100%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-white-passive:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-black-passive {
+  border: 0.1rem solid rgba(10, 10, 10, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-black-passive:before {
+  background: hsl(0, 0%, 4%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-black-passive:hover {
+  border-color: rgba(10, 10, 10, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-light-passive {
+  border: 0.1rem solid rgba(245, 245, 245, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-light-passive:before {
+  background: hsl(0, 0%, 96%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-light-passive:hover {
+  border-color: rgba(245, 245, 245, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-dark-passive {
+  border: 0.1rem solid rgba(54, 54, 54, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-dark-passive:before {
+  background: hsl(0, 0%, 21%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-dark-passive:hover {
+  border-color: rgba(54, 54, 54, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-primary-passive {
+  border: 0.1rem solid rgba(0, 209, 178, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-primary-passive:before {
+  background: hsl(171, 100%, 41%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-primary-passive:hover {
+  border-color: rgba(0, 209, 178, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-link-passive {
+  border: 0.1rem solid rgba(72, 95, 199, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-link-passive:before {
+  background: hsl(229, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-link-passive:hover {
+  border-color: rgba(72, 95, 199, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-info-passive {
+  border: 0.1rem solid rgba(62, 142, 208, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-info-passive:before {
+  background: hsl(207, 61%, 53%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-info-passive:hover {
+  border-color: rgba(62, 142, 208, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-success-passive {
+  border: 0.1rem solid rgba(72, 199, 142, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-success-passive:before {
+  background: hsl(153, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-success-passive:hover {
+  border-color: rgba(72, 199, 142, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-warning-passive {
+  border: 0.1rem solid rgba(255, 224, 138, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-warning-passive:before {
+  background: hsl(44, 100%, 77%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-warning-passive:hover {
+  border-color: rgba(255, 224, 138, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-danger-passive {
+  border: 0.1rem solid rgba(241, 70, 104, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-danger-passive:before {
+  background: hsl(348, 86%, 61%);
+}
+.switch.is-outlined input[type=checkbox] + .check.is-danger-passive:hover {
+  border-color: rgba(241, 70, 104, 0.9);
+}
+.switch.is-outlined input[type=checkbox] + .check:before {
+  background: hsl(0, 0%, 71%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check {
+  border-color: hsl(171, 100%, 41%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-white {
+  background: transparent;
+  border-color: hsl(0, 0%, 100%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-white:before {
+  background: hsl(0, 0%, 100%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-black {
+  background: transparent;
+  border-color: hsl(0, 0%, 4%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-black:before {
+  background: hsl(0, 0%, 4%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-light {
+  background: transparent;
+  border-color: hsl(0, 0%, 96%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-light:before {
+  background: hsl(0, 0%, 96%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-dark {
+  background: transparent;
+  border-color: hsl(0, 0%, 21%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-dark:before {
+  background: hsl(0, 0%, 21%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-primary {
+  background: transparent;
+  border-color: hsl(171, 100%, 41%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-primary:before {
+  background: hsl(171, 100%, 41%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-link {
+  background: transparent;
+  border-color: hsl(229, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-link:before {
+  background: hsl(229, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-info {
+  background: transparent;
+  border-color: hsl(207, 61%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-info:before {
+  background: hsl(207, 61%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-success {
+  background: transparent;
+  border-color: hsl(153, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-success:before {
+  background: hsl(153, 53%, 53%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-warning {
+  background: transparent;
+  border-color: hsl(44, 100%, 77%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-warning:before {
+  background: hsl(44, 100%, 77%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-danger {
+  background: transparent;
+  border-color: hsl(348, 86%, 61%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check.is-danger:before {
+  background: hsl(348, 86%, 61%);
+}
+.switch.is-outlined input[type=checkbox]:checked + .check:before {
+  background: hsl(171, 100%, 41%);
+}
+.switch.is-outlined:hover input[type=checkbox] + .check {
+  background: transparent;
+  border-color: rgba(181, 181, 181, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check {
+  background: transparent;
+  border-color: rgba(0, 209, 178, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-white {
+  border-color: rgba(255, 255, 255, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-black {
+  border-color: rgba(10, 10, 10, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-light {
+  border-color: rgba(245, 245, 245, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-dark {
+  border-color: rgba(54, 54, 54, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-primary {
+  border-color: rgba(0, 209, 178, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-link {
+  border-color: rgba(72, 95, 199, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-info {
+  border-color: rgba(62, 142, 208, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-success {
+  border-color: rgba(72, 199, 142, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-warning {
+  border-color: rgba(255, 224, 138, 0.9);
+}
+.switch.is-outlined:hover input[type=checkbox]:checked + .check.is-danger {
+  border-color: rgba(241, 70, 104, 0.9);
+}
+.switch.is-small {
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+.switch.is-medium {
+  font-size: 1.25rem;
+}
+.switch.is-large {
+  font-size: 1.5rem;
+}
+.switch[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: hsl(0, 0%, 48%);
+}
+
+.upload {
+  position: relative;
+  display: inline-flex;
+}
+.upload input[type=file] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  outline: none;
+  cursor: pointer;
+  z-index: -1;
+}
+.upload.is-expanded {
+  width: 100%;
+}
+
+.field.file.has-addons .button.is-static {
+  color: hsl(0, 0%, 14%);
+  background-color: hsl(0, 0%, 100%);
+  border-left: 0;
+}
+
+@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+  .upload input[type=file] {
+    z-index: auto;
+  }
+}
 /*! bulma.io v0.9.4 | MIT License | github.com/jgthms/bulma */
 /* Bulma Utilities */
 .pagination-previous,
@@ -81,7 +1910,7 @@ fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fields
 .is-unselectable, .tabs, .pagination-previous,
 .pagination-next,
 .pagination-link,
-.pagination-ellipsis, .breadcrumb, .file, .button {
+.pagination-ellipsis, .breadcrumb, .file, .button, .b-checkbox.checkbox, .b-radio.radio, .switch {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -10562,4 +12391,173 @@ section.hero.is-hero-bar .hero-body .button.is-hero-button {
 }
 section.hero.is-hero-bar .hero-body .button.is-hero-button:hover {
   background-color: hsl(0, 0%, 100%);
+}
+
+section.section.is-main-section {
+  padding: 1.5rem;
+}
+
+.card:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  border-radius: 6px;
+  border: 1px solid rgba(24, 28, 33, 0.06);
+}
+.card.has-table .card-content {
+  padding: 0;
+}
+.card.has-table .b-table {
+  border-radius: 6px;
+  overflow: hidden;
+}
+.card.is-card-widget .card-content {
+  padding: 0.75rem;
+}
+.card .card-header {
+  border-bottom: 1px solid rgba(24, 28, 33, 0.06);
+}
+.card .card-content hr {
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+}
+.card .is-widget-icon .icon {
+  width: 5rem;
+  height: 5rem;
+}
+.card .is-widget-label .subtitle {
+  color: hsl(0, 0%, 48%);
+}
+
+table.table thead th {
+  border-bottom-width: 1px;
+}
+table.table td.checkbox-cell .b-checkbox.checkbox:not(.button), table.table th.checkbox-cell .b-checkbox.checkbox:not(.button) {
+  margin-right: 0;
+  width: 20px;
+}
+table.table td.checkbox-cell .b-checkbox.checkbox:not(.button) .control-label, table.table th.checkbox-cell .b-checkbox.checkbox:not(.button) .control-label {
+  display: none;
+  padding: 0;
+}
+table.table td .image {
+  margin: 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+table.table td.is-progress-col {
+  min-width: 5rem;
+  vertical-align: middle;
+}
+
+.b-table {
+  /* This stylizes buefy's pagination */
+}
+.b-table .table {
+  border: 0;
+  border-radius: 0;
+}
+.b-table .table-wrapper {
+  margin-bottom: 0;
+}
+.b-table .table-wrapper + .level {
+  padding: 1.125rem 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  margin: 0;
+  border-top: rgba(24, 28, 33, 0.06);
+  background: hsl(0, 0%, 96%);
+}
+.b-table .table-wrapper + .level .pagination-link {
+  background: hsl(0, 0%, 100%);
+  color: hsl(0, 0%, 21%);
+  border-color: hsl(0, 0%, 86%);
+}
+.b-table .table-wrapper + .level .pagination-link.is-current {
+  border-color: hsl(0, 0%, 29%);
+}
+.b-table .table-wrapper + .level .pagination-previous, .b-table .table-wrapper + .level .pagination-next, .b-table .table-wrapper + .level .pagination-link {
+  border-color: hsl(0, 0%, 86%);
+  color: #2e323a;
+}
+.b-table .table-wrapper + .level .pagination-previous[disabled], .b-table .table-wrapper + .level .pagination-next[disabled], .b-table .table-wrapper + .level .pagination-link[disabled] {
+  background-color: transparent;
+}
+
+@media screen and (max-width: 768px) {
+  .card.has-table .b-table .table-wrapper + .level .level-left + .level-right {
+    margin-top: 0;
+  }
+  .card.has-mobile-sort-spaced .b-table .field.table-mobile-sort {
+    padding-top: 0.75rem;
+  }
+  .b-table .field.table-mobile-sort {
+    padding: 0 0.75rem;
+  }
+  .b-table .table-wrapper.has-mobile-cards tr {
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+    margin-bottom: 3px !important;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.is-progress-col span, .b-table .table-wrapper.has-mobile-cards td.is-progress-col progress {
+    display: flex;
+    width: 45%;
+    align-items: center;
+    align-self: center;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.checkbox-cell, .b-table .table-wrapper.has-mobile-cards td.is-image-cell {
+    border-bottom: 0 !important;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.checkbox-cell:before, .b-table .table-wrapper.has-mobile-cards td.is-actions-cell:before {
+    display: none;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.has-no-head-mobile:before {
+    display: none;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.has-no-head-mobile span {
+    display: block;
+    width: 100%;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.has-no-head-mobile.is-progress-col progress {
+    width: 100%;
+  }
+  .b-table .table-wrapper.has-mobile-cards td.has-no-head-mobile.is-image-cell .image {
+    width: 25vw;
+    height: auto;
+    margin: 0 auto 0.375rem;
+  }
+}
+footer.footer .logo img {
+  width: auto;
+  height: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+  .footer-copyright {
+    text-align: center;
+  }
+}
+.is-user-avatar.has-max-width {
+  max-width: 7rem;
+}
+.is-user-avatar.is-aligned-center {
+  margin: 0 auto;
+}
+.is-user-avatar img {
+  margin: 0 auto;
+  border-radius: 9999px;
+}
+
+.icon.has-update-mark {
+  position: relative;
+}
+.icon.has-update-mark:after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background-color: hsl(44, 100%, 77%);
+  border-radius: 9999px;
 }

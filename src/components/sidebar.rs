@@ -1,11 +1,7 @@
-use gloo::events::EventListener;
 use gloo::utils::document;
-use wasm_bindgen::JsCast;
-use wasm_bindgen::prelude::Closure;
-use web_sys::{HtmlElement, Element};
 use yew::prelude::*;
 use yew_router::prelude::*;
-use yew_hooks::prelude::*;
+//use yew_hooks::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;

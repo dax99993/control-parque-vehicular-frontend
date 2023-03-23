@@ -11,30 +11,43 @@ pub struct VehiculeItemProps {
 #[function_component]
 pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
     let user_ctx = use_user_context();
+ 
+    let click_trash = open_modal();
 
-    
     html! {
-        <ybc::Media>
-            <ybc::MediaLeft>
-                <ybc::Image
-                    size={Some(ybc::ImageSize::Is64x64)}>
-                    <img src="https://w.wallhaven.cc/full/m9/wallhaven-m9xyg8.jpg" />
-                </ybc::Image>
-            </ybc::MediaLeft>
-            <ybc::MediaContent>
-                <ybc::Content>
-                    <ul>
-                        if props.veh.is_some() {
-                            <li>
-                                <p>{"Model: "} {&props.veh.clone().unwrap().model}</p>
-                                <p>{"Year: "} {&props.veh.clone().unwrap().year}</p>
-                            </li>
-                        }
-                    </ul>
-                </ybc::Content>
-            </ybc::MediaContent>
+        <>
+        <tr>
+        <td class="is-checkbox-cell">
+          <label class="b-checkbox checkbox">
+            <input type="checkbox" value={"false"} />
+            <span class="check"></span>
+          </label>
+        </td>
+        <td class="is-image-cell">
+            <div class="image">
+                <img src="https://avatars.dicebear.com/v2/initials/rebecca-bauch.svg" class="is-rounded"/>
+            </div>
+        </td>
 
-        </ybc::Media>
+        if props.veh.is_some() {
+        <td data-label="Marca">{&props.veh.clone().unwrap().branch}</td>
+        <td data-label="Modelo">{&props.veh.clone().unwrap().model}</td>
+        <td data-label="Año">{&props.veh.clone().unwrap().year}</td>
+        <td data-label="Estado">{&props.veh.clone().unwrap().status}</td>
+        }
+
+        <td class="is-actions-cell">
+            <div class="buttons is-right">
+                <button class="button is-small is-primary" type="button">
+                    <span class="icon"><i class="fa-solid fa-eye"></i></span>
+                </button>
+                <button class="button is-small is-danger jb-modal" data-target="sample-modal" type="button" onclick={click_trash}>
+                    <span class="icon"><i class="fa-solid fa-trash-can"></i></span>
+                </button>
+            </div>
+        </td>
+        </tr>
+        </>
     }
 
 }
@@ -49,3 +62,17 @@ fn normal_view() {
 
 }
 */
+
+use gloo::utils::{document, document_element};
+use crate::utils::toggle_class;
+
+//fn open_modal(menu_id: String) -> Callback<MouseEvent> {
+fn open_modal() -> Callback<MouseEvent> {
+    Callback::from(move |_: MouseEvent| {
+        if let Some(element) = document().get_element_by_id("sample-modal") {
+            toggle_class(element, "is-active");
+        }
+        let element = document_element();
+        toggle_class(element, "is-clipped");
+    })
+}

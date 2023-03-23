@@ -2,6 +2,12 @@
 @import "theme-default";
 
 /* Core libs & libs config */
+@import "bulma-responsive-tables/bulma-responsive-tables";
+@import "bulma-checkbox/bulma-checkbox";
+@import "bulma-radio/bulma-radio";
+@import "bulma-switch-control/bulma-switch-control";
+@import "bulma-upload-control/bulma-upload-control";
+
 @import "bulma/bulma";
 
 /* Mixins */
@@ -12,4 +18,11 @@
 @import "nav-bar";
 @import "title-bar";
 @import "hero-bar";
+@import "main-section";
+@import "card";
+@import "table";
+@import "footer";
+
+@import "misc";
+
 
