@@ -1,11 +1,11 @@
 use yew::prelude::*;
 
-use crate::hooks::user_context::use_user_context;
+use crate::{hooks::user_context::use_user_context, routes::AppRoute};
 use crate::types::vehicule::Vehicule;
 
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct VehiculeItemProps {
-    pub veh: Option<Vehicule>,
+    pub vehicule: Option<Vehicule>,
 }
 
 #[function_component]
@@ -13,6 +13,15 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
     let user_ctx = use_user_context();
  
     let click_trash = open_modal();
+
+    let click_eye = {
+        let props = props.clone();
+        Callback::from(move |_: MouseEvent| {
+            user_ctx.redirect_to(AppRoute::VehiculesEdit { 
+                id: props.vehicule.clone().unwrap().vehicule_id.to_string() 
+            });
+        })
+    };
 
     html! {
         <>
@@ -29,16 +38,16 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
             </div>
         </td>
 
-        if props.veh.is_some() {
-        <td data-label="Marca">{&props.veh.clone().unwrap().branch}</td>
-        <td data-label="Modelo">{&props.veh.clone().unwrap().model}</td>
-        <td data-label="Año">{&props.veh.clone().unwrap().year}</td>
-        <td data-label="Estado">{&props.veh.clone().unwrap().status}</td>
+        if props.vehicule.is_some() {
+        <td data-label="Marca">{&props.vehicule.clone().unwrap().branch}</td>
+        <td data-label="Modelo">{&props.vehicule.clone().unwrap().model}</td>
+        <td data-label="Año">{&props.vehicule.clone().unwrap().year}</td>
+        <td data-label="Estado">{&props.vehicule.clone().unwrap().status}</td>
         }
 
         <td class="is-actions-cell">
             <div class="buttons is-right">
-                <button class="button is-small is-primary" type="button">
+                <button class="button is-small is-primary" type="button" onclick={click_eye}>
                     <span class="icon"><i class="fa-solid fa-eye"></i></span>
                 </button>
                 <button class="button is-small is-danger jb-modal" data-target="sample-modal" type="button" onclick={click_trash}>

@@ -1,5 +1,4 @@
 use yew::prelude::*;
-use web_sys::{console, window, HtmlInputElement};
 
 use super::icon::Icon;
 

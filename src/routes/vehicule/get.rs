@@ -135,7 +135,7 @@ fn GetVehiculesAdminView() -> Html {
                     
                 <Modal 
                     body={html!{<p>{"un "}<b>{"mensaje"}</b></p>}}
-                    ActionButtonLabel={"Borrar"}>
+                    action_button_label={"Borrar"}>
                 </Modal>
 
             </MainSection>
@@ -194,7 +194,7 @@ fn vehicule_to_vehicule_list(vehicules: Vec<Vehicule>) -> Vec<Html> {
     vehicules.into_iter().map(|v| {
         html!{
             <VehiculeItem
-                veh={Some(v)}>
+                vehicule={Some(v)}>
             </VehiculeItem>
         }
     })

@@ -48,7 +48,7 @@ impl Vehicule {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct NewVehicule {
     pub branch: String,
     pub model: String,

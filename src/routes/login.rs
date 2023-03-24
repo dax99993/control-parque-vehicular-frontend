@@ -12,8 +12,6 @@ use validator::{validate_email, validate_length};
 
 //use gloo::utils;
 
-use wasm_bindgen::{JsCast, JsValue};
-
 
 #[function_component]
 pub fn Login() -> Html {

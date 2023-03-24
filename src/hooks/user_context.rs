@@ -48,6 +48,12 @@ impl UseUserContextHandle {
             return false;
         }
     }
+    pub fn redirect_to<R>(&self, route: R)
+    where 
+        R: Routable
+    {
+        self.navigator.push(&route)
+    }
 }
 
 impl Clone for UseUserContextHandle {

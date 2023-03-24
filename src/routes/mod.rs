@@ -16,6 +16,8 @@ use home::Home;
 
 
 use self::vehicule::get::GetVehicules;
+use self::vehicule::register::RegisterVehicule;
+use self::vehicule::edit::EditVehicule;
 
 
 ///App Routes
@@ -29,12 +31,20 @@ pub enum AppRoute {
     Register,
     #[at("/logout")]
     Logout,
-    #[at("/users")]
-    Users,
+    // Vehicule routes
     #[at("/vehicules")]
     Vehicules,
+    #[at("/vehicules/register")]
+    VehiculesRegister,
+    #[at("/vehicules/edit/:id")]
+    VehiculesEdit { id: String },
+    // User routes
+    #[at("/users")]
+    Users,
+    // Request routes
     #[at("/requests")]
     Requests,
+    // Report routes
     #[at("/reports")]
     Reports,
     #[not_found]
@@ -47,20 +57,22 @@ pub fn switch(route: AppRoute) -> Html {
     match route {
         // Auth routes
         AppRoute::Register => html! { <Register /> },
-        AppRoute::Login=> html! { <Login /> },
-        AppRoute::Logout=> html! { <Logout /> },
+        AppRoute::Login => html! { <Login /> },
+        AppRoute::Logout => html! { <Logout /> },
         // Home route
-        AppRoute::Home=> html! { <Home /> },
+        AppRoute::Home => html! { <Home /> },
         // Vehicule routes
-        AppRoute::Vehicules=> html! { <GetVehicules/> },
+        AppRoute::Vehicules => html! { <GetVehicules/> },
+        AppRoute::VehiculesRegister => html! { <RegisterVehicule/> },
+        AppRoute::VehiculesEdit { id } => html! { <EditVehicule id={id}/> },
         // User routes
-        AppRoute::Users=> html! { {"users"} },
+        AppRoute::Users => html! { {"users"} },
         // Request routes
-        AppRoute::Requests=> html! { {"requests"} },
+        AppRoute::Requests => html! { {"requests"} },
         // Report routes
-        AppRoute::Reports=> html! { {"reports"} },
+        AppRoute::Reports => html! { {"reports"} },
         // Nofound route
-        AppRoute::NotFound=> html! { "Page not found" },
+        AppRoute::NotFound => html! { "Page not found" },
     }
 }
 

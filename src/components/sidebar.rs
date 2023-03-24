@@ -58,7 +58,7 @@ fn sidebar_menu() -> Html {
                             </Link<AppRoute>>
                         </li>
                         <li>
-                            <Link<AppRoute> to={AppRoute::Vehicules} >
+                            <Link<AppRoute> to={AppRoute::VehiculesRegister} >
                                 <span class="menu-item-label">{"Registrar Vehiculo"}</span>
                             </Link<AppRoute>>
                         </li>

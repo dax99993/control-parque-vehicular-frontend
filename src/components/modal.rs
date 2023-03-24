@@ -4,7 +4,7 @@ use yew::prelude::*;
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct ModalProps {
     pub body: Html,
-    pub ActionButtonLabel: String,
+    pub action_button_label: String,
 }
 
 
@@ -40,7 +40,7 @@ pub fn Modal(props: &ModalProps) -> Html {
               </section>
               <footer class="modal-card-foot">
                 <button class="button jb-modal-close" id="modal-close-cancel-button" onclick={onclick.clone()}>{ "Cancelar" }</button>
-                <button class="button is-danger jb-modal-close">{ props.ActionButtonLabel }</button>
+                <button class="button is-danger jb-modal-close">{ props.action_button_label}</button>
               </footer>
             </div>
             <button class="modal-close is-large jb-modal-close" aria-label="close" id="modal-close-outside-button" onclick={onclick.clone()}></button>

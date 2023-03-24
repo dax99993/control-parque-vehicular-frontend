@@ -12527,6 +12527,36 @@ table.table td.is-progress-col {
     margin: 0 auto 0.375rem;
   }
 }
+.field.has-check .field-body {
+  margin-top: 0.1875rem;
+}
+.field .control .mdi-24px.mdi-set, .field .control .mdi-24px.mdi:before {
+  font-size: inherit;
+}
+
+.upload .upload-draggable {
+  display: block;
+}
+
+.input, .textarea, select {
+  box-shadow: none;
+}
+.input:focus, .input:active, .textarea:focus, .textarea:active, select:focus, select:active {
+  box-shadow: none !important;
+}
+
+.switch input[type=checkbox] + .check:before {
+  box-shadow: none;
+}
+
+.switch input[type=checkbox]:focus + .check, .switch input[type=checkbox]:focus:checked + .check, .b-checkbox.checkbox input[type=checkbox]:focus + .check, .b-checkbox.checkbox input[type=checkbox]:focus:checked + .check {
+  box-shadow: none !important;
+}
+
+.b-checkbox.checkbox input[type=checkbox] + .check, .b-radio.radio input[type=radio] + .check {
+  border: 1px solid #2e323a;
+}
+
 footer.footer .logo img {
   width: auto;
   height: 2rem;

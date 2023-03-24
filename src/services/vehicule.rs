@@ -1,4 +1,4 @@
-use crate::types::vehicule::{Vehicule, FilteredVehicule};
+use crate::types::vehicule::{Vehicule, FilteredVehicule, NewVehicule};
 use crate::api_response::ApiResponse;
 
 use super::request::{request_get, request_post};
@@ -13,4 +13,8 @@ pub async fn request_normal_get_vehicules() -> Result<ApiResponse::<Vec<Filtered
 
 pub async fn request_admin_get_vehicules() -> Result<ApiResponse::<Vec<Vehicule>>, Error> {
     request_get(format!("{BASE_URL}/api/vehicules")).await
+}
+
+pub async fn request_admin_create_vehicule(new_vehicule: NewVehicule) -> Result<ApiResponse::<Vehicule>, Error> {
+    request_post(format!("{BASE_URL}/api/vehicules"), new_vehicule).await
 }
