@@ -1,181 +1,197 @@
 use yew::prelude::*;
+use yew_hooks::prelude::*;
 
-use crate::components::form::item::FormItem;
-use crate::types::user::SignupUser;
 use web_sys::HtmlInputElement;
 use validator::{validate_email, validate_length};
+
+use crate::components::form::{Form, FormField, FormInputField};
+use crate::services::auth::request_signup;
+use crate::types::user::SignupUser;
+
+use crate::routes::AppRoute;
+use crate::hooks::user_context::use_user_context;
+
+use crate::utils::FormFieldState;
+use crate::{oninput_macro, shadow_clone};
 
 #[function_component]
 pub fn Register() -> Html {
 
-    // Signup information wrapper
+    // Context
+    let user_ctx = use_user_context();
+    if user_ctx.is_authenticated() {
+        user_ctx.redirect_home();
+    }
+    // States
     let signup_user = use_state(|| SignupUser::default());
+    let signup_user_valid = use_state(|| bool::default());
 
-    // states for formitems validity
-    let form_valid = use_state(|| true);
-    let firstname_valid= use_state(|| true);
-    let lastname_valid= use_state(|| true);
-    let email_valid = use_state(|| true);
-    let password_valid= use_state(|| true);
-    let repassword_valid= use_state(|| true);
+    let firstname= use_state(|| FormFieldState::default());
+    let oninput_firstname = oninput_macro!(firstname, validate_name);
 
-    let onsubmit = {
-        let signup_user = signup_user.clone();
-        let firstname_valid = firstname_valid.clone();
-        let lastname_valid = lastname_valid.clone();
-        let email_valid = email_valid.clone();
-        let password_valid = password_valid.clone();
-        let repassword_valid = repassword_valid.clone();
-        let form_valid = form_valid.clone();
-        Callback::from(move |_: MouseEvent| {
-            if (*firstname_valid && *lastname_valid 
-                && *email_valid && *password_valid
-                && *repassword_valid )
-                && (*signup_user).is_filled()
-            {
-                form_valid.set(true);
-                log::debug!("Valid signup info {:?}", *signup_user); 
+    let lastname= use_state(|| FormFieldState::default());
+    let oninput_lastname = oninput_macro!(lastname, validate_name);
 
-            } else {
-                form_valid.set(false);
-                log::debug!("Invalid signup info {:?}", *signup_user); 
-            }
-            //use_async(move ||{
-                //login(*login_info).await;
-            //})
-        })
-    };
+    let email = use_state(|| FormFieldState::default());
+    let oninput_email = oninput_macro!(email, validate_email);
 
-    let oninput_firstname = {
-        let signup_user = signup_user.clone();
-        let firstname_valid = firstname_valid.clone();
-        Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            let mut user = (*signup_user).clone();
-            user.first_name= format!("{}", &input.value().trim());
-            firstname_valid.set(validate_name(user.first_name.clone()));
-            signup_user.set(user);
-        })
-    };
-    let oninput_lastname = {
-        let signup_user = signup_user.clone();
-        let lastname_valid = lastname_valid.clone();
-        Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            let mut user = (*signup_user).clone();
-            user.last_name= format!("{}", &input.value().trim());
-            lastname_valid.set(validate_name(user.last_name.clone()));
-            signup_user.set(user);
-        })
-    };
-    let oninput_email = {
-        let signup_user = signup_user.clone();
-        let email_valid = email_valid.clone();
-        Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            //let mut info = login_info.clone();
-            let mut user = (*signup_user).clone();
-            user.email = input.value();
-            email_valid.set(validate_email(input.value()));
-            //log::debug!("input email {}", &info.email);
-            signup_user.set(user);
-        })
-    };
-    let oninput_password = {
-        let signup_user = signup_user.clone();
-        let password_valid = password_valid.clone();
-        Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            let mut user = (*signup_user).clone();
-            user.password = input.value();
-            password_valid.set(validate_length(input.value(), Some(6), Some(128), None));
-            signup_user.set(user);
-        })
-    };
+    let password= use_state(|| FormFieldState::default());
+    let oninput_password = oninput_macro!(password, validate_password);
+
+    let repassword= use_state(|| FormFieldState::default());
+    //let oninput_repassword = oninput_macro!(repassword, validate_password);
     let oninput_repassword = {
-        let signup_user = signup_user.clone();
-        let repassword_valid = repassword_valid.clone();
+        shadow_clone!(password, repassword);
         Callback::from(move |e: InputEvent| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            let mut user = (*signup_user).clone();
-            user.re_password = input.value();
-            repassword_valid.set( user.password == user.re_password );
-            signup_user.set(user);
+            let value = format!("{}", &input.value().trim());
+            let valid = (*password).value == value;
+            let form_field = FormFieldState { value, valid };
+            repassword.set(form_field);
+        })
+    };
+
+
+    // Check validity of all form fields to allow signup
+    {
+        shadow_clone!(signup_user_valid);
+        shadow_clone![firstname, lastname, email, password, repassword];
+        use_effect_with_deps(move |(firstname, lastname, email, password, repassword)| {
+            let valid = (*firstname).valid && (*lastname). valid &&
+                (*email).valid && (*password).valid && (*repassword).valid;
+
+            signup_user_valid.set(valid);
+        }, 
+        (firstname.clone(), lastname.clone(), email.clone(), password.clone(), repassword.clone())
+        )
+    }
+
+    // async api request 
+    let request_signup_user = {
+        shadow_clone!(signup_user);
+        use_async(async move {
+            request_signup((*signup_user).clone()).await
+        })
+    };
+
+    // Execute request get me if login was successfull
+    {
+        shadow_clone!(request_signup_user);
+        use_effect_with_deps(
+            move |request_signup_user| {
+                if let Some(response) = &request_signup_user.data {
+                    log::debug!("Sign up response {}", &response);
+                    user_ctx.redirect_to(AppRoute::Login);
+                }
+            },
+            request_signup_user.clone() 
+        );
+    }
+
+    // signup user if valid data
+    let onsubmit = {
+        shadow_clone![signup_user, signup_user_valid];
+        shadow_clone![firstname, lastname, email, password, repassword];
+        Callback::from(move |_: MouseEvent| {
+            if *signup_user_valid {
+                let mut signup = (*signup_user).clone();
+                signup.first_name= (*firstname).value.clone();
+                signup.last_name= (*lastname).value.clone();
+                signup.email = (*email).value.clone();
+                signup.password = (*password).value.clone();
+                signup.re_password = (*repassword).value.clone();
+                signup_user.set(signup);
+
+                request_signup_user.run();
+
+            }
+            log::debug!("Valid signup info {:?}", *signup_user); 
         })
     };
 
     html! {
-        <form class="box" id="register-form">
-            if !*(form_valid) {
-                <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
-                <p class="help is-danger"> {"por favor corrige los datos"} </p>
-            }
-            <FormItem label="Nombre"
-                input_type="text"
-                placeholder="e.g. Manuel"
-                icon_right={ (!(*firstname_valid))
-                    .then(|| "fa-solid fa-triangle-exclamation")
-                }
-                error={ (!(*firstname_valid))
-                    .then(|| "Nombre solo debe contener caracteres a-z A-Z")
-                }
-                oninput={oninput_firstname}
-            />
+        <div class="container">
+        <div class="box">
+        <Form method="post">
+            <FormField label="Nombre">
+                <FormInputField 
+                    input_type="text"
+                    placeholder="e.g. Manuel"
+                    danger_msg="Campo Obligatorio"
+                    oninput={oninput_firstname.clone()}
+                    value={(*firstname).value.clone()}
+                    valid={(*firstname).valid}
+                    icon_right={ if !(*firstname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                />
+            </FormField>
 
-            <FormItem label="Apellidos"
-                input_type="text"
-                placeholder="e.g. Sanchez Perez"
-                icon_right={ (!(*lastname_valid))
-                    .then(|| "fa-solid fa-triangle-exclamation")
-                }
-                error={ (!(*lastname_valid))
-                    .then(|| "Apellidos solo deben contener caracteres a-z A-Z")
-                }
-                oninput={oninput_lastname}
-            />
+            <FormField label="Apellidos">
+                <FormInputField 
+                    input_type="text"
+                    placeholder="e.g. Sanchez Perez"
+                    danger_msg="Campo Obligatorio"
+                    oninput={oninput_lastname.clone()}
+                    value={(*lastname).value.clone()}
+                    valid={(*lastname).valid}
+                    icon_right={ if !(*lastname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                />
+            </FormField>
 
-            <FormItem label="Correo electrónico"
-                input_type="email"
-                placeholder="e.g. alex@ejemplo.com"
-                icon_right={ (!(*email_valid))
-                    .then(|| "fa-solid fa-triangle-exclamation")
-                }
-                error={ (!(*email_valid))
-                    .then(|| "Correo electronico invalido")
-                }
-                oninput={oninput_email}
-            />
+            <FormField label="Email">
+                <FormInputField 
+                    input_type="text"
+                    placeholder="e.g. alex@example.com"
+                    danger_msg="Campo Obligatorio"
+                    oninput={oninput_email.clone()}
+                    value={(*email).value.clone()}
+                    valid={(*email).valid}
+                    icon_left={"fa-solid fa-envelope"}
+                    icon_right={ if !(*email).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                />
+            </FormField>
 
+            <FormField label="Contraseña">
+                <FormInputField 
+                    input_type="password"
+                    danger_msg="Campo Obligatorio"
+                    oninput={oninput_password.clone()}
+                    value={(*password).value.clone()}
+                    valid={(*password).valid}
+                    icon_left={"fa-solid fa-lock"}
+                    icon_right={ if !(*password).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                />
+            </FormField>
 
-            <FormItem label="Contraseña"
-                input_type="password"
-                placeholder="********"
-                icon_left={Some("fa-solid fa-lock")}
-                icon_right={ (!(*password_valid))
-                    .then(|| "fa-solid fa-triangle-exclamation")
-                }
-                error={ (!(*password_valid))
-                    .then(|| "La contraseña debe tener entre 6 y 128 caracteres")
-                }
-                oninput={oninput_password}
-            />
+            <FormField label="Repetir Contraseña">
+                <FormInputField 
+                    input_type="password"
+                    danger_msg="Campo Obligatorio"
+                    oninput={oninput_repassword.clone()}
+                    value={(*repassword).value.clone()}
+                    valid={(*repassword).valid}
+                    icon_left={"fa-solid fa-lock"}
+                    icon_right={ if !(*repassword).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                />
+            </FormField>
 
-            <FormItem label="Repetir contraseña"
-                input_type="password"
-                placeholder="********"
-                icon_left={Some("fa-solid fa-lock")}
-                icon_right={ (!(*repassword_valid))
-                    .then(|| "fa-solid fa-triangle-exclamation")
-                }
-                error={ (!(*repassword_valid))
-                    .then(|| "Las contraseñas no coinciden")
-                }
-                oninput={oninput_repassword}
-            />
+            <hr/>
 
-
-            <button id="signup-submit-button" class="button is-primary" onclick={onsubmit}>{ "Crear cuenta" }</button>
-        </form>
+            <FormField>
+                <div class="control">
+                    <button type="button" onclick={ onsubmit }
+                        class={classes!["button", if (*signup_user_valid).clone() { "is-primary"} else { "is-danger" }]}
+                    >
+                        <span>{ "Iniciar sesion" }</span>
+                    </button>
+                </div>
+                if !(*signup_user_valid) {
+                    <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
+                    <p class="help is-danger"> {"por favor corrige los datos"} </p>
+                }
+            </FormField>
+        </Form>
+        </div>
+        </div>
     }
 }
 
@@ -197,4 +213,8 @@ where
     }
 
     return true;
+}
+
+fn validate_password(s: String) -> bool {
+    validate_length(s, Some(6), Some(128), None)
 }

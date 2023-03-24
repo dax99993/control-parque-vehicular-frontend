@@ -11,42 +11,9 @@ use crate::routes::AppRoute;
 use crate::services::vehicule::request_admin_create_vehicule;
 use crate::types::vehicule::NewVehicule;
 
+use crate::utils::FormFieldState;
+use crate::{oninput_macro, shadow_clone};
 
-#[macro_export]
-macro_rules! oninput_macro {
-    ( $field_state:tt, $validator:expr) => {
-        {
-            let $field_state = $field_state.clone(); 
-            Callback::from(move |e: InputEvent| {
-                let input: HtmlInputElement = e.target_unchecked_into();
-                let value = format!("{}", &input.value().trim());
-                let valid = $validator(value.clone());
-                let formfield = FormFieldState { value, valid };
-                $field_state.set(formfield);
-            })
-        }
-    };
-}
-
-macro_rules! shadow_clone {
-    // single state shadow_clone!(model);
-    ( $state:tt ) => {
-        let $state = $state.clone(); 
-    };
-    // multiple state shadow_clone!(model, year);
-    ( $($state:tt), * ) => {
-        $(
-            let $state = $state.clone(); 
-        )*
-    };
-
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-struct FormFieldState {
-    pub value: String,
-    pub valid: bool,
-}
 
 #[function_component]
 pub fn RegisterVehicule() -> Html {
@@ -169,6 +136,7 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. Nissan"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_branch.clone()}
+                        value={(*branch).value.clone()}
                         valid={(*branch).valid}
                     />
                 </FormField> 
@@ -179,6 +147,7 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. Leaf"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_model.clone()}
+                        value={(*model).value.clone()}
                         valid={(*model).valid}
                     />
                 </FormField>
@@ -189,6 +158,7 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. 2016"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_year.clone()}
+                        value={(*year).value.clone()}
                         valid={(*year).valid}
                     />
                 </FormField>
@@ -199,6 +169,7 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. ABCD XYZ 123"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_number_plate.clone()}
+                        value={(*number_plate).value.clone()}
                         valid={(*number_plate).valid}
                     />
                 </FormField>
@@ -209,7 +180,9 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. 12345678asd"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_number_card.clone()}
+                        value={(*number_card).value.clone()}
                         valid={(*number_card).valid}
+                        icon_left={"fa-solid fa-address-card"}
                     />
                 </FormField>
 
@@ -219,6 +192,7 @@ pub fn RegisterVehicule() -> Html {
                         placeholder="e.g. Leaf 202"
                         danger_msg="Campo Obligatorio"
                         oninput={oninput_short_name.clone()}
+                        value={(*short_name).value.clone()}
                         valid={(*short_name).valid}
                     />
                 </FormField>

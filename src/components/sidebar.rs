@@ -14,6 +14,8 @@ pub fn Sidebar() -> Html {
 
     let sidebar_node_ref = use_node_ref();
     
+    //TODO: remove has-aside-left has-aside-mobile-transition and has-aside-expanded
+    // when not logged in
 
     html! {
         if user_ctx.is_admin() {

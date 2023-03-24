@@ -7,26 +7,36 @@ use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
 
 
+use crate::components::form::{Form, FormField, FormInputField };
+
 use yew_hooks::prelude::*;
 use validator::{validate_email, validate_length};
 
+use crate::utils::FormFieldState;
+use crate::{oninput_macro, shadow_clone};
 //use gloo::utils;
 
 
 #[function_component]
 pub fn Login() -> Html {
 
+    // Context
     let user_ctx = use_user_context();
+    if user_ctx.is_authenticated() {
+        user_ctx.redirect_home();
+    }
+    // States
     let login_user = use_state(|| LoginUser::default());
+    let login_user_valid = use_state(|| bool::default());
 
-    let email_value = use_state(|| String::default());
-    let password_value = use_state(|| String::default());
+    let email = use_state(|| FormFieldState::default());
+    let oninput_email = oninput_macro!(email, validate_email);
 
-    let email_valid = use_state(|| true);
-    let password_valid= use_state(|| true);
+    let password = use_state(|| FormFieldState::default());
+    let oninput_password = oninput_macro!(password, validate_password);
 
-    let form_valid = use_state(|| true);
 
+    // Async api request states
     let login_request = {
         let login_user = login_user.clone();
         // Make request
@@ -35,7 +45,6 @@ pub fn Login() -> Html {
         })
     };
 
-    
     let get_me_request = {
         use_async(async move {
             request_me().await
@@ -43,7 +52,7 @@ pub fn Login() -> Html {
     };
     
 
-
+    // Execute request get me if login was successfull
     {
         let get_me_request = get_me_request.clone();
         use_effect_with_deps(
@@ -62,6 +71,7 @@ pub fn Login() -> Html {
     }
 
     
+    // Store context after successful login and get me requests
     {
         let user_ctx = user_ctx.clone();
         use_effect_with_deps(
@@ -76,165 +86,90 @@ pub fn Login() -> Html {
     }
     
 
+
+    // Perform all the requests and update states for logging user
     let onsubmit = {
-        let login_user = login_user.clone();
-        let email_valid = email_valid.clone();
-        let password_valid = password_valid.clone();
-        let email_value = email_value.clone();
-        let password_value = password_value.clone();
-        let form_valid = form_valid.clone();
+        shadow_clone![login_user, login_user_valid];
+        shadow_clone![email, password];
         Callback::from(move |e: MouseEvent| {
-            if *email_valid && *password_valid {
-                form_valid.set(true);
+            e.prevent_default(); /* Prevent event propagation */
+
+            if *login_user_valid {
                 let mut login = (*login_user).clone();
-                login.email = format!("{}", *email_value);
-                login.password = format!("{}", *password_value);
-                log::debug!("Valid login info {:?}", login); 
+                login.email = (*email).value.clone();
+                login.password = (*password).value.clone();
                 login_user.set(login);
-                e.prevent_default(); /* Prevent event propagation */
                 login_request.run();
-            } else {
-                form_valid.set(false);
-                /*
-                if let Some(email_input) = utils::document_element()
-                    .get_elements_by_class_name("input")
-                    .get_with_name("email") 
-                {
-                    log::debug!("email input {:?}", email_input.to_string()); 
-                    let input: HtmlInputElement= email_input.unchecked_into();
-                    log::debug!("input {:?}", input.value()); 
-
-                }
-                */
             }
-        })
-    };
-
-
-    
-    let update_email_value = {
-        let email_valid = email_valid.clone();
-        let email_value = email_value.clone();
-        Callback::from(move |s: String| {
-            let check_s = format!("{s}");
-            email_valid.set(validate_email(check_s));
-            email_value.set(s)
-        })
-    };
-
-    let update_password_value= {
-        let password_valid = password_valid.clone();
-        let password_value = password_value.clone();
-        Callback::from(move |s: String| {
-            let check_s = format!("{s}");
-            password_valid.set(validate_length(check_s, Some(6), Some(128), None));
-            password_value.set(s);
+            log::debug!("Valid login info {:?}", *login_user); 
         })
     };
 
     {
-        let email_value = email_value.clone();
-        let password_value = password_value.clone();
-        let user_ctx = user_ctx.clone();
-
-        if user_ctx.is_authenticated() {
-            user_ctx.redirect_home();
-        }
-        html! {
-            <ybc::Section
-                classes={classes!(
-                        "hero",
-                        "is-fullheight",
-                        "is-primary",
-                        )}
-            >
-            <ybc::Box>
-                if !*(form_valid) {
-                    <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
-                    <p class="help is-danger"> {"por favor corrige los datos"} </p>
-                }
-                <ybc::Field 
-                    label={Some("Email")}
-                    icons_right={!(*email_valid)}
-                    help_has_error={!(*email_valid)}
-                    help={(!(*email_valid)).then(|| "Correo electronico invalido".to_string())}
-                >
-                    <ybc::Control
-                        classes={classes!(
-                                "has-icons-left"
-                                )}
-                        expanded=true
-                    >
-                        <span class="icon is-small is-left">
-                            <i class="fa-solid fa-envelope"></i>
-                        </span>
-                        <ybc::Input
-                            name="email"
-                            placeholder="e.g. alex@example.com"
-                            value={(*email_value).to_owned()}
-                            update={update_email_value}
-                            classes={classes!(
-                                    (!(*email_valid))
-                                    .then(|| "is-danger")
-                                    )}
-                        >
-                        </ybc::Input>
-                        if !(*email_valid) {
-                            <span class="icon is-small is-right">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </span>
-                        }
-                    </ybc::Control>
-                </ybc::Field>
-
-
-                <ybc::Field 
-                    label={Some("Contraseña")}
-                    icons_left=true
-                    icons_right={!(*password_valid)}
-                    help_has_error={!(*password_valid)}
-                    help={(!(*password_valid)).then(|| "Password debe consistir de entre 6 y 128 caracteres".to_string())}
-                >
-                    <ybc::Control
-                        classes={classes!(
-                                "has-icons-right",
-                                "has-icons-left"
-                                )}
-                        expanded=true
-                    >
-                        <span class="icon is-small is-left">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <ybc::Input
-                            name="password"
-                            placeholder="********"
-                            r#type={ybc::InputType::Password}
-                            value={(*password_value).to_owned()}
-                            update={update_password_value}
-                            classes={classes!(
-                                    (!(*password_valid))
-                                    .then(|| "is-danger")
-                                    )}
-                        >
-                        </ybc::Input>
-                        if !(*password_valid) {
-                            <span class="icon is-small is-right">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </span>
-                        }
-                    </ybc::Control>
-                </ybc::Field>
-
-                <ybc::Button
-                    classes={classes!(
-                        "is-primary"
-                        )}
-                    onclick={onsubmit}
-                >
-                    {"Iniciar sesion"}
-                </ybc::Button>
-            </ybc::Box>
-        </ybc::Section>
-        }
+        shadow_clone!(login_user_valid);
+        shadow_clone![email, password];
+        use_effect_with_deps(move |(email, password)| {
+            let valid = (*email).valid && (*password).valid;
+            login_user_valid.set(valid);
+        }, 
+        (email.clone(), password.clone()) )
     }
+
+    html! {
+    <section class="hero is-fullheight is-primary">
+        <div class="hero-body">
+            <div class="container"> 
+                <div class="box is-centered">
+                    <Form method="post">
+                        <FormField label="Email">
+                            <FormInputField 
+                                input_type="text"
+                                placeholder="e.g. alex@example.com"
+                                danger_msg="Campo Obligatorio"
+                                oninput={oninput_email.clone()}
+                                value={(*email).value.clone()}
+                                valid={(*email).valid}
+                                icon_left={"fa-solid fa-envelope"}
+                                icon_right={ if !(*email).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                            />
+                        </FormField>
+
+                        <FormField label="Contraseña">
+                            <FormInputField 
+                                input_type="password"
+                                danger_msg="Campo Obligatorio"
+                                oninput={oninput_password.clone()}
+                                value={(*password).value.clone()}
+                                valid={(*password).valid}
+                                icon_left={"fa-solid fa-lock"}
+                                icon_right={ if !(*password).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                            />
+                        </FormField>
+
+                        <hr/>
+
+                        <FormField>
+                            <div class="control">
+                                <button type="button" onclick={ onsubmit }
+                                    class={classes!["button", if (*login_user_valid).clone() { "is-primary"} else { "is-danger" }]}
+                                >
+                                    <span>{ "Iniciar sesion" }</span>
+                                </button>
+                            </div>
+                            if !(*login_user_valid) {
+                                <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
+                                <p class="help is-danger"> {"por favor corrige los datos"} </p>
+                            }
+                        </FormField>
+
+                    </Form>
+                </div>
+            </div>
+        </div>
+    </section>
+    }
+}
+
+fn validate_password(s: String) -> bool {
+    validate_length(s, Some(6), Some(128), None)
 }

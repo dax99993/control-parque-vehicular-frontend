@@ -1,4 +1,4 @@
-use crate::types::user::{LoginUser, User};
+use crate::types::user::{LoginUser, User, SignupUser};
 use crate::api_response::ApiResponse;
 
 use super::request::{request_get, request_post};
@@ -17,4 +17,8 @@ pub async fn request_me() -> Result<ApiResponse::<User>, Error> {
 }
 pub async fn request_logout() -> Result<ApiResponse::<()>, Error> {
     request_get(format!("{BASE_URL}/api/auth/logout")).await
+}
+
+pub async fn request_signup(signup_user: SignupUser) -> Result<ApiResponse::<()>, Error> {
+    request_post(format!("{BASE_URL}/api/auth/signup"), signup_user).await
 }

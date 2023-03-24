@@ -83,7 +83,7 @@ impl LoginUser {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Validate, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Validate, Default)]
 pub struct SignupUser {
     #[validate(length(min = 1, max = 255))]
     pub first_name: String,
