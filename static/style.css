@@ -12557,6 +12557,24 @@ table.table td.is-progress-col {
   border: 1px solid #2e323a;
 }
 
+.modal-card {
+  width: 40vw;
+}
+
+.modal-card-foot {
+  background-color: hsl(0, 0%, 96%);
+}
+
+@media screen and (max-width: 768px) {
+  .modal .modal-card {
+    width: 90vw;
+    margin: 0 auto;
+  }
+}
+.is-tiles-wrapper {
+  margin-bottom: 1.5rem;
+}
+
 footer.footer .logo img {
   width: auto;
   height: 2rem;

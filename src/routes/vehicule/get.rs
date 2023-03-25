@@ -9,6 +9,7 @@ use crate::components::vehicule::vehicule_item::VehiculeItem;
 use crate::components::main_section::MainSection;
 use crate::components::modal::Modal;
 use crate::components::card::{Card, CardContent};
+use crate::components::pagination::Pagination;
 //use crate::routes::AppRoute;
 
 
@@ -119,28 +120,10 @@ fn GetVehiculesAdminView() -> Html {
                         </div>
                     </CardContent>
 
-                    <div class="notification">
-                        <div class="level">
-                            <div class="level-left">
-                                <div class="level-item">
-                                    <div class="buttons has-addons">
-                                        <button type="button" class="button is-active">{"1"}</button>
-                                        <button type="button" class="button">{"2"}</button>
-                                        <button type="button" class="button">{"3"}</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="level-right">
-                                <div class="level-item">
-                                    <small>{ "Pagina 1 de 3" }</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                 </Card>
 
-
+                <Pagination total_pages=4 />
                     
                 <Modal 
                     body={html!{<p>{"un "}<b>{"mensaje"}</b></p>}}

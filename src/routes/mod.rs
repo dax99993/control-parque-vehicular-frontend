@@ -1,7 +1,5 @@
-pub mod login;
-pub mod logout;
 pub mod home;
-pub mod register;
+pub mod auth;
 pub mod vehicule;
 
 
@@ -9,11 +7,11 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 
-use login::Login;
-use logout::Logout;
-use register::Register;
 use home::Home;
 
+use self::auth::login::Login;
+use self::auth::logout::Logout;
+use self::auth::register::Register;
 
 use self::vehicule::delete::VehiculeDeleteView;
 use self::vehicule::get::GetVehicules;
