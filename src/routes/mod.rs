@@ -15,6 +15,7 @@ use register::Register;
 use home::Home;
 
 
+use self::vehicule::delete::VehiculeDeleteView;
 use self::vehicule::get::GetVehicules;
 use self::vehicule::register::RegisterVehicule;
 use self::vehicule::edit::EditVehicule;
@@ -38,6 +39,8 @@ pub enum AppRoute {
     VehiculesRegister,
     #[at("/vehicules/edit/:id")]
     VehiculesEdit { id: String },
+    #[at("/vehicules/delete/:id")]
+    VehiculesDelete{ id: String },
     // User routes
     #[at("/users")]
     Users,
@@ -65,6 +68,7 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::Vehicules => html! { <GetVehicules/> },
         AppRoute::VehiculesRegister => html! { <RegisterVehicule/> },
         AppRoute::VehiculesEdit { id } => html! { <EditVehicule id={id}/> },
+        AppRoute::VehiculesDelete { id } => html! { <VehiculeDeleteView id={id}/> },
         // User routes
         AppRoute::Users => html! { {"users"} },
         // Request routes

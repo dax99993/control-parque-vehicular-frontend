@@ -3,10 +3,13 @@ use yew_hooks::use_async;
 
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::{request_normal_get_vehicules, request_admin_get_vehicules};
+use crate::shadow_clone;
 use crate::types::vehicule::{Vehicule, FilteredVehicule};
 use crate::components::vehicule::vehicule_item::VehiculeItem;
 use crate::components::main_section::MainSection;
 use crate::components::modal::Modal;
+use crate::components::card::{Card, CardContent};
+//use crate::routes::AppRoute;
 
 
 
@@ -20,11 +23,9 @@ pub fn GetVehicules() -> Html {
 
     html! {
         if user_ctx.is_admin() {
-            <GetVehiculesAdminView>
-            </GetVehiculesAdminView>
+            <GetVehiculesAdminView />
         } else {
-            <GetVehiculesNormalView>
-            </GetVehiculesNormalView>
+            <GetVehiculesNormalView />
         }
     }
 }
@@ -32,16 +33,37 @@ pub fn GetVehicules() -> Html {
 
 #[function_component]
 fn GetVehiculesAdminView() -> Html {
+
     let vehicules = use_state(|| Vec::<Vehicule>::new());
 
+    // Api fetch request
     let request_vehicule_admin = {
         use_async(async {
             request_admin_get_vehicules().await
         })
     };
 
+    // Fetch api when rendered
     {
-        let vehicules = vehicules.clone();
+        shadow_clone!(request_vehicule_admin);
+        use_effect_with_deps(move |_| {
+            request_vehicule_admin.run()
+        },
+        ());
+    }
+
+    // Re-fetch api when clicking on button
+    let onclick = {
+        shadow_clone!(request_vehicule_admin);
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default(); 
+            request_vehicule_admin.run();
+        })
+    };
+
+    // Update vehicule vector when fetching from api
+    {
+        shadow_clone![vehicules, request_vehicule_admin];
         use_effect_with_deps(
             move |request_vehicule| {
                 if let Some(response) = &request_vehicule.data {
@@ -57,32 +79,17 @@ fn GetVehiculesAdminView() -> Html {
         );
     }
 
-    let onclick = {
-        let request_vehicule_admin = request_vehicule_admin.clone();
-        Callback::from(move |e: MouseEvent| {
-            e.prevent_default(); 
-            request_vehicule_admin.run();
-        })
-    };
     
 
     {
-        let vehicules = vehicules.clone();
+        shadow_clone!(vehicules);
         html!{
             <MainSection route="Admin" subroute="Vehiculos" title="Vehiculos">
 
-                <div class="card has-table">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            <span class="icon"><i class="fa-solid fa-car"></i></span>
-                            {"Vehiculos"}
-                        </p>
-                        <a href="#" class="card-header-icon" id="vehicules-reload" {onclick}>
-                            <span class="icon"><i class="fa-solid fa-rotate-right"></i></span>
-                        </a>
-                    </header>
-
-                    <div class="card-content">
+                <Card header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } classes={classes!["has-table"]}
+                    header_icon_right={ "fa-solid fa-rotate-right" } header_icon_right_onclick={ onclick } 
+                >
+                    <CardContent>
                         <div class="b-table has-pagination">
                             <div class="table-wrapper has-mobile-cards">
                                 <table class="table is-fullwidth is-striped is-hoverable is-fullwidth">
@@ -110,7 +117,7 @@ fn GetVehiculesAdminView() -> Html {
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </CardContent>
 
                     <div class="notification">
                         <div class="level">
@@ -131,17 +138,28 @@ fn GetVehiculesAdminView() -> Html {
                         </div>
                     </div>
 
-                </div>
+                </Card>
+
+
                     
                 <Modal 
                     body={html!{<p>{"un "}<b>{"mensaje"}</b></p>}}
-                    action_button_label={"Borrar"}>
+                    right_button_label={"Borrar"}
+                    right_button_onclick={ Callback::from(move |e: MouseEvent| {
+                        e.prevent_default();
+                        log::debug!("Right modal click");
+                        //user_ctx.redirect_to(AppRoute::VehiculesDelete);
+                        })
+                    }
+                >
                 </Modal>
 
             </MainSection>
         }
     }
 }
+
+
 
 #[function_component]
 fn GetVehiculesNormalView() -> Html {
@@ -194,7 +212,7 @@ fn vehicule_to_vehicule_list(vehicules: Vec<Vehicule>) -> Vec<Html> {
     vehicules.into_iter().map(|v| {
         html!{
             <VehiculeItem
-                vehicule={Some(v)}>
+                vehicule={v}>
             </VehiculeItem>
         }
     })

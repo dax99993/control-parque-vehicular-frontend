@@ -1,28 +1,40 @@
 use yew::prelude::*;
 
+use crate::shadow_clone;
 use crate::{hooks::user_context::use_user_context, routes::AppRoute};
 use crate::types::vehicule::Vehicule;
+use crate::components::modal::{open_modal};
 
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct VehiculeItemProps {
-    pub vehicule: Option<Vehicule>,
+    pub vehicule: Vehicule,
 }
 
 #[function_component]
 pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
     let user_ctx = use_user_context();
  
-    let click_trash = open_modal();
+    //let click_trash = open_modal();
 
-    let click_eye = {
-        let props = props.clone();
+    let click_trash = {
+        shadow_clone![user_ctx, props];
         Callback::from(move |_: MouseEvent| {
-            user_ctx.redirect_to(AppRoute::VehiculesEdit { 
-                id: props.vehicule.clone().unwrap().vehicule_id.to_string() 
+            user_ctx.redirect_to(AppRoute::VehiculesDelete { 
+                id: props.vehicule.clone().vehicule_id.to_string() 
             });
         })
     };
 
+    let click_eye = {
+        shadow_clone![user_ctx, props];
+        Callback::from(move |_: MouseEvent| {
+            user_ctx.redirect_to(AppRoute::VehiculesEdit { 
+                id: props.vehicule.clone().vehicule_id.to_string() 
+            });
+        })
+    };
+
+    shadow_clone!(props);
     html! {
         <>
         <tr>
@@ -38,12 +50,10 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
             </div>
         </td>
 
-        if props.vehicule.is_some() {
-        <td data-label="Marca">{&props.vehicule.clone().unwrap().branch}</td>
-        <td data-label="Modelo">{&props.vehicule.clone().unwrap().model}</td>
-        <td data-label="Año">{&props.vehicule.clone().unwrap().year}</td>
-        <td data-label="Estado">{&props.vehicule.clone().unwrap().status}</td>
-        }
+        <td data-label="Marca">{&props.vehicule.branch}</td>
+        <td data-label="Modelo">{&props.vehicule.clone().model}</td>
+        <td data-label="Año">{&props.vehicule.clone().year}</td>
+        <td data-label="Estado">{&props.vehicule.clone().status}</td>
 
         <td class="is-actions-cell">
             <div class="buttons is-right">
@@ -61,27 +71,3 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
 
 }
 
-
-/*
-fn admin_view() {
-
-}
-
-fn normal_view() {
-
-}
-*/
-
-use gloo::utils::{document, document_element};
-use crate::utils::toggle_class;
-
-//fn open_modal(menu_id: String) -> Callback<MouseEvent> {
-fn open_modal() -> Callback<MouseEvent> {
-    Callback::from(move |_: MouseEvent| {
-        if let Some(element) = document().get_element_by_id("sample-modal") {
-            toggle_class(element, "is-active");
-        }
-        let element = document_element();
-        toggle_class(element, "is-clipped");
-    })
-}

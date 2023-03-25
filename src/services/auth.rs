@@ -15,6 +15,7 @@ pub async fn request_login(login_user: LoginUser) -> Result<ApiResponse::<String
 pub async fn request_me() -> Result<ApiResponse::<User>, Error> {
     request_get(format!("{BASE_URL}/api/users/me")).await
 }
+
 pub async fn request_logout() -> Result<ApiResponse::<()>, Error> {
     request_get(format!("{BASE_URL}/api/auth/logout")).await
 }

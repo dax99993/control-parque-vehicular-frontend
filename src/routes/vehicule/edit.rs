@@ -3,6 +3,7 @@ use yew::prelude::*;
 use crate::hooks::user_context::use_user_context;
 use crate::components::main_section::MainSection;
 use crate::components::form::form::{Form, FormField, FormInputField};
+use crate::components::card::{Card, CardContent};
 
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -22,20 +23,13 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
     html!{
         <MainSection route="Admin" subroute="Vehiculos" title="Editar Vehiculo">
 
-            <div class="card">
-                <header class="card-header">
-                    <p class="card-header-title">
-                        <span class="icon"><i class="fa-solid fa-ballot"></i></span>
-                        { "Editar registro" }
-                    </p>
-                </header>
-
-                <div class="card-content">
+            <Card header_icon_left={"fa-solid fa-ballot"} header_title={"Editar registro"}>
+                <CardContent>
                     <Form method="get">
                         <p>{ props.id }</p>
                     </Form>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
         </MainSection>
     }

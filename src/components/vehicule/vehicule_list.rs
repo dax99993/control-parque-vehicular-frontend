@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 
 use crate::hooks::user_context::use_user_context;
-use super::vehicule_item::VehiculeItem;
+//use super::vehicule_item::VehiculeItem;
 
 #[function_component]
 pub fn VehiculeList() -> Html {
@@ -14,10 +14,7 @@ pub fn VehiculeList() -> Html {
     
     html! {
         <>
-            <VehiculeItem>
-            </VehiculeItem>
         </>
-
     }
 
 }

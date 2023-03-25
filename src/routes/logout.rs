@@ -1,51 +1,47 @@
-//use std::ops::Deref;
-
 use yew::prelude::*;
-//use yew_hooks::prelude::*;
+use yew_hooks::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
-//use crate::services::auth::request_logout;
+use crate::services::auth::request_logout;
+use crate::shadow_clone;
 
 #[function_component]
 pub fn Logout() -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() {
         user_ctx.redirect_home();
-    } else {
-        user_ctx.logout();
     }
     
-    /*
-    let update = use_update();
 
-    let logout_request = {
+    // api logout request 
+    let request_logout = {
         use_async(async move {
             request_logout().await
         })
     };
     
-
-    
+    // api request on rendering
     {
-        let logout_request = logout_request.clone();
-        use_effect_once(move || {
-            logout_request.run(); 
-            move || {
-            if let Some(response) = &logout_request.data {
-                log::debug!("Logout response {}", &response);
-                // execute logout routine (delete local token, routing to home)
-                update();
-                user_ctx.logout();
-            }
-            }
-        });
+        shadow_clone!(request_logout);
+        use_effect_with_deps(move |_| {
+            request_logout.run();
+        }, 
+        ());
     }
-    */
 
-
-
-
-    html! {
-        <p>{"Logging out"}</p>
+    // perform logout routine
+    {
+        shadow_clone!(request_logout);
+        use_effect_with_deps(
+            move |request_logout| {
+                if let Some(response) = &request_logout.data {
+                    log::debug!("Logout response {}", &response);
+                    user_ctx.logout();
+                }
+            }, 
+            request_logout.clone());
     }
+
+
+    html!{}
 }

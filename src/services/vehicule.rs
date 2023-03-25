@@ -1,7 +1,7 @@
 use crate::types::vehicule::{Vehicule, FilteredVehicule, NewVehicule};
 use crate::api_response::ApiResponse;
 
-use super::request::{request_get, request_post};
+use super::request::{request_get, request_post, request_delete};
 use crate::error::Error;
 
 const BASE_URL: &str = "http://127.0.0.1:8000";
@@ -17,4 +17,8 @@ pub async fn request_admin_get_vehicules() -> Result<ApiResponse::<Vec<Vehicule>
 
 pub async fn request_admin_create_vehicule(new_vehicule: NewVehicule) -> Result<ApiResponse::<Vehicule>, Error> {
     request_post(format!("{BASE_URL}/api/vehicules"), new_vehicule).await
+}
+
+pub async fn request_admin_delete_vehicule(id: String) -> Result<ApiResponse::<()>, Error> {
+    request_delete(format!("{BASE_URL}/api/vehicules/{id}")).await
 }

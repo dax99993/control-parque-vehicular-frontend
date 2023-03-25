@@ -14,6 +14,28 @@ pub fn toggle_class(e: Element, class: &str) {
     e.set_class_name(&classes.join(" "));
 }
 
+pub fn add_class(e: Element, class: &str) {
+    let e_classes = e.class_name();
+    let mut classes: Vec<&str> = e_classes
+        .split_whitespace()
+        .collect();
+    if !classes.contains(&class) {
+        classes.push(class);
+    }
+    e.set_class_name(&classes.join(" "));
+}
+
+pub fn remove_class(e: Element, class: &str) {
+    let e_classes = e.class_name();
+    let mut classes: Vec<&str> = e_classes
+        .split_whitespace()
+        .collect();
+    if classes.contains(&class) {
+        classes.retain(|&c| c != class);
+    }
+    e.set_class_name(&classes.join(" "));
+}
+
 #[macro_export]
 macro_rules! oninput_macro {
     ( $field_state:tt, $validator:expr) => {
