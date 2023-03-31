@@ -1,9 +1,9 @@
 use web_sys::Element;
 
 
-pub fn toggle_class(e: Element, class: &str) {
-    let e_classes = e.class_name();
-    let mut classes: Vec<&str> = e_classes
+pub fn toggle_class(e: &Element, class: &str) {
+    let classes = e.class_name();
+    let mut classes: Vec<&str> = classes
         .split_whitespace()
         .collect();
     if classes.contains(&class) {
@@ -14,9 +14,9 @@ pub fn toggle_class(e: Element, class: &str) {
     e.set_class_name(&classes.join(" "));
 }
 
-pub fn add_class(e: Element, class: &str) {
-    let e_classes = e.class_name();
-    let mut classes: Vec<&str> = e_classes
+pub fn add_class(e: &Element, class: &str) {
+    let classes = e.class_name();
+    let mut classes: Vec<&str> = classes
         .split_whitespace()
         .collect();
     if !classes.contains(&class) {
@@ -25,15 +25,23 @@ pub fn add_class(e: Element, class: &str) {
     e.set_class_name(&classes.join(" "));
 }
 
-pub fn remove_class(e: Element, class: &str) {
-    let e_classes = e.class_name();
-    let mut classes: Vec<&str> = e_classes
+pub fn remove_class(e: &Element, class: &str) {
+    let classes = e.class_name();
+    let mut classes: Vec<&str> = classes
         .split_whitespace()
         .collect();
     if classes.contains(&class) {
         classes.retain(|&c| c != class);
     }
     e.set_class_name(&classes.join(" "));
+}
+
+pub fn has_class(e: &Element, class: &str) -> bool {
+    let classes = e.class_name();
+    let classes: Vec<&str> = classes
+        .split_whitespace()
+        .collect();
+    return classes.contains(&class);
 }
 
 #[macro_export]
@@ -71,4 +79,10 @@ macro_rules! shadow_clone {
 pub struct FormFieldState {
     pub value: String,
     pub valid: bool,
+}
+
+impl FormFieldState {
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
 }

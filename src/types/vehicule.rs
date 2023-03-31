@@ -1,8 +1,9 @@
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::NaiveDateTime;
+use validator::Validate;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Vehicule {
     pub vehicule_id: Uuid,
     pub branch: String,
@@ -48,20 +49,38 @@ impl Vehicule {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
 pub struct NewVehicule {
+    #[validate(
+        length(min = 1, message = "Marca requerida"),
+    )]
     pub branch: String,
+    #[validate(
+        length(min = 1, message = "Modelo requerido"),
+    )]
     pub model: String,
+    #[validate(
+        range(min = 0, message = "Año requerido"),
+    )]
     pub year: i16,
+    #[validate(
+        length(min = 1, message = "Placa requerida"),
+    )]
     pub number_plate: String,
+    #[validate(
+        length(min = 1, message = "Nombre economico requerido"),
+    )]
     pub short_name: String,
+    #[validate(
+        length(min = 1, message = "Numero de tarjeta requerido"),
+    )]
     pub number_card: String,
     //pub status: String,
     //pub active: bool,
     //pub picture: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct UpdateVehicule {
     pub branch: Option<String>,
     pub model: Option<String>,

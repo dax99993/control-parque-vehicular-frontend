@@ -1,21 +1,52 @@
-use gloo::utils::document;
+use gloo::utils::{document, document_element};
 use yew::prelude::*;
 use yew_router::prelude::*;
-//use yew_hooks::prelude::*;
+use yew_hooks::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
-use crate::utils::toggle_class;
+use crate::shadow_clone;
+use crate::utils::{toggle_class, remove_class, add_class, has_class};
 
+
+//TODO: Create a sidebar for normal user and move current one to SidebarAdmin
 
 #[function_component]
 pub fn Sidebar() -> Html {
     let user_ctx = use_user_context();
 
     let sidebar_node_ref = use_node_ref();
+
+    // Close sidebar on mobile when clicking outside of it
+    /*
+    use_click_away(sidebar_node_ref.clone(), move |_: Event| {
+        log::debug!("Click outside of navbar!");
+        let element = document_element();
+        // Maybe should check if has such class first then remove it
+        if has_class(&element, "has-aside-mobile-expanded") {
+            remove_class(&element, "has-aside-mobile-expanded");
+        }
+    });
+    */
     
-    //TODO: remove has-aside-left has-aside-mobile-transition and has-aside-expanded
-    // when not logged in
+    // Dont show sidebar if not logged in
+    {
+        shadow_clone!(user_ctx);
+        use_effect_with_deps(move |user_ctx| {
+            let element = document_element();
+
+            if user_ctx.is_authenticated() {
+                add_class(&element, "has-aside-left");
+                add_class(&element, "has-aside-mobile-transition");
+                //add_class(element.clone(), "has-aside-mobile-expanded");
+            } else {
+                remove_class(&element, "has-aside-left");
+                remove_class(&element, "has-aside-mobile-transition");
+                //remove_class(element.clone(), "has-aside-mobile-expanded");
+            }
+        },
+        user_ctx.clone())
+    }
 
     html! {
         if user_ctx.is_admin() {
@@ -109,9 +140,9 @@ fn toggle_menu(menu_id: String) -> Callback<MouseEvent> {
                 .get_elements_by_class_name("fa-solid")
                 .item(0).unwrap();
 
-            toggle_class(children.clone(), "fa-angle-up");
-            toggle_class(children, "fa-angle-down");
-            toggle_class(element, "is-active");
+            toggle_class(&children, "fa-angle-up");
+            toggle_class(&children, "fa-angle-down");
+            toggle_class(&element, "is-active");
         }
     })
 }

@@ -1,21 +1,26 @@
 use yew::prelude::*;
 
-use crate::shadow_clone;
-use crate::{hooks::user_context::use_user_context, routes::AppRoute};
 use crate::types::vehicule::Vehicule;
-use crate::components::modal::{open_modal};
+use crate::{hooks::user_context::use_user_context, routes::AppRoute};
 
-#[derive(Debug, PartialEq, Clone, Properties)]
-pub struct VehiculeItemProps {
-    pub vehicule: Vehicule,
+use crate::shadow_clone;
+
+#[derive(Debug, Clone, PartialEq, Properties)]
+pub struct Props {
+   pub vehicule: Vehicule, 
 }
 
 #[function_component]
-pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
-    let user_ctx = use_user_context();
- 
-    //let click_trash = open_modal();
+pub fn VehiculeTableRow(props: &Props) -> Html {
+    shadow_clone!(props);
 
+    //TODO request vehicule picture
+    // by constructing a global URL_BASE
+    
+ 
+    let user_ctx = use_user_context();
+
+    //let click_trash = open_modal();
     let click_trash = {
         shadow_clone![user_ctx, props];
         Callback::from(move |_: MouseEvent| {
@@ -34,9 +39,8 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
         })
     };
 
-    shadow_clone!(props);
-    html! {
-        <>
+
+    html!{
         <tr>
         <td class="is-checkbox-cell">
           <label class="b-checkbox checkbox">
@@ -54,20 +58,22 @@ pub fn VehiculeItem(props: &VehiculeItemProps) -> Html {
         <td data-label="Modelo">{&props.vehicule.clone().model}</td>
         <td data-label="Año">{&props.vehicule.clone().year}</td>
         <td data-label="Estado">{&props.vehicule.clone().status}</td>
+        <td data-label="Nombre economico">{&props.vehicule.clone().short_name}</td>
+        <td data-label="Numero de tarjeta">{&props.vehicule.clone().number_card}</td>
 
         <td class="is-actions-cell">
             <div class="buttons is-right">
                 <button class="button is-small is-primary" type="button" onclick={click_eye}>
                     <span class="icon"><i class="fa-solid fa-eye"></i></span>
+                    <span>{"Editar"}</span>
                 </button>
+
                 <button class="button is-small is-danger jb-modal" data-target="sample-modal" type="button" onclick={click_trash}>
                     <span class="icon"><i class="fa-solid fa-trash-can"></i></span>
+                    <span>{"Borrar"}</span>
                 </button>
             </div>
         </td>
         </tr>
-        </>
     }
-
 }
-

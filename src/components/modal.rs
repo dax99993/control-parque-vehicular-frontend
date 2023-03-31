@@ -6,20 +6,20 @@ use crate::utils::{remove_class, add_class};
 pub fn open_modal() -> Callback<MouseEvent> {
     Callback::from(move |_: MouseEvent| {
         if let Some(element) = document().get_element_by_id("sample-modal") {
-            add_class(element, "is-active");
+            add_class(&element, "is-active");
         }
         let element = document_element();
-        add_class(element, "is-clipped");
+        add_class(&element, "is-clipped");
     })
 }
 
 pub fn close_modal() -> Callback<MouseEvent> {
     Callback::from(move |_: MouseEvent| {
         if let Some(element) = document().get_element_by_id("sample-modal") {
-            remove_class(element, "is-active");
+            remove_class(&element, "is-active");
         }
         let element = document_element();
-        remove_class(element, "is-clipped");
+        remove_class(&element, "is-clipped");
     })
 }
 

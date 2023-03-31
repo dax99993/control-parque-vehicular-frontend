@@ -1,2 +1,2 @@
-pub mod vehicule_item;
-pub mod vehicule_list;
+pub mod form;
+pub mod table;

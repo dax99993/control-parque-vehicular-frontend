@@ -6,15 +6,33 @@ use crate::services::request::store_token;
 use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
 
-
-use crate::components::form::{Form, FormField, FormInputField };
+use crate::components::form::{Form, FormField, InputFieldValidated };
 
 use yew_hooks::prelude::*;
-use validator::{validate_email, validate_length};
+use validator::{ValidationErrors, Validate};
 
-use crate::utils::FormFieldState;
-use crate::{oninput_macro, shadow_clone};
+use crate::shadow_clone;
 //use gloo::utils;
+
+use std::cell::RefCell;
+use std::ops::Deref;
+use std::rc::Rc;
+
+
+fn get_input_callback(
+    name: &'static str,
+    cloned_form: UseStateHandle<LoginUser>,
+) -> Callback<String> {
+    Callback::from(move |value| {
+        let mut data = cloned_form.deref().clone();
+        match name {
+            "email" => data.email = value,
+            "password" => data.password = value,
+            _ => (),
+        }
+        cloned_form.set(data);
+    })
+}
 
 
 #[function_component]
@@ -27,14 +45,52 @@ pub fn Login() -> Html {
     }
     // States
     let login_user = use_state(|| LoginUser::default());
-    let login_user_valid = use_state(|| bool::default());
+    let login_user_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let email = use_state(|| FormFieldState::default());
-    let oninput_email = oninput_macro!(email, validate_email);
+    let email_input_ref = NodeRef::default();
+    let password_input_ref = NodeRef::default();
 
-    let password = use_state(|| FormFieldState::default());
-    let oninput_password = oninput_macro!(password, validate_password);
 
+    let validate_input_on_blur = {
+        shadow_clone![login_user, login_user_validation];
+        Callback::from(move |(name, value): (String, String)| {
+            let mut data = login_user.deref().clone();
+            match name.as_str() {
+                "email" => data.email = value,
+                "password" => data.password = value,
+                _ => (),
+            }
+            log::debug!("Onblur login data {:?}", &data); 
+            login_user.set(data);
+
+            match login_user.validate() {
+                Ok(_) => {
+                    login_user_validation
+                        .borrow_mut()
+                        .errors_mut()
+                        .retain(|key, _| key != &name);
+                    log::debug!("Onblur login user validation ok {:?}", &login_user_validation); 
+                }
+                Err(errors) => {
+                    for(field_name, error) in errors.errors() {
+                        if field_name == &name {
+                            login_user_validation
+                                .borrow_mut()
+                                .errors_mut()
+                                .insert(field_name.clone(), error.clone());
+                            log::debug!("Onblur login user validation errors {:?}", &login_user_validation); 
+                        }
+                    }
+
+                }
+            }
+        })
+    };
+
+    let handle_email_input = get_input_callback("email", login_user.clone());
+    let handle_password_input = get_input_callback("password", login_user.clone());
+
+    
 
     // Async api request states
     let login_request = {
@@ -54,7 +110,7 @@ pub fn Login() -> Html {
 
     // Execute request get me if login was successfull
     {
-        let get_me_request = get_me_request.clone();
+        shadow_clone!(get_me_request);
         use_effect_with_deps(
             move |login_request| {
                 if let Some(response) = &login_request.data {
@@ -64,6 +120,10 @@ pub fn Login() -> Html {
                     store_token(token.clone());
                     // execute get me request
                     get_me_request.run();
+                }
+                if let Some(error) = &login_request.error {
+                    log::debug!("Login failed {:?}", &error);
+                    //TODO: show message to user depending on error variant 
                 }
             },
             login_request.clone() 
@@ -89,31 +149,37 @@ pub fn Login() -> Html {
 
     // Perform all the requests and update states for logging user
     let onsubmit = {
-        shadow_clone![login_user, login_user_valid];
-        shadow_clone![email, password];
+        shadow_clone![login_user, login_user_validation];
+        shadow_clone![email_input_ref, password_input_ref];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default(); /* Prevent event propagation */
 
-            if *login_user_valid {
-                let mut login = (*login_user).clone();
-                login.email = (*email).value.clone();
-                login.password = (*password).value.clone();
-                login_user.set(login);
-                login_request.run();
+            match login_user.validate() {
+                Ok(_) => {
+                    let email_input = if let Some(element) = email_input_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let password_input = if let Some(element) = password_input_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    //let email_input = email_input_ref.cast::<HtmlInputElement>().unwrap();
+                    //let password_input = password_input_ref.cast::<HtmlInputElement>().unwrap();
+
+                    email_input.set_value("");
+                    password_input.set_value("");
+                    log::debug!("Valid login info {:?}", *login_user); 
+                    login_request.run();
+                }
+                Err(e) => {
+                    login_user_validation.set(Rc::new(RefCell::new(e)));
+                    log::debug!("Submit Validation errors {:?}", &login_user_validation); 
+                }
             }
-            log::debug!("Valid login info {:?}", *login_user); 
         })
     };
 
-    {
-        shadow_clone!(login_user_valid);
-        shadow_clone![email, password];
-        use_effect_with_deps(move |(email, password)| {
-            let valid = (*email).valid && (*password).valid;
-            login_user_valid.set(valid);
-        }, 
-        (email.clone(), password.clone()) )
-    }
 
     html! {
     <section class="hero is-fullheight is-primary">
@@ -122,27 +188,30 @@ pub fn Login() -> Html {
                 <div class="box is-centered">
                     <Form method="post">
                         <FormField label="Email">
-                            <FormInputField 
-                                input_type="text"
+                            <InputFieldValidated
                                 placeholder="e.g. alex@example.com"
-                                danger_msg="Campo Obligatorio"
-                                oninput={oninput_email.clone()}
-                                value={(*email).value.clone()}
-                                valid={(*email).valid}
+                                msg="Colocar Correo Electronico"
                                 icon_left={"fa-solid fa-envelope"}
-                                icon_right={ if !(*email).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="email"
+                                input_ref={email_input_ref}
+                                handle_onchange={handle_email_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*login_user_validation}
                             />
                         </FormField>
 
                         <FormField label="Contraseña">
-                            <FormInputField 
+                            <InputFieldValidated
                                 input_type="password"
-                                danger_msg="Campo Obligatorio"
-                                oninput={oninput_password.clone()}
-                                value={(*password).value.clone()}
-                                valid={(*password).valid}
+                                msg="Contraseña debe tener un minimo de 6 caracteres a-zA-z"
                                 icon_left={"fa-solid fa-lock"}
-                                icon_right={ if !(*password).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="password"
+                                input_ref={password_input_ref}
+                                handle_onchange={handle_password_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*login_user_validation}
                             />
                         </FormField>
 
@@ -151,12 +220,12 @@ pub fn Login() -> Html {
                         <FormField>
                             <div class="control">
                                 <button type="button" onclick={ onsubmit }
-                                    class={classes!["button", if (*login_user_valid).clone() { "is-primary"} else { "is-danger" }]}
+                                    class={classes!["button", if login_user_validation.borrow().errors().is_empty() { "is-primary"} else { "is-danger" }]}
                                 >
                                     <span>{ "Iniciar sesion" }</span>
                                 </button>
                             </div>
-                            if !(*login_user_valid) {
+                            if !login_user_validation.borrow().errors().is_empty() {
                                 <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
                                 <p class="help is-danger"> {"por favor corrige los datos"} </p>
                             }
@@ -168,8 +237,4 @@ pub fn Login() -> Html {
         </div>
     </section>
     }
-}
-
-fn validate_password(s: String) -> bool {
-    validate_length(s, Some(6), Some(128), None)
 }

@@ -3,45 +3,62 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 use crate::routes::AppRoute;
+use crate::shadow_clone;
+use crate::utils::{remove_class, add_class, has_class, toggle_class};
 use crate::hooks::user_context::use_user_context;
-use crate::utils::toggle_class;
 
 use gloo::utils::{document, document_element};
 
 #[function_component]
 pub fn NavBar() -> Html {
     let user_ctx = use_user_context();
+
+    let document_el = use_state(|| document_element());
     
+    {
+        shadow_clone![document_el];
+        use_effect_with_deps(|document_el| {
+            if let Some(dropdownicon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
+                if !has_class(&(*document_el), "has-aside-mobile-expanded") {
+                    add_class(&dropdownicon, "fa-bars");
+                    remove_class(&dropdownicon, "fa-xmark");
+                }
+            }
+        }, 
+        document_el.clone())
+    }
 
     let aside_mobile_toggle = {
         Callback::from(move |_| {
-           // Toggle sidebar expansion
-           let e = document_element();
-           toggle_class(e.clone(), "has-aside-mobile-expanded");
-           log::debug!("document class {:?}", e.class_name());
-           // Toggle icon
-           let el = document().get_elements_by_class_name("jb-aside-mobile-toggle").item(0).unwrap();
-           let dropdownicon = el.get_elements_by_class_name("icon").item(0).unwrap()
-               .get_elements_by_class_name("fa-solid").item(0).unwrap();
-           toggle_class(dropdownicon.clone(), "fa-bars");
-           toggle_class(dropdownicon.clone(), "fa-xmark");
-           log::debug!("navbar left dropdown classes {:?}", el.class_name());
+            if let Some(dropdownicon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
+                let e = document_element();
+                if has_class(&e, "has-aside-mobile-expanded") {
+                    remove_class(&e, "has-aside-mobile-expanded");
+                } else {
+                    //add_class(&dropdownicon, "fa-bars");
+                    //remove_class(&dropdownicon, "fa-xmark");
+                    add_class(&e, "has-aside-mobile-expanded");
+                }
+                toggle_class(&dropdownicon, "fa-bars");
+                toggle_class(&dropdownicon, "fa-xmark");
+                log::debug!("icon dropdown classes {:?}", dropdownicon.class_name());
+            }
         })
     };
 
     let navbar_menu_mobile_toggle = 
         Callback::from(move |_| {
-           // Toggle menu expansion
-           let el = document().get_element_by_id("navbar-menu").unwrap();
-           toggle_class(el.clone(), "is-active");
-           log::debug!("navbar right classes {:?}", el.class_name());
-           // Toggle icon
-           let el = document().get_elements_by_class_name("jb-navbar-menu-toggle").item(0).unwrap();
-           let dropdownicon = el.get_elements_by_class_name("icon").item(0).unwrap()
-               .get_elements_by_class_name("fa-solid").item(0).unwrap();
-           toggle_class(dropdownicon.clone(), "fa-ellipsis-vertical");
-           toggle_class(dropdownicon.clone(), "fa-xmark");
-           log::debug!("navbar right dropdown classes {:?}", el.class_name());
+            if let Some(element) = document().get_element_by_id("navbar-menu") {
+                if let Some(dropdownicon) = document().get_element_by_id("navbar-toggle-menu-button") {
+                    // Toggle menu expansion
+                    toggle_class(&element, "is-active");
+                    // Toggle icon
+                    toggle_class(&dropdownicon, "fa-ellipsis-vertical");
+                    toggle_class(&dropdownicon, "fa-xmark");
+                    log::debug!("icon menu classes {:?}", dropdownicon.class_name());
+                }
+                log::debug!("navbar right dropdown classes {:?}", element.class_name());
+            }
         });
 
 
@@ -73,7 +90,7 @@ fn navbar_brand(logged_in: bool, onclick: Callback<MouseEvent>) -> Html {
         <div class="navbar-brand">
             if logged_in {
             <a class="navbar-item is-hidden-desktop jb-aside-mobile-toggle" {onclick}>
-                <span class="icon"><i class="fa-solid fa-bars"></i></span>
+                <span class="icon"><i id="navbar-toggle-sidebar-button" class="fa-solid fa-bars"></i></span>
             </a>
             }
             <div class="navbar-item" href="https://bulma.io">
@@ -87,7 +104,7 @@ fn navbar_brand_right(onclick: Callback<MouseEvent>) -> Html {
     html!{
         <div class="navbar-brand is-right">
             <a class="navbar-item is-hidden-desktop jb-navbar-menu-toggle" data-target="navbar-menu" {onclick}>
-                <span class="icon"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+                <span class="icon"><i id="navbar-toggle-menu-button" class="fa-solid fa-ellipsis-vertical"></i></span>
             </a>
         </div>
    }

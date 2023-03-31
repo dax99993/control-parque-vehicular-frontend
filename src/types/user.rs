@@ -70,9 +70,17 @@ pub struct FilteredUser {
     pub picture: String,
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, Default, Clone, PartialEq, Validate)]
 pub struct LoginUser {
+    #[validate(
+        length(min = 1, message = "Correo Electronico requerido"),
+        email(message = "Correo Electronico invalido")
+    )]
     pub email: String,
+    #[validate(
+        length(min = 1, message = "Password requerido"),
+        length(min = 6, message = "Password debe tener minimo 6 caracteres")
+    )]
     pub password: String,
 }
 

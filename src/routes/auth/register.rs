@@ -4,7 +4,7 @@ use yew_hooks::prelude::*;
 use web_sys::HtmlInputElement;
 use validator::{validate_email, validate_length};
 
-use crate::components::form::{Form, FormField, FormInputField};
+use crate::components::form::{Form, FormField, TextInputField};
 use crate::services::auth::request_signup;
 use crate::types::user::SignupUser;
 
@@ -114,61 +114,56 @@ pub fn Register() -> Html {
         <div class="box">
         <Form method="post">
             <FormField label="Nombre">
-                <FormInputField 
-                    input_type="text"
+                <TextInputField 
                     placeholder="e.g. Manuel"
-                    danger_msg="Campo Obligatorio"
+                    error_msg="Campo Obligatorio"
                     oninput={oninput_firstname.clone()}
                     value={(*firstname).value.clone()}
-                    valid={(*firstname).valid}
+                    has_error={(*firstname).valid}
                     icon_right={ if !(*firstname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
                 />
             </FormField>
 
             <FormField label="Apellidos">
-                <FormInputField 
-                    input_type="text"
+                <TextInputField 
                     placeholder="e.g. Sanchez Perez"
-                    danger_msg="Campo Obligatorio"
+                    error_msg="Campo Obligatorio"
                     oninput={oninput_lastname.clone()}
                     value={(*lastname).value.clone()}
-                    valid={(*lastname).valid}
+                    has_error={(*lastname).valid}
                     icon_right={ if !(*lastname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
                 />
             </FormField>
 
             <FormField label="Email">
-                <FormInputField 
-                    input_type="text"
+                <TextInputField 
                     placeholder="e.g. alex@example.com"
-                    danger_msg="Campo Obligatorio"
+                    error_msg="Campo Obligatorio"
                     oninput={oninput_email.clone()}
                     value={(*email).value.clone()}
-                    valid={(*email).valid}
+                    has_error={(*email).valid}
                     icon_left={"fa-solid fa-envelope"}
                     icon_right={ if !(*email).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
                 />
             </FormField>
 
             <FormField label="Contraseña">
-                <FormInputField 
-                    input_type="password"
-                    danger_msg="Campo Obligatorio"
+                <TextInputField 
+                    error_msg="Campo Obligatorio"
                     oninput={oninput_password.clone()}
                     value={(*password).value.clone()}
-                    valid={(*password).valid}
+                    has_error={(*password).valid}
                     icon_left={"fa-solid fa-lock"}
                     icon_right={ if !(*password).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
                 />
             </FormField>
 
             <FormField label="Repetir Contraseña">
-                <FormInputField 
-                    input_type="password"
-                    danger_msg="Campo Obligatorio"
+                <TextInputField 
+                    error_msg="Campo Obligatorio"
                     oninput={oninput_repassword.clone()}
                     value={(*repassword).value.clone()}
-                    valid={(*repassword).valid}
+                    has_error={(*repassword).valid}
                     icon_left={"fa-solid fa-lock"}
                     icon_right={ if !(*repassword).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
                 />

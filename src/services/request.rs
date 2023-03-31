@@ -101,9 +101,10 @@ where
     request(HttpMethod::Post, url, body).await
 }
 
-pub async fn request_patch<B>(url: String, body: B) -> Result<ApiResponse, Error> 
+pub async fn request_patch<B, T>(url: String, body: B) -> Result<ApiResponse<T>, Error> 
 where
-    B: Serialize + 'static + Into<JsValue>,
+    B: Serialize + 'static,
+    T: serde::de::DeserializeOwned
 {
     request(HttpMethod::Patch, url, body).await
 }

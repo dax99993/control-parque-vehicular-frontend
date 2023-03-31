@@ -5,10 +5,11 @@ use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::{request_normal_get_vehicules, request_admin_get_vehicules};
 use crate::shadow_clone;
 use crate::types::vehicule::{Vehicule, FilteredVehicule};
-use crate::components::vehicule::vehicule_item::VehiculeItem;
+
 use crate::components::main_section::MainSection;
-use crate::components::modal::Modal;
 use crate::components::card::{Card, CardContent};
+use crate::components::vehicule::table::{VehiculeTable, VehiculeTableRow};
+use crate::components::modal::Modal;
 use crate::components::pagination::Pagination;
 //use crate::routes::AppRoute;
 
@@ -91,33 +92,11 @@ fn GetVehiculesAdminView() -> Html {
                     header_icon_right={ "fa-solid fa-rotate-right" } header_icon_right_onclick={ onclick } 
                 >
                     <CardContent>
-                        <div class="b-table has-pagination">
-                            <div class="table-wrapper has-mobile-cards">
-                                <table class="table is-fullwidth is-striped is-hoverable is-fullwidth">
-                                    <thead>
-                                        <tr>
-                                            <th class="is-checkbox-cell">
-                                                <label class="b-checkbox checkbox"> 
-                                                    <input type="checkbox" value={"false"} />
-                                                    <span class="check"></span>
-                                                </label>
-                                            </th>
-                                            <th></th>
-                                            <th>{"Marca"}</th>
-                                            <th>{"Modelo"}</th>
-                                            <th>{"Año"}</th>
-                                            <th>{"Estado"}</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        vehicule_to_vehicule_list((*vehicules).clone())
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <VehiculeTable>
+                            {
+                                vehicule_to_vehicule_table_row((*vehicules).clone())
+                            }
+                        </VehiculeTable>
                     </CardContent>
 
 
@@ -171,7 +150,7 @@ fn GetVehiculesNormalView() -> Html {
         );
     }
 
-    let onclick = {
+    let _onclick = {
         let request_vehicule = request_vehicule.clone();
         Callback::from(move |e: MouseEvent| {
             e.prevent_default(); 
@@ -182,21 +161,16 @@ fn GetVehiculesNormalView() -> Html {
 
     html!{
         <>
-        {"Normal Vehicules"}
-        <ybc::Button
-            {onclick}
-        >
-        </ybc::Button>
         </>
     }
 }
 
-fn vehicule_to_vehicule_list(vehicules: Vec<Vehicule>) -> Vec<Html> {
+fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>) -> Vec<Html> {
     vehicules.into_iter().map(|v| {
         html!{
-            <VehiculeItem
+            <VehiculeTableRow
                 vehicule={v}>
-            </VehiculeItem>
+            </VehiculeTableRow>
         }
     })
     .collect()

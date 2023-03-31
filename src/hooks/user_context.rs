@@ -10,6 +10,7 @@ use std::ops::Deref;
 
 
 /// State handle for the ['use_user_context'] hook
+#[derive(Debug, PartialEq)]
 pub struct UseUserContextHandle {
     inner: UseStateHandle<Option<User>>,
     //inner: UseStateHandle<Option<FilteredUser>>,
