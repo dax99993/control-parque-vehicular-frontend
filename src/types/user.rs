@@ -70,7 +70,8 @@ pub struct FilteredUser {
     pub picture: String,
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize, Default, Clone, PartialEq, Validate)]
+
+#[derive(Debug, Clone, PartialEq, Default, Deserialize, Serialize, Validate)]
 pub struct LoginUser {
     #[validate(
         length(min = 1, message = "Correo Electronico requerido"),
@@ -84,35 +85,24 @@ pub struct LoginUser {
     pub password: String,
 }
 
-impl LoginUser {
-    pub fn is_filled(&self) -> bool {
-         !self.email.is_empty() &&
-         !self.password.is_empty()
-    }
-}
 
-#[derive(Debug, Clone, Deserialize, Serialize, Validate, Default)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, Validate)]
 pub struct SignupUser {
-    #[validate(length(min = 1, max = 255))]
+    #[validate(length(min = 1, max = 255, message = "Nombre invalido"))]
     pub first_name: String,
-    #[validate(length(min = 1, max = 255))]
+    #[validate(length(min = 1, max = 255, message = "Apellidos invalidos"))]
     pub last_name: String,
-    #[validate(email)]
+    #[validate(
+        length(min = 1, message = "Correo Electronico requerido"),
+        email(message = "Correo electronico invalido")
+    )]
     pub email: String,
-    //#[validate(length(min = 10, max = 255))]
-    //pub password: Secret<String>,
+    #[validate(length(min = 6, max = 255, message = "Contraseña invalida"))]
     pub password: String,
-    //#[validate(length(min = 10, max = 255))]
-    //pub re_password: Secret<String>,
+    //pub password: Secret<String>,
+    #[validate(
+        must_match(other = "password", message = "Contraseñas no coinciden")
+    )]
     pub re_password: String,
-}
-
-impl SignupUser {
-    pub fn is_filled(&self) -> bool {
-         !self.first_name.is_empty() &&
-         !self.last_name.is_empty() &&
-         !self.email.is_empty() &&
-         !self.password.is_empty() &&
-         !self.re_password.is_empty()
-    }
+    //pub re_password: Secret<String>,
 }

@@ -1,18 +1,21 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use yew_router::prelude::*;
 
+use std::cell::RefCell;
+use std::ops::Deref;
+use std::rc::Rc;
+use validator::{ValidationErrors, Validate};
 use web_sys::HtmlInputElement;
-use validator::{validate_email, validate_length};
 
-use crate::components::form::{Form, FormField, TextInputField};
+use crate::shadow_clone;
 use crate::services::auth::request_signup;
 use crate::types::user::SignupUser;
-
 use crate::routes::AppRoute;
 use crate::hooks::user_context::use_user_context;
 
-use crate::utils::FormFieldState;
-use crate::{oninput_macro, shadow_clone};
+use crate::components::form::{Form, FormField, InputFieldValidated};
+
 
 #[function_component]
 pub fn Register() -> Html {
@@ -24,49 +27,64 @@ pub fn Register() -> Html {
     }
     // States
     let signup_user = use_state(|| SignupUser::default());
-    let signup_user_valid = use_state(|| bool::default());
+    let signup_user_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let firstname= use_state(|| FormFieldState::default());
-    let oninput_firstname = oninput_macro!(firstname, validate_name);
+    // Form field nodes
+    let firstname_ref = NodeRef::default();
+    let lastname_ref = NodeRef::default();
+    let email_ref = NodeRef::default();
+    let password_ref = NodeRef::default();
+    let repassword_ref = NodeRef::default();
 
-    let lastname= use_state(|| FormFieldState::default());
-    let oninput_lastname = oninput_macro!(lastname, validate_name);
 
-    let email = use_state(|| FormFieldState::default());
-    let oninput_email = oninput_macro!(email, validate_email);
+    let validate_input_on_blur = {
+        shadow_clone![signup_user, signup_user_validation];
+        Callback::from(move |(name, value): (String, String)| {
+            let mut data = signup_user.deref().clone();
+            match name.as_str() {
+                "first_name" => data.first_name= value,
+                "last_name" => data.last_name = value,
+                "email" => data.email = value,
+                "password" => data.password = value,
+                "re_password" => data.re_password = value,
+                _ => (),
+            }
+            log::debug!("Onblur signup data {:?}", &data); 
+            signup_user.set(data);
 
-    let password= use_state(|| FormFieldState::default());
-    let oninput_password = oninput_macro!(password, validate_password);
+            match signup_user.validate() {
+                Ok(_) => {
+                    signup_user_validation
+                        .borrow_mut()
+                        .errors_mut()
+                        .retain(|key, _| key != &name);
+                    log::debug!("Onblur signup user validation ok {:?}", &signup_user_validation); 
+                }
+                Err(errors) => {
+                    for(field_name, error) in errors.errors() {
+                        if field_name == &name {
+                            signup_user_validation
+                                .borrow_mut()
+                                .errors_mut()
+                                .insert(field_name.clone(), error.clone());
+                            log::debug!("Onblur signup user validation errors {:?}", &signup_user_validation); 
+                        }
+                    }
 
-    let repassword= use_state(|| FormFieldState::default());
-    //let oninput_repassword = oninput_macro!(repassword, validate_password);
-    let oninput_repassword = {
-        shadow_clone!(password, repassword);
-        Callback::from(move |e: InputEvent| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            let value = format!("{}", &input.value().trim());
-            let valid = (*password).value == value;
-            let form_field = FormFieldState { value, valid };
-            repassword.set(form_field);
+                }
+            }
         })
     };
 
 
-    // Check validity of all form fields to allow signup
-    {
-        shadow_clone!(signup_user_valid);
-        shadow_clone![firstname, lastname, email, password, repassword];
-        use_effect_with_deps(move |(firstname, lastname, email, password, repassword)| {
-            let valid = (*firstname).valid && (*lastname). valid &&
-                (*email).valid && (*password).valid && (*repassword).valid;
+    let handle_firstname_input = get_input_callback("first_name", signup_user.clone());
+    let handle_lastname_input = get_input_callback("last_name", signup_user.clone());
+    let handle_email_input = get_input_callback("email", signup_user.clone());
+    let handle_password_input = get_input_callback("password", signup_user.clone());
+    let handle_repassword_input = get_input_callback("password", signup_user.clone());
 
-            signup_user_valid.set(valid);
-        }, 
-        (firstname.clone(), lastname.clone(), email.clone(), password.clone(), repassword.clone())
-        )
-    }
 
-    // async api request 
+    // Async api request states
     let request_signup_user = {
         shadow_clone!(signup_user);
         use_async(async move {
@@ -74,7 +92,8 @@ pub fn Register() -> Html {
         })
     };
 
-    // Execute request get me if login was successfull
+    // Redirect to login if signup was successfull
+    // TODO: maybe redirect to home page or page with message to confirm account by email
     {
         shadow_clone!(request_signup_user);
         use_effect_with_deps(
@@ -87,108 +106,182 @@ pub fn Register() -> Html {
             request_signup_user.clone() 
         );
     }
+    
 
     // signup user if valid data
     let onsubmit = {
-        shadow_clone![signup_user, signup_user_valid];
-        shadow_clone![firstname, lastname, email, password, repassword];
-        Callback::from(move |_: MouseEvent| {
-            if *signup_user_valid {
-                let mut signup = (*signup_user).clone();
-                signup.first_name= (*firstname).value.clone();
-                signup.last_name= (*lastname).value.clone();
-                signup.email = (*email).value.clone();
-                signup.password = (*password).value.clone();
-                signup.re_password = (*repassword).value.clone();
-                signup_user.set(signup);
+        shadow_clone![signup_user, signup_user_validation];
+        shadow_clone![firstname_ref, lastname_ref, email_ref, password_ref, repassword_ref];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default(); /* Prevent event propagation */
 
-                request_signup_user.run();
+            match signup_user.validate() {
+                Ok(_) => {
+                    let firstname_input = if let Some(element) = firstname_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let lastname_input = if let Some(element) = lastname_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let email_input = if let Some(element) = email_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let password_input = if let Some(element) = password_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let repassword_input = if let Some(element) = repassword_ref.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
 
+                    firstname_input.set_value("");
+                    lastname_input.set_value("");
+                    email_input.set_value("");
+                    password_input.set_value("");
+                    repassword_input.set_value("");
+                    log::debug!("Valid signup info {:?}", *signup_user); 
+                    request_signup_user.run();
+                }
+                Err(e) => {
+                    signup_user_validation.set(Rc::new(RefCell::new(e)));
+                    log::debug!("Submit Validation errors {:?}", &signup_user_validation); 
+                }
             }
-            log::debug!("Valid signup info {:?}", *signup_user); 
         })
     };
 
+
     html! {
-        <div class="container">
-        <div class="box">
-        <Form method="post">
-            <FormField label="Nombre">
-                <TextInputField 
-                    placeholder="e.g. Manuel"
-                    error_msg="Campo Obligatorio"
-                    oninput={oninput_firstname.clone()}
-                    value={(*firstname).value.clone()}
-                    has_error={(*firstname).valid}
-                    icon_right={ if !(*firstname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
-                />
-            </FormField>
+    <section class="hero is-fullheight is-primary">
+        <div class="hero-body">
+            <div class="container"> 
+                <div class="columns is-centered ">
+                <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                    <Form method="post" classes={classes!["box"]}>
 
-            <FormField label="Apellidos">
-                <TextInputField 
-                    placeholder="e.g. Sanchez Perez"
-                    error_msg="Campo Obligatorio"
-                    oninput={oninput_lastname.clone()}
-                    value={(*lastname).value.clone()}
-                    has_error={(*lastname).valid}
-                    icon_right={ if !(*lastname).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
-                />
-            </FormField>
+                        <FormField label="Nombre" is_horizontal={false}>
+                            <InputFieldValidated
+                                placeholder="e.g. Manuel"
+                                msg="Escribir Nombres"
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="first_name"
+                                input_ref={firstname_ref}
+                                handle_onchange={handle_firstname_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*signup_user_validation}
+                            />
+                        </FormField>
 
-            <FormField label="Email">
-                <TextInputField 
-                    placeholder="e.g. alex@example.com"
-                    error_msg="Campo Obligatorio"
-                    oninput={oninput_email.clone()}
-                    value={(*email).value.clone()}
-                    has_error={(*email).valid}
-                    icon_left={"fa-solid fa-envelope"}
-                    icon_right={ if !(*email).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
-                />
-            </FormField>
+                        <FormField label="Apellidos" is_horizontal={false}>
+                            <InputFieldValidated
+                                placeholder="e.g. Sanchez Perez"
+                                msg="Escribir primero apellido materno"
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="last_name"
+                                input_ref={lastname_ref}
+                                handle_onchange={handle_lastname_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*signup_user_validation}
+                            />
+                        </FormField>
 
-            <FormField label="Contraseña">
-                <TextInputField 
-                    error_msg="Campo Obligatorio"
-                    oninput={oninput_password.clone()}
-                    value={(*password).value.clone()}
-                    has_error={(*password).valid}
-                    icon_left={"fa-solid fa-lock"}
-                    icon_right={ if !(*password).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
-                />
-            </FormField>
+                        <FormField label="Email" is_horizontal={false}>
+                            <InputFieldValidated
+                                placeholder="e.g. alex@example.com"
+                                msg="Colocar Correo Electronico"
+                                icon_left={"fa-solid fa-envelope"}
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="email"
+                                input_ref={email_ref}
+                                handle_onchange={handle_email_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*signup_user_validation}
+                            />
+                        </FormField>
 
-            <FormField label="Repetir Contraseña">
-                <TextInputField 
-                    error_msg="Campo Obligatorio"
-                    oninput={oninput_repassword.clone()}
-                    value={(*repassword).value.clone()}
-                    has_error={(*repassword).valid}
-                    icon_left={"fa-solid fa-lock"}
-                    icon_right={ if !(*repassword).valid { "fa-solid fa-triangle-exclamation" } else { "" } }
-                />
-            </FormField>
+                        <FormField label="Contraseña" is_horizontal={false}>
+                            <InputFieldValidated
+                                msg="Colocar Correo Electronico"
+                                icon_left={"fa-solid fa-lock"}
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="password"
+                                input_ref={password_ref}
+                                handle_onchange={handle_password_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*signup_user_validation}
+                            />
+                        </FormField>
 
-            <hr/>
+                        <FormField label="Repetir Contraseña" is_horizontal={false}>
+                            <InputFieldValidated
+                                msg="Repetir Contraseña"
+                                icon_left={"fa-solid fa-lock"}
+                                icon_right={"fa-solid fa-triangle-exclamation"}
+                                name="re_password"
+                                input_ref={repassword_ref}
+                                handle_onchange={handle_repassword_input}
+                                handle_on_input_blur={validate_input_on_blur.clone()}
+                                errors={&*signup_user_validation}
+                            />
+                        </FormField>
 
-            <FormField>
-                <div class="control">
-                    <button type="button" onclick={ onsubmit }
-                        class={classes!["button", if (*signup_user_valid).clone() { "is-primary"} else { "is-danger" }]}
-                    >
-                        <span>{ "Iniciar sesion" }</span>
-                    </button>
+                        <hr/>
+
+                        <FormField>
+                            <div class="control">
+                                <button type="button" onclick={ onsubmit }
+                                    class={classes!["button", if signup_user_validation.borrow().errors().is_empty() { "is-primary"} else { "is-danger" }]}
+                                >
+                                    <span>{ "Crear cuenta" }</span>
+                                </button>
+                            </div>
+                            if !signup_user_validation.borrow().errors().is_empty() {
+                                <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
+                                <p class="help is-danger"> {"por favor corrige los datos"} </p>
+                            }
+                        </FormField>
+
+                        <hr/>
+
+                        <FormField>
+                            <div class="container has-text-centered">
+                                {" ¿Ya tienes cuenta? "}
+                                <Link<AppRoute> to={AppRoute::Login} classes="has-text-link">
+                                    {"Inicia sesion"}
+                                </Link<AppRoute>>
+                            </div>
+                        </FormField>
+                </Form>
                 </div>
-                if !(*signup_user_valid) {
-                    <p class="help is-danger"> {"Formulario invalido o incompleto,"} </p>
-                    <p class="help is-danger"> {"por favor corrige los datos"} </p>
-                }
-            </FormField>
-        </Form>
+                </div>
+            </div>
         </div>
-        </div>
+    </section>
     }
 }
+
+fn get_input_callback(
+    name: &'static str,
+    cloned_form: UseStateHandle<SignupUser>,
+) -> Callback<String> {
+    Callback::from(move |value| {
+        let mut data = cloned_form.deref().clone();
+        match name {
+            "first_name" => data.first_name= value,
+            "last_name" => data.last_name = value,
+            "email" => data.email = value,
+            "password" => data.password = value,
+            "re_password" => data.re_password = value,
+            _ => (),
+        }
+        cloned_form.set(data);
+    })
+}
+
 
 use std::borrow::Cow;
 
@@ -208,8 +301,4 @@ where
     }
 
     return true;
-}
-
-fn validate_password(s: String) -> bool {
-    validate_length(s, Some(6), Some(128), None)
 }

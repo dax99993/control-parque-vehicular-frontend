@@ -3,9 +3,9 @@ use std::ops::Deref;
 use yew::prelude::*;
 use yew_hooks::use_async;
 
+use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::{request_normal_get_vehicules, request_admin_get_vehicules};
-use crate::shadow_clone;
 use crate::types::vehicule::{Vehicule, FilteredVehicule};
 
 use crate::components::main_section::MainSection;
@@ -13,9 +13,6 @@ use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::table::{VehiculeTable, VehiculeTableRow};
 use crate::components::modal::Modal;
 use crate::components::pagination::Pagination;
-
-use web_sys::HtmlElement;
-
 
 
 
@@ -81,7 +78,7 @@ fn GetVehiculesAdminView() -> Html {
         use_effect_with_deps(
             move |request_vehicule| {
                 if let Some(api_response) = &request_vehicule.data {
-                    log::debug!("vehicules api response {:?}", &api_response);
+                    log::debug!("vehicules api response\n {:?}", &api_response);
                     if let Some(vec_vehicules) = api_response.data.clone() {
                         vehicules.set(vec_vehicules);
                     }
@@ -98,7 +95,6 @@ fn GetVehiculesAdminView() -> Html {
         use_effect_with_deps(move |vehicules| {
             let pages: f64 = vehicules.len() as f64 / vehicules_per_page as f64;
             total_pages.set(pages.ceil() as usize);
-            log::debug!("total_pages {}", *total_pages);
         },
         vehicules.clone());
     };
@@ -119,7 +115,7 @@ fn GetVehiculesAdminView() -> Html {
                     .map(|v| v.clone())
                     .collect();
                 vehicules_current_page.set(vp);
-                log::debug!("vehicules current page {:?}", *vehicules_current_page);
+                log::debug!("vehicules current page\n {:?}", *vehicules_current_page);
             }
 
         },

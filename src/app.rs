@@ -4,8 +4,8 @@ use yew_router::prelude::*;
 
 use crate::components::navbar::NavBar;
 use crate::components::footer::Footer;
-use crate::components::user_context_provider::UserContextProvider;
 use crate::components::sidebar::Sidebar;
+use crate::context::UserContextProvider;
 use crate::routes::{switch, AppRoute};
 
 

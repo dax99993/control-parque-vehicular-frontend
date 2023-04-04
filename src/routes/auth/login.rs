@@ -1,14 +1,16 @@
 use yew::prelude::*;
+use yew_hooks::prelude::*;
+use yew_router::prelude::*;
 use web_sys::HtmlInputElement;
 
 use crate::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
 use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
+use crate::routes::AppRoute;
 
 use crate::components::form::{Form, FormField, InputFieldValidated };
 
-use yew_hooks::prelude::*;
 use validator::{ValidationErrors, Validate};
 
 use crate::shadow_clone;
@@ -185,9 +187,10 @@ pub fn Login() -> Html {
     <section class="hero is-fullheight is-primary">
         <div class="hero-body">
             <div class="container"> 
-                <div class="box is-centered">
-                    <Form method="post">
-                        <FormField label="Email">
+                <div class="columns is-centered ">
+                <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                    <Form method="post" classes={classes!["box"]}>
+                        <FormField label="Email" is_horizontal={false}>
                             <InputFieldValidated
                                 placeholder="e.g. alex@example.com"
                                 msg="Colocar Correo Electronico"
@@ -201,7 +204,7 @@ pub fn Login() -> Html {
                             />
                         </FormField>
 
-                        <FormField label="Contraseña">
+                        <FormField label="Contraseña" is_horizontal={false}>
                             <InputFieldValidated
                                 input_type="password"
                                 msg="Contraseña debe tener un minimo de 6 caracteres a-zA-z"
@@ -231,7 +234,19 @@ pub fn Login() -> Html {
                             }
                         </FormField>
 
+                        <hr/>
+
+                        <FormField>
+                            <div class="container has-text-centered">
+                                {" ¿No tienes cuenta? "}
+                                <Link<AppRoute> to={AppRoute::Register} classes="has-text-link">
+                                    {"Registrate"}
+                                </Link<AppRoute>>
+                            </div>
+                        </FormField>
+
                     </Form>
+                </div>
                 </div>
             </div>
         </div>
