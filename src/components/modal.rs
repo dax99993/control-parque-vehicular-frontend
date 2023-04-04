@@ -25,15 +25,10 @@ pub fn close_modal() -> Callback<MouseEvent> {
 
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct ModalProps {
-    #[prop_or(String::from("Confirmar accion"))]
-    pub title: String,
+    #[prop_or(Some(String::from("Confirmar accion")))]
+    pub title: Option<String>,
     pub body: Html,
-    #[prop_or(String::from("Cancelar"))]
-    pub left_button_label: String,
-    pub right_button_label: String,
-    #[prop_or_else(close_modal)]
-    pub left_button_onclick: Callback<MouseEvent>,
-    pub right_button_onclick: Callback<MouseEvent>,
+    pub footer: Option<Html>,
 }
 
 
@@ -45,22 +40,28 @@ pub fn Modal(props: &ModalProps) -> Html {
         <div id="sample-modal" class="modal">
             <div class="modal-background jb-modal-close"></div>
             <div class="modal-card">
-              <header class="modal-card-head">
-                <p class="modal-card-title">{ props.title }</p>
+                <header class="modal-card-head">
+                if props.title.is_some() {
+                    <p class="modal-card-title">{ props.title }</p>
+                }
                 <button class="delete jb-modal-close" aria-label="close" id="modal-close-button" onclick={close_modal()}></button>
-              </header>
-              <section class="modal-card-body">
-              {
+                </header>
+                <section class="modal-card-body">
+                {
                   props.body
-              }
-              </section>
-              <footer class="modal-card-foot">
-                <button class="button jb-modal-close" id="modal-close-cancel-button" onclick={ close_modal() }>{ props.left_button_label }</button>
-                <button class="button is-danger jb-modal-close" onclick={ props.right_button_onclick }>{ props.right_button_label }</button>
-              </footer>
+                }
+                </section>
+                if props.footer.is_some() {
+                <footer class="modal-card-foot">
+                    { props.footer }
+                </footer>
+                }
             </div>
             <button class="modal-close is-large jb-modal-close" aria-label="close" id="modal-close-outside-button" onclick={close_modal()}></button>
       </div>
     }
 }
-
+/*
+<button class="button jb-modal-close" id="modal-close-cancel-button" onclick={ close_modal() }>{ props.left_button_label }</button>
+<button class="button is-danger jb-modal-close" onclick={ props.right_button_onclick }>{ props.right_button_label }</button>
+*/

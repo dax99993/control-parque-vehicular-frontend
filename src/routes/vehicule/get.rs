@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use yew::prelude::*;
 use yew_hooks::use_async;
 
@@ -11,7 +13,8 @@ use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::table::{VehiculeTable, VehiculeTableRow};
 use crate::components::modal::Modal;
 use crate::components::pagination::Pagination;
-//use crate::routes::AppRoute;
+
+use web_sys::HtmlElement;
 
 
 
@@ -22,6 +25,8 @@ pub fn GetVehicules() -> Html {
     if !user_ctx.is_authenticated() {
         user_ctx.redirect_home();
     }
+
+
 
     html! {
         if user_ctx.is_admin() {
@@ -37,6 +42,13 @@ pub fn GetVehicules() -> Html {
 fn GetVehiculesAdminView() -> Html {
 
     let vehicules = use_state(|| Vec::<Vehicule>::new());
+    let vehicules_current_page = use_state(|| Vec::<Vehicule>::new());
+    let total_pages = use_state(|| 0);
+    let current_page = use_state(|| 1);
+    let vehicules_per_page = 4; //TODO change to state setted with dropdown 
+
+
+    //let vehicule_delete_id = use_memo(|_| VehiculeDeleteId(String::default()), ());
 
     // Api fetch request
     let request_vehicule_admin = {
@@ -68,11 +80,9 @@ fn GetVehiculesAdminView() -> Html {
         shadow_clone![vehicules, request_vehicule_admin];
         use_effect_with_deps(
             move |request_vehicule| {
-                if let Some(response) = &request_vehicule.data {
-                    log::debug!("vehicules response {}", &response);
-                    if let Some(vec_vehicules) = response.data.clone() {
-                        log::debug!("vehicules vec {:?}", &vec_vehicules);
-                        // Store token to be able to make requests
+                if let Some(api_response) = &request_vehicule.data {
+                    log::debug!("vehicules api response {:?}", &api_response);
+                    if let Some(vec_vehicules) = api_response.data.clone() {
                         vehicules.set(vec_vehicules);
                     }
                 }
@@ -81,38 +91,77 @@ fn GetVehiculesAdminView() -> Html {
         );
     }
 
-    
 
+    // Update total pages when updating vehicules vector
+    {
+        shadow_clone!(vehicules, total_pages);
+        use_effect_with_deps(move |vehicules| {
+            let pages: f64 = vehicules.len() as f64 / vehicules_per_page as f64;
+            total_pages.set(pages.ceil() as usize);
+            log::debug!("total_pages {}", *total_pages);
+        },
+        vehicules.clone());
+    };
+
+
+    // Get vehicules to show in selected current page
+    {
+        shadow_clone!(vehicules, current_page);
+        shadow_clone!(vehicules_current_page, vehicules_per_page);
+        use_effect_with_deps(move |(vehicules, current_page)| {
+            let split: Vec<&[Vehicule]> = vehicules.chunks(vehicules_per_page)
+                .into_iter()
+                .collect();
+            let page: usize = *current_page.deref();
+            // Remember 0 indexing!
+            if let Some(vehicules_page) = split.get(page - 1) {
+                let vp: Vec<Vehicule> = vehicules_page.into_iter()
+                    .map(|v| v.clone())
+                    .collect();
+                vehicules_current_page.set(vp);
+                log::debug!("vehicules current page {:?}", *vehicules_current_page);
+            }
+
+        },
+        (vehicules.clone(), current_page.clone()));
+    };
+
+
+    // HTML 
     {
         shadow_clone!(vehicules);
         html!{
             <MainSection route="Admin" subroute="Vehiculos" title="Vehiculos">
-
                 <Card header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } classes={classes!["has-table"]}
                     header_icon_right={ "fa-solid fa-rotate-right" } header_icon_right_onclick={ onclick } 
                 >
                     <CardContent>
                         <VehiculeTable>
                             {
-                                vehicule_to_vehicule_table_row((*vehicules).clone())
+                                vehicule_to_vehicule_table_row((*vehicules_current_page).clone())
                             }
                         </VehiculeTable>
                     </CardContent>
 
-
                 </Card>
 
-                <Pagination total_pages=4 />
+                <Pagination 
+                    total_pages = { *total_pages }
+                    current_page_state = { current_page.clone() }
+                />
                     
                 <Modal 
                     body={html!{<p>{"un "}<b>{"mensaje"}</b></p>}}
-                    right_button_label={"Borrar"}
-                    right_button_onclick={ Callback::from(move |e: MouseEvent| {
-                        e.prevent_default();
-                        log::debug!("Right modal click");
-                        //user_ctx.redirect_to(AppRoute::VehiculesDelete);
+                    footer={html!{
+                        <button class="button is-danger jb-modal-close" onclick={ 
+                            Callback::from(move |e: MouseEvent| {
+                            e.prevent_default();
+                            log::debug!("Right modal click");
+                            //user_ctx.redirect_to(AppRoute::VehiculesDelete);
                         })
-                    }
+
+                        }>{ "Borrar" }</button>
+                    }}
                 >
                 </Modal>
 

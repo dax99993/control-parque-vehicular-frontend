@@ -1,6 +1,7 @@
 pub mod api_response;
 pub mod app;
 pub mod components;
+pub mod context;
 pub mod error;
 pub mod hooks;
 pub mod routes;
