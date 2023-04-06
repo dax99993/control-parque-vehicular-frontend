@@ -1,4 +1,5 @@
 pub mod home;
+pub mod notfound;
 pub mod auth;
 pub mod vehicule;
 
@@ -7,16 +8,18 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 
 
-use home::Home;
+use home::HomeView;
+use notfound::NotFoundView;
 
-use self::auth::login::Login;
-use self::auth::logout::Logout;
-use self::auth::register::Register;
+
+use self::auth::login::LoginView;
+use self::auth::logout::LogoutView;
+use self::auth::register::RegisterView;
 
 use self::vehicule::delete::VehiculeDeleteView;
-use self::vehicule::get::GetVehicules;
-use self::vehicule::register::RegisterVehicule;
-use self::vehicule::edit::EditVehicule;
+use self::vehicule::get::GetVehiculesView;
+use self::vehicule::register::RegisterVehiculeView;
+use self::vehicule::edit::EditVehiculeView;
 
 
 ///App Routes
@@ -57,15 +60,15 @@ pub enum AppRoute {
 pub fn switch(route: AppRoute) -> Html {
     match route {
         // Auth routes
-        AppRoute::Register => html! { <Register /> },
-        AppRoute::Login => html! { <Login /> },
-        AppRoute::Logout => html! { <Logout /> },
+        AppRoute::Register => html! { <RegisterView/> },
+        AppRoute::Login => html! { <LoginView/> },
+        AppRoute::Logout => html! { <LogoutView/> },
         // Home route
-        AppRoute::Home => html! { <Home /> },
+        AppRoute::Home => html! { <HomeView/> },
         // Vehicule routes
-        AppRoute::Vehicules => html! { <GetVehicules/> },
-        AppRoute::VehiculesRegister => html! { <RegisterVehicule/> },
-        AppRoute::VehiculesEdit { id } => html! { <EditVehicule id={id}/> },
+        AppRoute::Vehicules => html! { <GetVehiculesView/> },
+        AppRoute::VehiculesRegister => html! { <RegisterVehiculeView/> },
+        AppRoute::VehiculesEdit { id } => html! { <EditVehiculeView id={id}/> },
         AppRoute::VehiculesDelete { id } => html! { <VehiculeDeleteView id={id}/> },
         // User routes
         AppRoute::Users => html! { {"users"} },
@@ -74,7 +77,7 @@ pub fn switch(route: AppRoute) -> Html {
         // Report routes
         AppRoute::Reports => html! { {"reports"} },
         // Nofound route
-        AppRoute::NotFound => html! { "Page not found" },
+        AppRoute::NotFound => html! { <NotFoundView/> },
     }
 }
 

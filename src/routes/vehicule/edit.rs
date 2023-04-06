@@ -50,7 +50,7 @@ pub struct EditVehiculeProps {
 }
 
 #[function_component]
-pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
+pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() || !user_ctx.is_admin() {
         user_ctx.redirect_home();

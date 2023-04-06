@@ -18,7 +18,7 @@ use crate::components::form::{Form, FormField, InputFieldValidated};
 
 
 #[function_component]
-pub fn Register() -> Html {
+pub fn RegisterView() -> Html {
 
     // Context
     let user_ctx = use_user_context();

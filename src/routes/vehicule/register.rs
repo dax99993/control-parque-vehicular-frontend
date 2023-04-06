@@ -18,7 +18,7 @@ use crate::shadow_clone;
 
 
 #[function_component]
-pub fn RegisterVehicule() -> Html {
+pub fn RegisterVehiculeView() -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() || !user_ctx.is_admin() {
         user_ctx.redirect_home();

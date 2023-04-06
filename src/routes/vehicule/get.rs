@@ -17,7 +17,7 @@ use crate::components::pagination::Pagination;
 
 
 #[function_component]
-pub fn GetVehicules() -> Html {
+pub fn GetVehiculesView() -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() {
         user_ctx.redirect_home();

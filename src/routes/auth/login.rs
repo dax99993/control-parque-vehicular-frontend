@@ -38,7 +38,7 @@ fn get_input_callback(
 
 
 #[function_component]
-pub fn Login() -> Html {
+pub fn LoginView() -> Html {
 
     // Context
     let user_ctx = use_user_context();
