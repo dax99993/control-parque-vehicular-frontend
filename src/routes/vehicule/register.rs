@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
+use validator::{Validate, ValidationErrors};
 
 use web_sys::HtmlInputElement;
 
@@ -12,10 +13,8 @@ use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::form::VehiculeCreateForm;
 
-use crate::utils::FormFieldState;
-use crate::{oninput_macro, shadow_clone};
+use crate::shadow_clone;
 
-use validator::{Validate, ValidationErrors};
 
 
 #[function_component]

@@ -136,7 +136,7 @@ pub fn VehiculeCreateForm(props: &Props) -> Html {
                   </div>
                 </div>
                 if !props.validation_errors.borrow().errors().is_empty() {
-                    <p class="help is-danger">{ "Rellenar o corrigir los campos" }</p>
+                    <p class="help is-danger">{ "Rellenar o corregir los campos" }</p>
                 }
             </FormField>
 

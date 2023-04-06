@@ -3,16 +3,46 @@ use yew_hooks::prelude::*;
 
 use web_sys::HtmlInputElement;
 
-use crate::hooks::user_context::use_user_context;
-use crate::components::main_section::MainSection;
-use crate::components::form::form::{Form, FormField, TextInputField};
-use crate::components::card::{Card, CardContent};
+use std::cell::RefCell;
+use std::ops::Deref;
+use std::rc::Rc;
 
+use validator::{Validate, ValidationErrors};
+
+use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::{request_admin_get_vehicule_with_id, request_admin_update_vehicule};
 use crate::types::vehicule::{Vehicule, UpdateVehicule};
 
-use crate::{oninput_macro, shadow_clone};
-use crate::utils::FormFieldState;
+use crate::shadow_clone;
+
+use crate::components::main_section::MainSection;
+use crate::components::form::form::{Form, FormField, InputFieldValidated};
+use crate::components::card::{Card, CardContent};
+
+
+fn get_input_callback(
+    name: &'static str,
+    form: UseStateHandle<UpdateVehicule>,
+) -> Callback<String> {
+    Callback::from(move |value| {
+        let mut data = form.deref().clone();
+        match name {
+            "branch" => data.branch = Some(value),
+            "model" => data.model = Some(value),
+            // Maybe need parsing
+            "year" => data.year = if let Ok(number) = value.parse::<i16>() {Some(number)} else { Some(-1) },
+            "number_plate" => data.number_plate = Some(value),
+            "short_name" => data.short_name = Some(value),
+            "number_card" => data.number_card = Some(value),
+            // Maybe need to create other function for dropdown list
+            "status" => data.status = Some(value),
+            // Maybe need to create other function for boolean checkbox
+            //"active" => data.active= if let Ok(number) = value.parse::<i16>() {number} else { -1 },
+            _ => (),
+        }
+        form.set(data);
+    })
+}
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct EditVehiculeProps {
@@ -26,28 +56,65 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
         user_ctx.redirect_home();
     }
     // States
-    let updated_vehicule = use_state(|| UpdateVehicule::default());  
-    let updated_vehicule_valid = use_state(|| bool::default());  
-
     let vehicule = use_state(|| Vehicule::default());  
+    let updated_vehicule = use_state(|| UpdateVehicule::default());  
+    let updated_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let branch = use_state(|| FormFieldState::default());
-    let oninput_branch = oninput_macro!(branch, validate);
 
-    let model = use_state(|| FormFieldState::default());
-    let oninput_model = oninput_macro!(model, validate);
+    let onchange_branch = get_input_callback("branch", updated_vehicule.clone());
+    let onchange_model = get_input_callback("model", updated_vehicule.clone());
+    let onchange_year = get_input_callback("year", updated_vehicule.clone());
+    let onchange_number_plate= get_input_callback("number_plate", updated_vehicule.clone());
+    let onchange_short_name = get_input_callback("short_name", updated_vehicule.clone());
+    let onchange_number_card = get_input_callback("number_card", updated_vehicule.clone());
 
-    let year = use_state(|| FormFieldState::default());
-    let oninput_year = oninput_macro!(year, validate_number);
+    let branch = NodeRef::default();
+    let model = NodeRef::default();
+    let year = NodeRef::default();
+    let number_plate = NodeRef::default();
+    let short_name = NodeRef::default();
+    let number_card = NodeRef::default();
 
-    let number_plate = use_state(|| FormFieldState::default());
-    let oninput_number_plate = oninput_macro!(number_plate, validate);
+    let validate_input_on_blur = {
+        shadow_clone![updated_vehicule, updated_vehicule_validation];
+        Callback::from(move |(name, value): (String, String)| {
+            let mut data = updated_vehicule.deref().clone();
+            match name.as_str() {
+                "branch" => data.branch = Some(value),
+                "model" => data.model = Some(value),
+                // Maybe need parsing
+                "year" => data.year = if let Ok(number) = value.parse::<i16>() {Some(number)} else { Some(-1) },
+                "number_plate" => data.number_plate = Some(value),
+                "short_name" => data.short_name = Some(value),
+                "number_card" => data.number_card = Some(value),
+                _ => (),
+            }
+            log::debug!("Onblur login data {:?}", &data); 
+            updated_vehicule.set(data);
 
-    let short_name = use_state(|| FormFieldState::default());
-    let oninput_short_name = oninput_macro!(short_name, validate);
+            match updated_vehicule.validate() {
+                Ok(_) => {
+                    updated_vehicule_validation 
+                        .borrow_mut()
+                        .errors_mut()
+                        .retain(|key, _| key != &name);
+                    log::debug!("Onblur update vehicule validation ok {:?}", &updated_vehicule_validation); 
+                }
+                Err(errors) => {
+                    for(field_name, error) in errors.errors() {
+                        if field_name == &name {
+                            updated_vehicule_validation 
+                                .borrow_mut()
+                                .errors_mut()
+                                .insert(field_name.clone(), error.clone());
+                            log::debug!("Onblur update vehicule validation errors {:?}", &updated_vehicule_validation); 
+                        }
+                    }
 
-    let number_card= use_state(|| FormFieldState::default());
-    let oninput_number_card = oninput_macro!(number_card, validate);
+                }
+            }
+        })
+    };
 
     // ------- request vehicule information ------
     let request_vehicule_with_id = {
@@ -65,38 +132,28 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
         }, ())
     }
 
+
     {
-        shadow_clone!(vehicule, request_vehicule_with_id);
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        shadow_clone!(request_vehicule_with_id);
+        shadow_clone!(vehicule, updated_vehicule);
         use_effect_with_deps(move |request_vehicule_with_id| {
             if let Some(response) = &request_vehicule_with_id.data {
                 log::debug!("{:?}", response);
                 if let Some(veh) = &response.data {
                     vehicule.set(veh.clone()); 
 
-                    let mut tmp = (*branch).clone();
-                    tmp.set_value(veh.branch.clone());
-                    branch.set(tmp);
+                    /*
+                    let mut tmp_veh = (*updated_vehicule).clone();
                     
-                    let mut tmp = (*model).clone();
-                    tmp.set_value(veh.model.clone());
-                    model.set(tmp);
-
-                    let mut tmp = (*year).clone();
-                    tmp.set_value(veh.year.to_string().clone());
-                    year.set(tmp);
-
-                    let mut tmp = (*number_plate).clone();
-                    tmp.set_value(veh.number_plate.clone());
-                    number_plate.set(tmp);
-
-                    let mut tmp = (*number_card).clone();
-                    tmp.set_value(veh.number_card.clone());
-                    number_card.set(tmp);
-
-                    let mut tmp = (*short_name).clone();
-                    tmp.set_value(veh.short_name.clone());
-                    short_name.set(tmp);
+                    tmp_veh.branch = veh.branch.clone();
+                    tmp_veh.model = veh.model.clone();
+                    tmp_veh.year = veh.year.clone();;
+                    tmp_veh.number_plate = veh.number_plate.clone();
+                    tmp_veh.number_card = veh.number_card.clone();
+                    tmp_veh.short_name = veh.short_name.clone();
+                    tmp_veh.status = veh.status.clone();
+                    tmp_veh.active= veh.active.clone();
+                    */
                 }
             }
         },
@@ -111,12 +168,109 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
             request_admin_update_vehicule(props.id, (*updated_vehicule).clone()).await
         })
     };
-    // create request to update picture 
 
+    // create request to update picture 
     let picture_url = format!("http://127.0.0.1:8000/api/images?filename=vehicules/default-picture.jpeg");
 
+    
+    // reset all form fields
+    let onreset = {
+        shadow_clone![updated_vehicule, updated_vehicule_validation];
+        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+
+            updated_vehicule.set(UpdateVehicule::default());
+            updated_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
+
+            let branch = if let Some(element) = branch.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+            let model = if let Some(element) = model.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+            let year = if let Some(element) = year.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+            let number_plate = if let Some(element) = number_plate.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+            let short_name = if let Some(element) = short_name.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+            let number_card = if let Some(element) = number_card.cast::<HtmlInputElement>() { element }
+            else {
+                return;
+            };
+
+            branch.set_value("");
+            model.set_value("");
+            year.set_value("");
+            number_plate.set_value("");
+            short_name.set_value("");
+            number_card.set_value("");
+        })
+    };
+
+    // Submit valid form
+    let onsubmit = {
+        shadow_clone![updated_vehicule, updated_vehicule_validation];
+        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        shadow_clone![request_update_vehicule];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+
+            match updated_vehicule.validate() {
+                Ok(_) => {
+                    let branch = if let Some(element) = branch.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let model_element = if let Some(element) = model.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let year = if let Some(element) = year.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let number_plate = if let Some(element) = number_plate.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let short_name = if let Some(element) = short_name.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    let number_card = if let Some(element) = number_card.cast::<HtmlInputElement>() { element }
+                    else {
+                        return;
+                    };
+                    
+                    branch.set_value("");
+                    model_element.set_value("");
+                    year.set_value("");
+                    number_plate.set_value("");
+                    short_name.set_value("");
+                    number_card.set_value("");
+
+                    // make request to database
+                    request_update_vehicule.run();
+                }
+                Err(e) => {
+                    updated_vehicule_validation.set(Rc::new(RefCell::new(e)));
+                }
+            }
+        })
+    };
+
+    // HTML
     {
-    let props = props.clone();
     shadow_clone![props, vehicule];
     html!{
         <MainSection route="Admin" subroute="Vehiculos" title="Editar Vehiculo">
@@ -127,6 +281,7 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
                         header_icon_left={"fa-solid fa-car-side"} header_title={"Editar vehiculo"}
                     >
                         <CardContent>
+
                             <Form method="get">
 
                                 <FormField label="Imagen">
@@ -144,67 +299,103 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
                                 <hr/>
 
                                 <FormField label="Marca">
-                                    <TextInputField 
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_branch.clone()}
-                                        value={(*branch).value.clone()}
-                                        has_error={(*branch).valid}
+                                    <InputFieldValidated 
+                                        placeholder={vehicule.deref().branch.clone()}
+                                        msg="Colocar nombre economico del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="branch"
+                                        input_ref={branch}
+                                        handle_onchange={onchange_branch}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField> 
 
                                 <FormField label="Modelo">
-                                    <TextInputField 
-                                        placeholder="e.g. Leaf"
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_model.clone()}
-                                        value={(*model).value.clone()}
-                                        has_error={(*model).valid}
+                                    <InputFieldValidated 
+                                        msg="Colocar Modelo del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="model"
+                                        input_ref={model}
+                                        handle_onchange={onchange_model}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField>
 
                                 <FormField label="Año">
-                                    <TextInputField 
-                                        placeholder="e.g. 2016"
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_year.clone()}
-                                        value={(*year).value.clone()}
-                                        has_error={(*year).valid}
+                                    <InputFieldValidated 
+                                        msg="Colocar año del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="year"
+                                        input_ref={year}
+                                        handle_onchange={onchange_year}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField>
 
                                 <FormField label="Placa">
-                                    <TextInputField 
-                                        placeholder="e.g. ABCD XYZ 123"
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_number_plate.clone()}
-                                        value={(*number_plate).value.clone()}
-                                        has_error={(*number_plate).valid}
+                                    <InputFieldValidated 
+                                        msg="Colocar placas del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="number_plate"
+                                        input_ref={number_plate}
+                                        handle_onchange={onchange_number_plate}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField>
 
                                 <FormField label="Numero de tarjeta">
-                                    <TextInputField 
-                                        placeholder="e.g. 12345678asd"
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_number_card.clone()}
-                                        value={(*number_card).value.clone()}
-                                        has_error={(*number_card).valid}
-                                        icon_left={"fa-solid fa-address-card"}
+                                    <InputFieldValidated 
+                                        msg="Colocar numero de tarjeta del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="number_card"
+                                        input_ref={number_card}
+                                        handle_onchange={onchange_number_card}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField>
 
                                 <FormField label="Nombre economico">
-                                    <TextInputField 
-                                        placeholder="e.g. Leaf 202"
-                                        error_msg="Campo Obligatorio"
-                                        oninput={oninput_short_name.clone()}
-                                        value={(*short_name).value.clone()}
-                                        has_error={(*short_name).valid}
+                                    <InputFieldValidated 
+                                        msg="Colocar nombre economico del vehiculo"
+                                        icon_right={"fa-solid fa-triangle-exclamation"}
+                                        name="short_name"
+                                        input_ref={short_name}
+                                        handle_onchange={onchange_short_name}
+                                        handle_on_input_blur={validate_input_on_blur.clone()}
+                                        errors={&*updated_vehicule_validation.clone()}
                                     />
                                 </FormField>
 
+                                <hr/>
+
+                                <FormField>
+                                    <div class="field is-grouped">
+                                      <div class="control">
+                                        <button type="submit" 
+                                            onclick={onsubmit}
+                                            class={classes!["button", if (*updated_vehicule_validation).borrow().errors().is_empty() { "is-primary"} else { "is-danger" }]}
+                                        >
+                                          <span>{ "Actualizar" }</span>
+                                        </button>
+                                      </div>
+                                      <div class="control">
+                                        <button type="button" class="button is-primary is-outlined" onclick={onreset}>
+                                          <span>{ "Reiniciar campos" }</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                    if !(*updated_vehicule_validation).borrow().errors().is_empty() {
+                                        <p class="help is-danger">{ "Rellenar o corregir los campos" }</p>
+                                    }
+                                </FormField>
 
                             </Form>
+                        
                         </CardContent>
                     </Card>
 
@@ -222,7 +413,7 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
 
                             <hr/>
 
-                            { vehicule_to_readonly_form((*vehicule).clone()) }
+                            { vehicule_to_readonly_form( &(*vehicule) ) }
 
                         </CardContent>
                     </Card>
@@ -237,7 +428,7 @@ pub fn EditVehicule(props: &EditVehiculeProps) -> Html {
 }
 
 
-fn vehicule_to_readonly_form(vehicule: Vehicule) -> Html {
+fn vehicule_to_readonly_form(vehicule: &Vehicule) -> Html {
     html!{
         <Form method="get">
 
@@ -251,14 +442,14 @@ fn vehicule_to_readonly_form(vehicule: Vehicule) -> Html {
             <div class="field">
                 <label class="label">{ "Marca" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.branch } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.branch.clone() } class="input is-static"/>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">{ "Modelo" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.model } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.model.clone() } class="input is-static"/>
                 </div>
             </div>
 
@@ -272,28 +463,28 @@ fn vehicule_to_readonly_form(vehicule: Vehicule) -> Html {
             <div class="field">
                 <label class="label">{ "Placa" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.number_plate  } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.number_plate.clone()  } class="input is-static"/>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">{ "Nombre economico" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.short_name  } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.short_name.clone()  } class="input is-static"/>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">{ "Numero de tarjeta" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.number_card  } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.number_card.clone()  } class="input is-static"/>
                 </div>
             </div>
 
             <div class="field">
                 <label class="label">{ "Estado" }</label>
                 <div class="control is-clearfix">
-                    <input type="text" readonly={true} value={ vehicule.status  } class="input is-static"/>
+                    <input type="text" readonly={true} value={ vehicule.status.clone()  } class="input is-static"/>
                 </div>
             </div>
 
@@ -323,10 +514,3 @@ fn vehicule_to_readonly_form(vehicule: Vehicule) -> Html {
 
 }
 
-fn validate(s: String) -> bool {
-    !s.is_empty()
-}
-
-fn validate_number(s: String) -> bool {
-    !s.is_empty() && s.chars().all(|c| c.is_ascii_digit())
-}

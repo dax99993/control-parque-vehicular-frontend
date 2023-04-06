@@ -1,7 +1,9 @@
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::NaiveDateTime;
-use validator::Validate;
+use validator::{Validate, ValidationError};
+
+use std::borrow::Cow;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Vehicule {
@@ -80,14 +82,35 @@ pub struct NewVehicule {
     //pub picture: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
 pub struct UpdateVehicule {
+    #[validate(
+        length(min = 1, message = "Marca requerida"),
+    )]
     pub branch: Option<String>,
+    #[validate(
+        length(min = 1, message = "Modelo requerido"),
+    )]
     pub model: Option<String>,
+    #[validate(
+        range(min = 0, message = "Año requerido"),
+    )]
     pub year: Option<i16>,
+    #[validate(
+        length(min = 1, message = "Nombre economico requerido"),
+    )]
     pub number_plate: Option<String>,
+    #[validate(
+        length(min = 1, message = "Nombre economico requerido"),
+    )]
     pub short_name: Option<String>,
+    #[validate(
+        length(min = 1, message = "Numero de tarjeta requerido"),
+    )]
     pub number_card: Option<String>,
+    #[validate(
+        custom(function = "validate_status")
+    )]
     pub status: Option<String>,
     pub active: Option<bool>,
     //pub picture: Option<String>,
@@ -122,6 +145,22 @@ impl FilteredVehicule {
             short_name: veh.short_name,
             number_card: veh.number_card,
             picture: veh.picture,
+        }
+    }
+}
+
+
+fn validate_status<'a, T>(value: T) -> Result<(), ValidationError>
+where 
+    T: Into<Cow<'a, str>>
+{
+    match value.into() {
+        std::borrow::Cow::Borrowed("available") |
+        std::borrow::Cow::Borrowed("maintenance") |
+        std::borrow::Cow::Borrowed("occupied") => { return Ok(()) },
+        _ => {
+            let error = ValidationError::new("Estado invalido");
+            return Err(error);
         }
     }
 }
