@@ -7,6 +7,9 @@ use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::{request_normal_get_vehicules, request_admin_get_vehicules};
 use crate::types::vehicule::{Vehicule, FilteredVehicule};
+use crate::routes::AppRoute;
+use crate::utils::modal::close_modal;
+use crate::context::{VehiculeItemProvider, VehiculeItemContext, VehiculeItemAction};
 
 use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};
@@ -27,7 +30,9 @@ pub fn GetVehiculesView() -> Html {
 
     html! {
         if user_ctx.is_admin() {
-            <GetVehiculesAdminView />
+            <VehiculeItemProvider>
+                <GetVehiculesAdminView />
+            </VehiculeItemProvider>
         } else {
             <GetVehiculesNormalView />
         }
@@ -37,6 +42,11 @@ pub fn GetVehiculesView() -> Html {
 
 #[function_component]
 fn GetVehiculesAdminView() -> Html {
+
+    let user_ctx = use_user_context();
+
+    //let vehicule_ctx = use_context::<VehiculeItemActionContext>().unwrap();
+    let vehicule_ctx = use_context::<VehiculeItemContext>();
 
     let vehicules = use_state(|| Vec::<Vehicule>::new());
     let vehicules_current_page = use_state(|| Vec::<Vehicule>::new());
@@ -125,7 +135,7 @@ fn GetVehiculesAdminView() -> Html {
 
     // HTML 
     {
-        shadow_clone!(vehicules);
+        shadow_clone!(vehicules, user_ctx);
         html!{
             <MainSection route="Admin" subroute="Vehiculos" title="Vehiculos">
                 <Card header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } classes={classes!["has-table"]}
@@ -147,19 +157,62 @@ fn GetVehiculesAdminView() -> Html {
                 />
                     
                 <Modal 
-                    body={html!{<p>{"un "}<b>{"mensaje"}</b></p>}}
+                    id={"vehicule-delete-modal"}
+                    body={html!{<p>{"un "}<b>{"Realmente desea borrar el vehiculo"}</b></p>}}
                     footer={html!{
-                        <button class="button is-danger jb-modal-close" onclick={ 
+                        <>
+                        <button class="button jb-modal-close" onclick={
+                            shadow_clone!(vehicule_ctx);
                             Callback::from(move |e: MouseEvent| {
-                            e.prevent_default();
-                            log::debug!("Right modal click");
-                            //user_ctx.redirect_to(AppRoute::VehiculesDelete);
-                        })
-
-                        }>{ "Borrar" }</button>
+                                e.prevent_default();
+                                if let Some(ctx) = vehicule_ctx.clone() {
+                                    close_modal("vehicule-delete-modal".to_string()).emit(e);
+                                    ctx.clone().dispatch(VehiculeItemAction::SetNone);
+                                }
+                            })
+                        }>
+                        { "Cancelar" }
+                        </button>
+                        <button class="button is-danger jb-modal-close" onclick={
+                            shadow_clone!(vehicule_ctx);
+                            Callback::from(move |e: MouseEvent| {
+                                e.prevent_default();
+                                if let Some(ctx) = vehicule_ctx.clone() {
+                                    if let Some(id) = (*ctx).vehicule_id.clone() {
+                                        log::debug!("Vehicule context id {:?}", &id);
+                                        close_modal("vehicule-delete-modal".to_string()).emit(e);
+                                        vehicule_ctx.clone().unwrap().clone().dispatch(VehiculeItemAction::SetNone);
+                                        user_ctx.redirect_to(AppRoute::VehiculesDelete { 
+                                            id: id.clone()
+                                        });
+                                    }
+                                }
+                            })
+                        }>
+                        { "Borrar" }
+                        </button>
+                        </>
                     }}
                 >
                 </Modal>
+
+                <Modal 
+                    id={"vehicule-details-modal"}
+                    body={
+                        if let Some(v) = (*vehicules).get(2) {
+                            html!{
+                                <>
+                                <p>{v.vehicule_id}</p>
+                                <p>{&v.branch}</p>
+                                <p>{&v.model}</p>
+                                </>
+                            }
+                        } else {
+                            html!{}
+                        }
+                    }
+                >
+               </Modal>
 
             </MainSection>
         }
@@ -219,4 +272,8 @@ fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>) -> Vec<Html> {
         }
     })
     .collect()
+}
+
+fn vehicule_to_modal(vehicule: Vehicule) -> Html {
+    html!{}
 }
