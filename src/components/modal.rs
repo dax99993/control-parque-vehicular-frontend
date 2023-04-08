@@ -1,49 +1,61 @@
 use yew::prelude::*;
 
-use gloo::utils::{document, document_element};
-use crate::utils::modal::{open_modal, close_modal};
+use crate::utils::modal::close_modal;
+use crate::shadow_clone;
 
 
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct ModalProps {
-    #[prop_or(String::from("sample-modal"))]
     pub id: String,
-    #[prop_or(Some(String::from("Confirmar accion")))]
     pub title: Option<String>,
     pub body: Html,
     pub footer: Option<Html>,
+    pub onclose: Option<Callback<MouseEvent>>,
 }
 
 
 #[function_component]
 pub fn Modal(props: &ModalProps) -> Html {
-    let props = props.clone();
+    //let props = props.clone();
+    let ModalProps { id, title, body, footer, onclose } = props;
 
+    let onclick_close = {
+        shadow_clone![id, onclose];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+            if let Some(onclose) = onclose.clone() {
+                onclose.emit(e.clone());
+            }
+            close_modal(id.clone()).emit(e);
+        })
+    };
 
-
+    {
+    shadow_clone![id, title, body, footer];
     html! {
-        <div id={props.id.clone()} class="modal">
+        <div id={id} class="modal">
             <div class="modal-background jb-modal-close"></div>
             <div class="modal-card">
                 <header class="modal-card-head">
-                if props.title.is_some() {
-                    <p class="modal-card-title">{ props.title }</p>
+                if title.is_some() {
+                    <p class="modal-card-title">{ title }</p>
                 }
-                <button class="delete jb-modal-close" aria-label="close" id="modal-close-button" onclick={close_modal(props.id.clone())}></button>
+                <button class="delete" aria-label="close" onclick={onclick_close.clone()}></button>
                 </header>
                 <section class="modal-card-body">
                 {
-                  props.body
+                  body
                 }
                 </section>
-                if props.footer.is_some() {
+                if footer.is_some() {
                 <footer class="modal-card-foot">
-                    { props.footer }
+                    { footer }
                 </footer>
                 }
             </div>
-            <button class="modal-close is-large jb-modal-close" aria-label="close" id="modal-close-outside-button" onclick={close_modal(props.id)}></button>
+            <button class="modal-close is-large" aria-label="close" onclick={onclick_close.clone()}></button>
       </div>
+    }
     }
 }
 /*

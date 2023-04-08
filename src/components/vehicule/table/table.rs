@@ -15,8 +15,8 @@ pub fn VehiculeTable(props: &Props) -> Html {
 
     html!{
     <div class="b-table has-pagination">
-        <div class="table-wrapper has-mobile-cards">
-            <table class="table is-fullwidth is-striped is-hoverable is-fullwidth">
+        <div class="table-wrapper has-mobile-cards table-container">
+            <table class="table is-narrow is-striped is-hoverable is-fullwidth">
                 <thead>
                     <tr>
                         <th class="is-checkbox-cell">
@@ -32,6 +32,11 @@ pub fn VehiculeTable(props: &Props) -> Html {
                         <th>{"Estado"}</th>
                         <th>{"Nombre economico"}</th>
                         <th>{"Numero de tarjeta"}</th>
+                        <th>{"Numero de placa"}</th>
+                        <th>{"Activo"}</th>
+                        <th>{"Ultima modificacion"}</th>
+                        <th>{"Fecha de creacion"}</th>
+
                         <th></th>
                     </tr>
                 </thead>

@@ -5,6 +5,7 @@ use yew::prelude::*;
 pub enum VehiculeItemAction {
     Delete(String),
     Edit(String),
+    Get(String),
     SetNone,
     //BulkDelete(Vec<String>),
 }
@@ -23,6 +24,7 @@ impl Reducible for VehiculeItemState {
         let id = match action {
             Self::Action::Delete(id) => Some(id),
             Self::Action::Edit(id) => Some(id),
+            Self::Action::Get(id) => Some(id),
             Self::Action::SetNone => None,
         };
 

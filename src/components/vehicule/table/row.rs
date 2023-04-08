@@ -25,8 +25,15 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
 
     let click_show = {
         shadow_clone![vehicule_ctx, props];
-        //vehicule_ctx.vehicule_id = props.vehicule.vehicule_id.to_string();
-        open_modal("vehicule-details-modal".to_string())
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+            if (*vehicule_ctx).vehicule_id.is_none() {
+                let id = props.vehicule.vehicule_id.to_string();
+                vehicule_ctx.dispatch(VehiculeItemAction::Get(id));
+            }
+            //log::debug!("Vehicule delete context {:?}", vehicule_ctx);
+            open_modal("vehicule-details-modal".to_string()).emit(e);
+        })
     };
     
     let click_delete = {
@@ -53,6 +60,8 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
     };
 
 
+    {
+    let vehicule = props.vehicule.clone();
     html!{
         <tr>
         <td class="is-checkbox-cell">
@@ -67,32 +76,55 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
             </div>
         </td>
 
-        <td data-label="Marca">{&props.vehicule.branch}</td>
-        <td data-label="Modelo">{&props.vehicule.clone().model}</td>
-        <td data-label="Año">{&props.vehicule.clone().year}</td>
-        <td data-label="Estado">{&props.vehicule.clone().status}</td>
-        <td data-label="Nombre economico">{&props.vehicule.clone().short_name}</td>
-        <td data-label="Numero de tarjeta">{&props.vehicule.clone().number_card}</td>
+        <td data-label="Marca">{&vehicule.branch}</td>
+        <td data-label="Modelo">{&vehicule.model}</td>
+        <td data-label="Año">{&vehicule.year}</td>
+        <td data-label="Nombre economico">{&vehicule.short_name}</td>
+        <td data-label="Numero de tarjeta">{&vehicule.number_card}</td>
+        <td data-label="Numero de placa">{&vehicule.number_plate}</td>
+
+        if user_ctx.is_admin() {
+        <td data-label="Estado">{
+            if vehicule.is_available() {
+                "disponible"
+            } else if vehicule.is_occupied() {
+                "ocupado"
+            } else if vehicule.is_maintenance() {
+                "mantenimiento"
+            } else { "" }
+        }</td>
+        <td data-label="Activo">{
+            if vehicule.is_active() {
+                "si" 
+            } else {
+                "no"
+            }
+        }</td>
+        <td data-label="Ultima modificacion">{&vehicule.updated_at}</td>
+        <td data-label="Fecha de creacion">{&vehicule.created_at}</td>
+
 
         <td class="is-actions-cell">
             <div class="buttons is-right">
-                <button class="button is-small jb-modal" type="button" onclick={click_show}>
+                <button class="button is-small is-primary" type="button" onclick={click_show}>
                     <span class="icon"><i class="fa-solid fa-eye"></i></span>
                     <span>{"Ver"}</span>
                 </button>
 
-                <button class="button is-info is-small is-primary" type="button" onclick={click_edit}>
+                <button class="button is-info is-small" type="button" onclick={click_edit}>
                     <span class="icon"><i class="fa-solid fa-pen"></i></span>
                     <span>{"Editar"}</span>
                 </button>
 
-                <button class="button is-danger is-small jb-modal" type="button" onclick={click_delete}>
+                <button class="button is-danger is-small" type="button" onclick={click_delete}>
                     <span class="icon"><i class="fa-solid fa-trash-can"></i></span>
                     <span>{"Borrar"}</span>
                 </button>
-
             </div>
         </td>
+        }
+
         </tr>
+    }
     }
 }

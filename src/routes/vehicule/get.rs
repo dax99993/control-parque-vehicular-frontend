@@ -193,23 +193,55 @@ fn GetVehiculesAdminView() -> Html {
                         </button>
                         </>
                     }}
+                    onclose={ 
+                        shadow_clone!(vehicule_ctx);
+                        Callback::from(move |e: MouseEvent| {
+                            e.prevent_default();
+                            if let Some(ctx) = vehicule_ctx.clone() {
+                                //close_modal("vehicule-delete-modal".to_string()).emit(e);
+                                ctx.clone().dispatch(VehiculeItemAction::SetNone);
+                            }
+                        })
+                    }
                 >
                 </Modal>
 
                 <Modal 
                     id={"vehicule-details-modal"}
                     body={
-                        if let Some(v) = (*vehicules).get(2) {
-                            html!{
-                                <>
-                                <p>{v.vehicule_id}</p>
-                                <p>{&v.branch}</p>
-                                <p>{&v.model}</p>
-                                </>
+                        shadow_clone!(vehicules, vehicule_ctx);
+                        if let Some(ctx) = vehicule_ctx.clone() {
+                            if let Some(id) = (*ctx).vehicule_id.clone() {
+                                let v: &Vehicule = vehicules.iter()
+                                    .filter(|v| v.vehicule_id.to_string() == id)
+                                    .map(|v| v)
+                                    .next()
+                                    .unwrap();
+                                
+                                log::debug!("Vehicule selected {:?}", &v);
+                                html!{
+                                    <>
+                                    <p>{v.vehicule_id}</p>
+                                    <p>{&v.branch}</p>
+                                    <p>{&v.model}</p>
+                                    </>
+                                }
+                            } else {
+                                html!{}
                             }
                         } else {
                             html!{}
                         }
+                    }
+                    onclose={ 
+                        shadow_clone!(vehicule_ctx);
+                        Callback::from(move |e: MouseEvent| {
+                            e.prevent_default();
+                            if let Some(ctx) = vehicule_ctx.clone() {
+                                //close_modal("vehicule-delete-modal".to_string()).emit(e);
+                                ctx.clone().dispatch(VehiculeItemAction::SetNone);
+                            }
+                        })
                     }
                 >
                </Modal>
