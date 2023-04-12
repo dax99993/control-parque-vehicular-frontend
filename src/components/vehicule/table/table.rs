@@ -29,10 +29,10 @@ pub fn VehiculeTable(props: &Props) -> Html {
                         <th>{"Marca"}</th>
                         <th>{"Modelo"}</th>
                         <th>{"Año"}</th>
-                        <th>{"Estado"}</th>
                         <th>{"Nombre economico"}</th>
                         <th>{"Numero de tarjeta"}</th>
                         <th>{"Numero de placa"}</th>
+                        <th>{"Estado"}</th>
                         <th>{"Activo"}</th>
                         <th>{"Ultima modificacion"}</th>
                         <th>{"Fecha de creacion"}</th>

@@ -2,12 +2,10 @@ use yew::prelude::*;
 
 use crate::components::form::{Form, FormField, InputFieldValidated};
 
-use crate::utils::FormFieldState;
 use crate::shadow_clone;
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::ops::Deref;
 use validator::ValidationErrors;
 
 #[derive(Debug, Clone, PartialEq, Properties)]

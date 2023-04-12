@@ -5,7 +5,7 @@ use super::request::{request_get, request_post, request_delete, request_patch};
 use crate::error::Error;
 
 const BASE_URL: &str = "http://127.0.0.1:8000";
-const BASE_URL_VEHICULES: &str = "http://127.0.0.1:8000/api/vehicules";
+//const BASE_URL_VEHICULES: &str = "http://127.0.0.1:8000/api/vehicules";
 
 
 // Admin routes

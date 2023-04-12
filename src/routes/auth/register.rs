@@ -6,13 +6,13 @@ use std::cell::RefCell;
 use std::ops::Deref;
 use std::rc::Rc;
 use validator::{ValidationErrors, Validate};
-use web_sys::HtmlInputElement;
 
 use crate::shadow_clone;
 use crate::services::auth::request_signup;
 use crate::types::user::SignupUser;
 use crate::routes::AppRoute;
 use crate::hooks::user_context::use_user_context;
+use crate::utils::forms::{validate_form_field, reset_input};
 
 use crate::components::form::{Form, FormField, InputFieldValidated};
 
@@ -40,48 +40,17 @@ pub fn RegisterView() -> Html {
     let validate_input_on_blur = {
         shadow_clone![signup_user, signup_user_validation];
         Callback::from(move |(name, value): (String, String)| {
-            let mut data = signup_user.deref().clone();
-            match name.as_str() {
-                "first_name" => data.first_name= value,
-                "last_name" => data.last_name = value,
-                "email" => data.email = value,
-                "password" => data.password = value,
-                "re_password" => data.re_password = value,
-                _ => (),
-            }
-            log::debug!("Onblur signup data {:?}", &data); 
-            signup_user.set(data);
-
-            match signup_user.validate() {
-                Ok(_) => {
-                    signup_user_validation
-                        .borrow_mut()
-                        .errors_mut()
-                        .retain(|key, _| key != &name);
-                    log::debug!("Onblur signup user validation ok {:?}", &signup_user_validation); 
-                }
-                Err(errors) => {
-                    for(field_name, error) in errors.errors() {
-                        if field_name == &name {
-                            signup_user_validation
-                                .borrow_mut()
-                                .errors_mut()
-                                .insert(field_name.clone(), error.clone());
-                            log::debug!("Onblur signup user validation errors {:?}", &signup_user_validation); 
-                        }
-                    }
-
-                }
-            }
+            set_form_field(name.as_str(), value, &signup_user);
+            validate_form_field(name.as_str(), &signup_user, &signup_user_validation);
         })
     };
 
 
-    let handle_firstname_input = get_input_callback("first_name", signup_user.clone());
-    let handle_lastname_input = get_input_callback("last_name", signup_user.clone());
-    let handle_email_input = get_input_callback("email", signup_user.clone());
-    let handle_password_input = get_input_callback("password", signup_user.clone());
-    let handle_repassword_input = get_input_callback("password", signup_user.clone());
+    let handle_firstname_input = get_input_callback("first_name", &signup_user);
+    let handle_lastname_input = get_input_callback("last_name", &signup_user);
+    let handle_email_input = get_input_callback("email", &signup_user);
+    let handle_password_input = get_input_callback("password", &signup_user);
+    let handle_repassword_input = get_input_callback("password", &signup_user);
 
 
     // Async api request states
@@ -117,38 +86,16 @@ pub fn RegisterView() -> Html {
 
             match signup_user.validate() {
                 Ok(_) => {
-                    let firstname_input = if let Some(element) = firstname_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let lastname_input = if let Some(element) = lastname_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let email_input = if let Some(element) = email_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let password_input = if let Some(element) = password_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let repassword_input = if let Some(element) = repassword_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
+                    reset_input(&firstname_ref);
+                    reset_input(&lastname_ref);
+                    reset_input(&email_ref);
+                    reset_input(&password_ref);
+                    reset_input(&repassword_ref);
 
-                    firstname_input.set_value("");
-                    lastname_input.set_value("");
-                    email_input.set_value("");
-                    password_input.set_value("");
-                    repassword_input.set_value("");
-                    log::debug!("Valid signup info {:?}", *signup_user); 
                     request_signup_user.run();
                 }
                 Err(e) => {
                     signup_user_validation.set(Rc::new(RefCell::new(e)));
-                    log::debug!("Submit Validation errors {:?}", &signup_user_validation); 
                 }
             }
         })
@@ -205,6 +152,7 @@ pub fn RegisterView() -> Html {
 
                         <FormField label="Contraseña" is_horizontal={false}>
                             <InputFieldValidated
+                                input_type="password"
                                 msg="Colocar Correo Electronico"
                                 icon_left={"fa-solid fa-lock"}
                                 icon_right={"fa-solid fa-triangle-exclamation"}
@@ -218,6 +166,7 @@ pub fn RegisterView() -> Html {
 
                         <FormField label="Repetir Contraseña" is_horizontal={false}>
                             <InputFieldValidated
+                                input_type="password"
                                 msg="Repetir Contraseña"
                                 icon_left={"fa-solid fa-lock"}
                                 icon_right={"fa-solid fa-triangle-exclamation"}
@@ -266,20 +215,30 @@ pub fn RegisterView() -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    cloned_form: UseStateHandle<SignupUser>,
+    form: &UseStateHandle<SignupUser>,
 ) -> Callback<String> {
+    let cloned_form = form.clone();
     Callback::from(move |value| {
-        let mut data = cloned_form.deref().clone();
-        match name {
-            "first_name" => data.first_name= value,
-            "last_name" => data.last_name = value,
-            "email" => data.email = value,
-            "password" => data.password = value,
-            "re_password" => data.re_password = value,
-            _ => (),
-        }
-        cloned_form.set(data);
+        set_form_field(name, value, &cloned_form);
     })
+}
+
+fn set_form_field<'a>(
+    name: &'a str,
+    value: String,
+    form: &UseStateHandle<SignupUser>,)
+{
+    let mut data = form.deref().clone();
+    match name {
+        "first_name" => data.first_name= value,
+        "last_name" => data.last_name = value,
+        "email" => data.email = value,
+        "password" => data.password = value,
+        "re_password" => data.re_password = value,
+        _ => (),
+    }
+    log::debug!("Onblur signup data {:?}", &data); 
+    form.set(data);
 }
 
 

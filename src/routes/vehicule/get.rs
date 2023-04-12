@@ -55,8 +55,6 @@ fn GetVehiculesAdminView() -> Html {
     let vehicules_per_page = 4; //TODO change to state setted with dropdown 
 
 
-    //let vehicule_delete_id = use_memo(|_| VehiculeDeleteId(String::default()), ());
-
     // Api fetch request
     let request_vehicule_admin = {
         use_async(async {
@@ -304,8 +302,4 @@ fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>) -> Vec<Html> {
         }
     })
     .collect()
-}
-
-fn vehicule_to_modal(vehicule: Vehicule) -> Html {
-    html!{}
 }

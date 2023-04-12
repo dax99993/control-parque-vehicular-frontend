@@ -1,13 +1,13 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yew_router::prelude::*;
-use web_sys::HtmlInputElement;
 
 use crate::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
 use crate::hooks::user_context::use_user_context;
 use crate::types::user::LoginUser;
 use crate::routes::AppRoute;
+use crate::utils::forms::{validate_form_field, reset_input};
 
 use crate::components::form::{Form, FormField, InputFieldValidated };
 
@@ -21,20 +21,6 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 
-fn get_input_callback(
-    name: &'static str,
-    cloned_form: UseStateHandle<LoginUser>,
-) -> Callback<String> {
-    Callback::from(move |value| {
-        let mut data = cloned_form.deref().clone();
-        match name {
-            "email" => data.email = value,
-            "password" => data.password = value,
-            _ => (),
-        }
-        cloned_form.set(data);
-    })
-}
 
 
 #[function_component]
@@ -56,41 +42,13 @@ pub fn LoginView() -> Html {
     let validate_input_on_blur = {
         shadow_clone![login_user, login_user_validation];
         Callback::from(move |(name, value): (String, String)| {
-            let mut data = login_user.deref().clone();
-            match name.as_str() {
-                "email" => data.email = value,
-                "password" => data.password = value,
-                _ => (),
-            }
-            log::debug!("Onblur login data {:?}", &data); 
-            login_user.set(data);
-
-            match login_user.validate() {
-                Ok(_) => {
-                    login_user_validation
-                        .borrow_mut()
-                        .errors_mut()
-                        .retain(|key, _| key != &name);
-                    log::debug!("Onblur login user validation ok {:?}", &login_user_validation); 
-                }
-                Err(errors) => {
-                    for(field_name, error) in errors.errors() {
-                        if field_name == &name {
-                            login_user_validation
-                                .borrow_mut()
-                                .errors_mut()
-                                .insert(field_name.clone(), error.clone());
-                            log::debug!("Onblur login user validation errors {:?}", &login_user_validation); 
-                        }
-                    }
-
-                }
-            }
+            set_form_field(name.as_str(), value, &login_user);
+            validate_form_field(name.as_str(), &login_user, &login_user_validation);
         })
     };
 
-    let handle_email_input = get_input_callback("email", login_user.clone());
-    let handle_password_input = get_input_callback("password", login_user.clone());
+    let handle_email_input = get_input_callback("email", &login_user);
+    let handle_password_input = get_input_callback("password", &login_user);
 
     
 
@@ -158,19 +116,9 @@ pub fn LoginView() -> Html {
 
             match login_user.validate() {
                 Ok(_) => {
-                    let email_input = if let Some(element) = email_input_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let password_input = if let Some(element) = password_input_ref.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    //let email_input = email_input_ref.cast::<HtmlInputElement>().unwrap();
-                    //let password_input = password_input_ref.cast::<HtmlInputElement>().unwrap();
+                    reset_input(&email_input_ref);
+                    reset_input(&password_input_ref);
 
-                    email_input.set_value("");
-                    password_input.set_value("");
                     log::debug!("Valid login info {:?}", *login_user); 
                     login_request.run();
                 }
@@ -252,4 +200,31 @@ pub fn LoginView() -> Html {
         </div>
     </section>
     }
+}
+
+
+fn get_input_callback(
+    name: &'static str,
+    form: &UseStateHandle<LoginUser>,
+) -> Callback<String> {
+    let cloned_form = form.clone();
+    Callback::from(move |value| {
+        set_form_field(name, value, &cloned_form);
+    })
+}
+
+
+fn set_form_field<'a>(
+    name: &'a str,
+    value: String,
+    form: &UseStateHandle<LoginUser>,)
+{
+    let mut data = form.deref().clone();
+    match name {
+        "email" => data.email = value,
+        "password" => data.password = value,
+        _ => (),
+    }
+    log::debug!("Onblur signup data {:?}", &data); 
+    form.set(data);
 }

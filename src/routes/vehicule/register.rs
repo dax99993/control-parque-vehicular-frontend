@@ -3,8 +3,6 @@ use yew_hooks::prelude::*;
 
 use validator::{Validate, ValidationErrors};
 
-use web_sys::HtmlInputElement;
-
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::request_admin_create_vehicule;
 use crate::types::vehicule::NewVehicule;
@@ -12,6 +10,8 @@ use crate::routes::AppRoute;
 use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::form::VehiculeCreateForm;
+
+use crate::utils::forms::{validate_form_field, reset_input};
 
 use crate::shadow_clone;
 
@@ -27,12 +27,12 @@ pub fn RegisterVehiculeView() -> Html {
     let new_vehicule = use_state(|| NewVehicule::default());
     let new_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_branch = get_input_callback("branch", new_vehicule.clone());
-    let onchange_model = get_input_callback("model", new_vehicule.clone());
-    let onchange_year = get_input_callback("year", new_vehicule.clone());
-    let onchange_number_plate= get_input_callback("number_plate", new_vehicule.clone());
-    let onchange_short_name = get_input_callback("short_name", new_vehicule.clone());
-    let onchange_number_card = get_input_callback("number_card", new_vehicule.clone());
+    let onchange_branch = get_input_callback("branch", &new_vehicule);
+    let onchange_model = get_input_callback("model", &new_vehicule);
+    let onchange_year = get_input_callback("year", &new_vehicule);
+    let onchange_number_plate= get_input_callback("number_plate", &new_vehicule);
+    let onchange_short_name = get_input_callback("short_name", &new_vehicule);
+    let onchange_number_card = get_input_callback("number_card", &new_vehicule);
 
     let branch = NodeRef::default();
     let model = NodeRef::default();
@@ -44,41 +44,8 @@ pub fn RegisterVehiculeView() -> Html {
     let validate_input_on_blur = {
         shadow_clone![new_vehicule, new_vehicule_validation];
         Callback::from(move |(name, value): (String, String)| {
-            let mut data = new_vehicule.deref().clone();
-            match name.as_str() {
-                "branch" => data.branch = value,
-                "model" => data.model= value,
-                // Maybe need parsing
-                "year" => data.year = if let Ok(number) = value.parse::<i16>() {number} else { -1 },
-                "number_plate" => data.number_plate= value,
-                "short_name" => data.short_name= value,
-                "number_card" => data.number_card= value,
-                _ => (),
-            }
-            log::debug!("Onblur login data {:?}", &data); 
-            new_vehicule.set(data);
-
-            match new_vehicule.validate() {
-                Ok(_) => {
-                    new_vehicule_validation 
-                        .borrow_mut()
-                        .errors_mut()
-                        .retain(|key, _| key != &name);
-                    log::debug!("Onblur login user validation ok {:?}", &new_vehicule_validation); 
-                }
-                Err(errors) => {
-                    for(field_name, error) in errors.errors() {
-                        if field_name == &name {
-                            new_vehicule_validation 
-                                .borrow_mut()
-                                .errors_mut()
-                                .insert(field_name.clone(), error.clone());
-                            log::debug!("Onblur login user validation errors {:?}", &new_vehicule_validation); 
-                        }
-                    }
-
-                }
-            }
+            set_form_field(name.as_str(), value, &new_vehicule);
+            validate_form_field(name.as_str(), &new_vehicule, &new_vehicule_validation);
         })
     };
 
@@ -101,38 +68,12 @@ pub fn RegisterVehiculeView() -> Html {
 
             match new_vehicule.validate() {
                 Ok(_) => {
-                    let branch = if let Some(element) = branch.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let model_element = if let Some(element) = model.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let year = if let Some(element) = year.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let number_plate = if let Some(element) = number_plate.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let short_name = if let Some(element) = short_name.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    let number_card = if let Some(element) = number_card.cast::<HtmlInputElement>() { element }
-                    else {
-                        return;
-                    };
-                    
-                    branch.set_value("");
-                    model_element.set_value("");
-                    year.set_value("");
-                    number_plate.set_value("");
-                    short_name.set_value("");
-                    number_card.set_value("");
-
+                    reset_input(&branch);
+                    reset_input(&model);
+                    reset_input(&year);
+                    reset_input(&number_plate);
+                    reset_input(&short_name);
+                    reset_input(&number_card);
                     // make request to database
                     request_create_vehicule_admin.run();
                 }
@@ -162,41 +103,16 @@ pub fn RegisterVehiculeView() -> Html {
         shadow_clone![branch, model, number_plate, year, number_card, short_name];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            log::debug!("should reset");
+
             new_vehicule.set(NewVehicule::default());
             new_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
 
-            let branch = if let Some(element) = branch.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-            let model = if let Some(element) = model.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-            let year = if let Some(element) = year.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-            let number_plate = if let Some(element) = number_plate.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-            let short_name = if let Some(element) = short_name.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-            let number_card = if let Some(element) = number_card.cast::<HtmlInputElement>() { element }
-            else {
-                return;
-            };
-
-            branch.set_value("");
-            model.set_value("");
-            year.set_value("");
-            number_plate.set_value("");
-            short_name.set_value("");
-            number_card.set_value("");
+            reset_input(&branch);
+            reset_input(&model);
+            reset_input(&year);
+            reset_input(&number_plate);
+            reset_input(&short_name);
+            reset_input(&number_card);
         })
     };
 
@@ -242,22 +158,30 @@ use std::rc::Rc;
 
 fn get_input_callback(
     name: &'static str,
-    cloned_form: UseStateHandle<NewVehicule>,
+    form: &UseStateHandle<NewVehicule>,
 ) -> Callback<String> {
+    let cloned_form = form.clone();
     Callback::from(move |value| {
-        let mut data = cloned_form.deref().clone();
+        set_form_field(name, value, &cloned_form);
+    })
+}
+
+
+fn set_form_field<'a>(
+    name: &'a str,
+    value: String,
+    form: &UseStateHandle<NewVehicule>,)
+{
+        let mut data = form.deref().clone();
         match name {
             "branch" => data.branch = value,
-            "model" => data.model= value,
-            // Maybe need parsing
+            "model" => data.model = value,
             "year" => data.year = if let Ok(number) = value.parse::<i16>() {number} else { -1 },
             "number_plate" => data.number_plate = value,
             "short_name" => data.short_name= value,
             "number_card" => data.number_card= value,
             _ => (),
         }
-        cloned_form.set(data);
-    })
+        form.set(data);
 }
-
 

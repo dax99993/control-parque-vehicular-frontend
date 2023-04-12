@@ -8,3 +8,4 @@ pub mod user;
 pub mod modal;
 pub mod card;
 pub mod pagination;
+pub mod collapsible;

@@ -4,17 +4,39 @@ use yew_router::components::Link;
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
+use crate::components::collapsible::Collapsible;
+use crate::components::form::collapsible::FormCollapsible;
 
 #[function_component]
 pub fn HomeView() -> Html {
-
     let user_ctx = use_user_context();
 
 
     html! {
         if user_ctx.is_authenticated() {
-            <p>{"Home user"}</p>
+            <HomeLoggedInView/>
         } else {
+            <HomeLoggedOutView/>
+        }
+    }
+}
+
+#[function_component]
+fn HomeLoggedInView() -> Html {
+    let expanded = use_state(|| false);
+    html! {
+    <>
+        <p>{"Home user"}</p>
+        
+        <FormCollapsible/>
+
+    </>
+    }
+}
+
+#[function_component]
+fn HomeLoggedOutView() -> Html {
+    html!{
         <section class="hero is-fullheight is-info is-medium is-bold">
             <div class="hero-body">
                 <div class="container has-text-centered">
@@ -33,6 +55,5 @@ pub fn HomeView() -> Html {
                 </div>
             </div>
         </section>
-        }
     }
 }
