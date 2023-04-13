@@ -4,8 +4,8 @@ use yew_router::components::Link;
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
-use crate::components::collapsible::Collapsible;
 use crate::components::form::collapsible::FormCollapsible;
+use crate::components::file_upload::UploadFile;
 
 #[function_component]
 pub fn HomeView() -> Html {
@@ -15,6 +15,7 @@ pub fn HomeView() -> Html {
     html! {
         if user_ctx.is_authenticated() {
             <HomeLoggedInView/>
+            <UploadFile accept={vec!["image/*".into(), "video/*".into()]} multiple={false} max_files={2}/>
         } else {
             <HomeLoggedOutView/>
         }
@@ -23,7 +24,6 @@ pub fn HomeView() -> Html {
 
 #[function_component]
 fn HomeLoggedInView() -> Html {
-    let expanded = use_state(|| false);
     html! {
     <>
         <p>{"Home user"}</p>
