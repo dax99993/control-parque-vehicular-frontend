@@ -1,8 +1,6 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use web_sys::{HtmlInputElement, HtmlElement};
-
 use std::cell::RefCell;
 use std::ops::Deref;
 use std::rc::Rc;
@@ -14,11 +12,12 @@ use crate::services::vehicule::{request_admin_get_vehicule_with_id, request_admi
 use crate::types::vehicule::{Vehicule, UpdateVehicule};
 
 use crate::shadow_clone;
-use crate::utils::forms::{validate_form_field, reset_input, set_input_value};
+use crate::utils::forms::{validate_form_field, set_input_value};
 
 use crate::components::main_section::MainSection;
 use crate::components::form::form::{Form, FormField, InputFieldValidated, SelectFieldValidated};
 use crate::components::card::{Card, CardContent};
+use crate::components::upload::file_upload::UploadFile;
 
 
 
@@ -217,15 +216,7 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
                                 <hr/>
 
                                 <FormField label="Imagen">
-                                    <div class="field file">
-                                        <label class="upload control">
-                                            <a class="button is-primary">
-                                                  <span class="icon"><i class="fa-solid fa-upload"></i></span>
-                                                  <span>{ "Selecciona archivo" }</span>
-                                            </a>
-                                            <input type="file" />
-                                        </label>
-                                    </div>
+                                    <UploadFile accept={vec!["image/*".into()]} multiple={false} max_files={1}/>
                                 </FormField> 
 
                                 <hr/>

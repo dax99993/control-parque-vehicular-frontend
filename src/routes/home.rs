@@ -5,7 +5,10 @@ use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
 use crate::components::form::collapsible::FormCollapsible;
-use crate::components::file_upload::UploadFile;
+use crate::components::upload::file_upload::UploadFile;
+use crate::components::upload::Upload;
+
+use crate::services::vehicule::request_admin_get_vehicules;
 
 #[function_component]
 pub fn HomeView() -> Html {
@@ -16,6 +19,7 @@ pub fn HomeView() -> Html {
         if user_ctx.is_authenticated() {
             <HomeLoggedInView/>
             <UploadFile accept={vec!["image/*".into(), "video/*".into()]} multiple={false} max_files={2}/>
+            <Upload request_url={"someurl"}/>
         } else {
             <HomeLoggedOutView/>
         }

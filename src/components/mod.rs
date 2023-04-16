@@ -9,4 +9,4 @@ pub mod modal;
 pub mod card;
 pub mod pagination;
 pub mod collapsible;
-pub mod file_upload;
+pub mod upload;

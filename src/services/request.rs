@@ -1,11 +1,10 @@
-use reqwasm::http::Request;
-use serde::{Deserialize, Serialize};
-use wasm_bindgen::JsValue;
+use serde::{Serialize, de::DeserializeOwned};
 use gloo::storage::{LocalStorage, Storage};
 
 use crate::api_response::ApiResponse;
 use crate::error::Error;
 
+pub const API_ROOT: &str = "http://localhost:8000/";
 const TOKEN_KEY: &str = "yew.token";
 
 pub fn store_token(token: Option<String>) {
@@ -23,89 +22,120 @@ pub fn get_token() -> Option<String> {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum HttpMethod {
-    Get,
-    Delete,
-    Post,
-    Patch,
-}
-
-
-pub async fn request<B, T>(method: HttpMethod, url: String, body: B) -> Result<ApiResponse::<T>, Error> 
-where
-    B: Serialize + 'static,
-    T: serde::de::DeserializeOwned
-{
-    let allow_body = method == HttpMethod::Post || method == HttpMethod::Patch;
-    //let url = format!("{}{}", API_ROOT, url);
-    let mut request = match method {
-        HttpMethod::Get => Request::get(&url),
-        HttpMethod::Delete => Request::delete(&url),
-        HttpMethod::Patch => Request::patch(&url),
-        HttpMethod::Post=> Request::post(&url),
-    };
-
-
-    let header = reqwasm::http::Headers::new();
-    header.append("Content-Type", "application/json");
-        
-    if let Some(token) = get_token() {
-       header.append("Authorization", &format!("Bearer {}", token));
-    }
-
-    request = request.headers(header);
-
-    if allow_body {
-        let body = serde_json::to_string(&body).unwrap();
-        request = request.body(body);
-    }
-
-    let response = request.send().await
-        .map_err(|_| Error::FailedRequestError)?;
-
-
-    if response.ok() {
-        response.json::<ApiResponse::<T>>().await
-            .map_err(|_| Error::DeserializeError)
-    } else {
-        match response.status() {
-            400 => Err(Error::BadRequestError),
-            401 => Err(Error::UnathorizedError),
-            403 => Err(Error::ForbiddenError),
-            404 => Err(Error::NotFoundError),
-            500 => Err(Error::InternalServerError),
-            _ => Err(Error::UnexpectedError),
-        }
-    }
-    
-}
 
 
 pub async fn request_get<T>(url: String) -> Result<ApiResponse<T>, Error> 
 where
     T: serde::de::DeserializeOwned
 {
-    request(HttpMethod::Get, url, "").await
+    request(reqwest::Method::GET, url, "").await
 }
 
 pub async fn request_delete(url: String) -> Result<ApiResponse, Error> {
-    request(HttpMethod::Delete, url, "").await
+    request(reqwest::Method::DELETE, url, "").await
 }
 
 pub async fn request_post<B, T>(url: String, body: B) -> Result<ApiResponse<T>, Error> 
 where
     B: Serialize + 'static,
-    T: serde::de::DeserializeOwned
+    T: DeserializeOwned
 {
-    request(HttpMethod::Post, url, body).await
+    request(reqwest::Method::POST, url, body).await
 }
 
 pub async fn request_patch<B, T>(url: String, body: B) -> Result<ApiResponse<T>, Error> 
 where
     B: Serialize + 'static,
-    T: serde::de::DeserializeOwned
+    T: DeserializeOwned
 {
-    request(HttpMethod::Patch, url, body).await
+    request(reqwest::Method::PATCH, url, body).await
 }
 
+
+pub async fn request<B, T>(
+    method: reqwest::Method,
+    url: String,
+    body: B)
+-> Result<ApiResponse::<T>, Error> 
+where
+    B: Serialize + 'static,
+    T: DeserializeOwned
+{
+    let allow_body = method == reqwest::Method::POST || method == reqwest::Method::PATCH;
+    let url = format!("{}{}", API_ROOT, url);
+
+    let mut builder = reqwest::Client::new().request(method, &url);
+
+    if let Some(token) = get_token() {
+       builder = builder.bearer_auth(token);
+    }
+
+    if allow_body {
+        builder = builder.json(&body);
+    }
+
+
+    match builder.send().await {
+        Ok(response) => {
+            match response.status().as_u16() {
+                // Succesfull response
+                200..=299 => {
+                    response.json::<ApiResponse::<T>>().await
+                        .map_err(|_| Error::DeserializeError)
+                }
+
+                400 => Err(Error::BadRequestError),
+                401 => Err(Error::UnathorizedError),
+                403 => Err(Error::ForbiddenError),
+                404 => Err(Error::NotFoundError),
+                500 => Err(Error::InternalServerError),
+                _ => Err(Error::UnexpectedError),
+            }
+        }
+        Err(_) => Err(Error::FailedRequestError),
+    }
+    
+}
+
+pub async fn request_multipart<B, T>(
+    method: reqwest::Method,
+    url: String,
+    body: reqwest::multipart::Form)
+-> Result<ApiResponse::<T>, Error> 
+where
+    T: DeserializeOwned
+{
+    let allow_body = method == reqwest::Method::POST || method == reqwest::Method::PATCH;
+    let url = format!("{}{}", API_ROOT, url);
+
+    let mut builder = reqwest::Client::new().request(method, &url);
+
+    if let Some(token) = get_token() {
+       builder = builder.bearer_auth(token);
+    }
+
+    if allow_body {
+        builder = builder.multipart(body);
+    }
+
+
+    match builder.send().await {
+        Ok(response) => {
+            match response.status().as_u16() {
+                // Succesfull response
+                200..=299 => {
+                    response.json::<ApiResponse::<T>>().await
+                        .map_err(|_| Error::DeserializeError)
+                }
+
+                400 => Err(Error::BadRequestError),
+                401 => Err(Error::UnathorizedError),
+                403 => Err(Error::ForbiddenError),
+                404 => Err(Error::NotFoundError),
+                500 => Err(Error::InternalServerError),
+                _ => Err(Error::UnexpectedError),
+            }
+        }
+        Err(_) => Err(Error::FailedRequestError),
+    }
+}
