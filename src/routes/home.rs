@@ -5,21 +5,20 @@ use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
 use crate::components::form::collapsible::FormCollapsible;
-use crate::components::upload::file_upload::UploadFile;
-use crate::components::upload::Upload;
+use crate::components::upload::pictures::Pictures;
 
-use crate::services::vehicule::request_admin_get_vehicules;
+use crate::context::vehicule::VehiculeItemState;
 
 #[function_component]
 pub fn HomeView() -> Html {
     let user_ctx = use_user_context();
 
+    let dispat = use_reducer(VehiculeItemState::default);
 
     html! {
         if user_ctx.is_authenticated() {
             <HomeLoggedInView/>
-            <UploadFile accept={vec!["image/*".into(), "video/*".into()]} multiple={false} max_files={2}/>
-            <Upload request_url={"someurl"}/>
+            <Pictures<VehiculeItemState> dispatcher={dispat.dispatcher()}/>
         } else {
             <HomeLoggedOutView/>
         }

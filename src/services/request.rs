@@ -97,7 +97,7 @@ where
     
 }
 
-pub async fn request_multipart<B, T>(
+pub async fn request_multipart<T>(
     method: reqwest::Method,
     url: String,
     body: reqwest::multipart::Form)
@@ -138,4 +138,20 @@ where
         }
         Err(_) => Err(Error::FailedRequestError),
     }
+}
+
+
+
+pub async fn request_multipart_post<T>(url: String, body: reqwest::multipart::Form) -> Result<ApiResponse<T>, Error> 
+where
+    T: DeserializeOwned
+{
+    request_multipart(reqwest::Method::POST, url, body).await
+}
+
+pub async fn request_multipart_patch<T>(url: String, body: reqwest::multipart::Form) -> Result<ApiResponse<T>, Error> 
+where
+    T: DeserializeOwned
+{
+    request_multipart(reqwest::Method::PATCH, url, body).await
 }

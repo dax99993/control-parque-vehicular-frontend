@@ -1,7 +1,7 @@
 use crate::types::vehicule::{Vehicule, FilteredVehicule, NewVehicule, UpdateVehicule};
 use crate::api_response::ApiResponse;
 
-use super::request::{request_get, request_post, request_delete, request_patch};
+use super::request::{request_get, request_post, request_delete, request_patch, request_multipart_patch};
 use crate::error::Error;
 
 
@@ -25,6 +25,10 @@ pub async fn request_admin_delete_vehicule(id: String) -> Result<ApiResponse::<(
 
 pub async fn request_admin_update_vehicule(id: String, updated_vehicule: UpdateVehicule) -> Result<ApiResponse::<Vehicule>, Error> {
     request_patch(format!("api/vehicules/{id}"), updated_vehicule).await
+}
+
+pub async fn request_admin_update_vehicule_picture(id: String, picture: reqwest::multipart::Form) -> Result<ApiResponse::<Vehicule>, Error> {
+    request_multipart_patch(format!("api/vehicules/picture/{id}"), picture).await
 }
 
 
