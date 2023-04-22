@@ -9,6 +9,7 @@ use crate::shadow_clone;
 pub struct PaginationProps {
     pub total_pages: usize,
     pub current_page_state: UseStateHandle<usize>,
+    //pub current_page_state: usize,
 }
 
 

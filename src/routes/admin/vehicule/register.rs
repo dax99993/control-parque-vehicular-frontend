@@ -6,19 +6,24 @@ use validator::{Validate, ValidationErrors};
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::request_admin_create_vehicule;
 use crate::types::vehicule::NewVehicule;
-use crate::routes::AppRoute;
-use crate::components::main_section::MainSection;
+//use crate::routes::AppRoute;
+//use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::form::VehiculeCreateForm;
 
 use crate::utils::forms::{validate_form_field, reset_input};
 
 use crate::shadow_clone;
+use crate::routes::admin::vehicule::reducer::{VehiculeReducer, VehiculeAction};
 
+#[derive(Debug, Clone, PartialEq, Properties)]
+pub struct Props {
+    //pub vehicule_dispatcher: UseReducerDispatcher<VehiculeReducer>,
+}
 
 
 #[function_component]
-pub fn RegisterVehiculeView() -> Html {
+pub fn RegisterVehiculeView(props: &Props) -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() || !user_ctx.is_admin() {
         user_ctx.redirect_home();
@@ -85,13 +90,18 @@ pub fn RegisterVehiculeView() -> Html {
     };
 
     {
-        shadow_clone![request_create_vehicule_admin];
+        shadow_clone![props, request_create_vehicule_admin];
         use_effect_with_deps(move |request_create_vehicule_admin| {
             if let Some(response) = &request_create_vehicule_admin.data {
-                log::debug!("response data {:?}", &response);
+                log::debug!("api response\n{:?}", &response);
                 if let Some(vehicule) = &response.data {
-                    user_ctx.redirect_to(AppRoute::VehiculesEdit { id: vehicule.vehicule_id.to_string() });
+                    log::debug!("successful vehicule creation\n{:?}", vehicule);
+                    //user_ctx.redirect_to(AppRoute::VehiculesEdit { id: vehicule.vehicule_id.to_string() });
+                    //props.vehicule_dispatcher.dispatch(VehiculeAction::ResetModal);
                 }
+            }
+            if let Some(api_error) = &request_create_vehicule_admin.error {
+                log::warn!("api error\n{:?}", api_error);
             }
         },
         request_create_vehicule_admin.clone())
@@ -117,36 +127,32 @@ pub fn RegisterVehiculeView() -> Html {
     };
 
     html!{
-        <MainSection route="Admin" subroute="Vehiculos" title="Registrar Vehiculo">
+        <Card header_icon_left={ "fa-solid fa-ballot" } header_title={ "Registro de Vehiculo" }>
+            <CardContent>
+                <VehiculeCreateForm
+                    {onchange_branch}
+                    {onchange_model}
+                    {onchange_year}
+                    {onchange_short_name}
+                    {onchange_number_plate}
+                    {onchange_number_card}
 
-            <Card header_icon_left={ "fa-solid fa-ballot" } header_title={ "Registro de Vehiculo" }>
-                <CardContent>
-                    <VehiculeCreateForm
-                        {onchange_branch}
-                        {onchange_model}
-                        {onchange_year}
-                        {onchange_short_name}
-                        {onchange_number_plate}
-                        {onchange_number_card}
+                    branch={branch}
+                    model={model}
+                    year={year}
+                    short_name={short_name}
+                    number_plate={number_plate}
+                    number_card={number_card}
 
-                        branch={branch}
-                        model={model}
-                        year={year}
-                        short_name={short_name}
-                        number_plate={number_plate}
-                        number_card={number_card}
-
-                        handle_on_input_blur={validate_input_on_blur}
-                        validation_errors={&*new_vehicule_validation}
-                        
-                        {onsubmit}
-                        {onreset}
-                    >
-                    </VehiculeCreateForm>
-                </CardContent>
-            </Card>
-
-        </MainSection>
+                    handle_on_input_blur={validate_input_on_blur}
+                    validation_errors={&*new_vehicule_validation}
+                    
+                    {onsubmit}
+                    {onreset}
+                >
+                </VehiculeCreateForm>
+            </CardContent>
+        </Card>
     }
 }
 

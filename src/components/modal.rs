@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::utils::modal::close_modal;
+use crate::utils::modal::close_modal_cb;
 use crate::shadow_clone;
 
 
@@ -16,7 +16,6 @@ pub struct ModalProps {
 
 #[function_component]
 pub fn Modal(props: &ModalProps) -> Html {
-    //let props = props.clone();
     let ModalProps { id, title, body, footer, onclose } = props;
 
     let onclick_close = {
@@ -26,7 +25,7 @@ pub fn Modal(props: &ModalProps) -> Html {
             if let Some(onclose) = onclose.clone() {
                 onclose.emit(e.clone());
             }
-            close_modal(id.clone()).emit(e);
+            close_modal_cb(id.clone()).emit(e);
         })
     };
 
@@ -58,7 +57,3 @@ pub fn Modal(props: &ModalProps) -> Html {
     }
     }
 }
-/*
-<button class="button jb-modal-close" id="modal-close-cancel-button" onclick={ close_modal() }>{ props.left_button_label }</button>
-<button class="button is-danger jb-modal-close" onclick={ props.right_button_onclick }>{ props.right_button_label }</button>
-*/

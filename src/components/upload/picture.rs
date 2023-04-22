@@ -8,7 +8,6 @@ use super::pictures::{Reducer, FileDetails, FileActions};
 
 #[derive(Debug, PartialEq, Properties)]
 pub struct PictureProps {
-    pub uploader_dispatcher: String,
     pub pictures_dispatcher: UseReducerDispatcher<Reducer>,
     pub file_details: FileDetails,
 }

@@ -9,6 +9,7 @@ use crate::types::user::User;
 use std::ops::Deref;
 
 
+
 /// State handle for the ['use_user_context'] hook
 #[derive(Debug, PartialEq)]
 pub struct UseUserContextHandle {
@@ -39,9 +40,11 @@ impl UseUserContextHandle {
     pub fn is_authenticated(&self) -> bool {
         self.inner.is_some()
     }
+
     pub fn redirect_home(&self) {
         self.navigator.push(&AppRoute::Home)
     }
+
     pub fn is_admin(&self) -> bool {
         if let Some(user) = (*self.inner).clone() {
             return user.is_admin();
@@ -49,6 +52,7 @@ impl UseUserContextHandle {
             return false;
         }
     }
+
     pub fn redirect_to<R>(&self, route: R)
     where 
         R: Routable

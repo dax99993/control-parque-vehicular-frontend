@@ -1,7 +1,13 @@
 pub mod home;
 pub mod notfound;
 pub mod auth;
-pub mod vehicule;
+
+//pub mod vehicule;
+//use self::vehicule::get::GetVehiculesView;
+
+pub mod admin;
+//pub mod normal;
+pub mod general;
 
 
 use yew::prelude::*;
@@ -11,15 +17,11 @@ use yew_router::prelude::*;
 use home::HomeView;
 use notfound::NotFoundView;
 
-
 use self::auth::login::LoginView;
 use self::auth::logout::LogoutView;
 use self::auth::register::RegisterView;
 
-use self::vehicule::delete::VehiculeDeleteView;
-use self::vehicule::get::GetVehiculesView;
-use self::vehicule::register::RegisterVehiculeView;
-use self::vehicule::edit::EditVehiculeView;
+use self::general::vehicule::VehiculesView;
 
 
 ///App Routes
@@ -36,12 +38,6 @@ pub enum AppRoute {
     // Vehicule routes
     #[at("/vehicules")]
     Vehicules,
-    #[at("/vehicules/register")]
-    VehiculesRegister,
-    #[at("/vehicules/edit/:id")]
-    VehiculesEdit { id: String },
-    #[at("/vehicules/delete/:id")]
-    VehiculesDelete{ id: String },
     // User routes
     #[at("/users")]
     Users,
@@ -51,6 +47,9 @@ pub enum AppRoute {
     // Report routes
     #[at("/reports")]
     Reports,
+    // Report routes
+    #[at("/admin")]
+    Admin,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -66,10 +65,7 @@ pub fn switch(route: AppRoute) -> Html {
         // Home route
         AppRoute::Home => html! { <HomeView/> },
         // Vehicule routes
-        AppRoute::Vehicules => html! { <GetVehiculesView/> },
-        AppRoute::VehiculesRegister => html! { <RegisterVehiculeView/> },
-        AppRoute::VehiculesEdit { id } => html! { <EditVehiculeView id={id}/> },
-        AppRoute::VehiculesDelete { id } => html! { <VehiculeDeleteView id={id}/> },
+        AppRoute::Vehicules => html! { <VehiculesView/> },
         // User routes
         AppRoute::Users => html! { {"users"} },
         // Request routes
@@ -78,6 +74,8 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::Reports => html! { {"reports"} },
         // Nofound route
         AppRoute::NotFound => html! { <NotFoundView/> },
+        // Admin route
+        AppRoute::Admin => html! { <p>{"admin"}</p> },
     }
 }
 

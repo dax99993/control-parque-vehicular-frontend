@@ -69,7 +69,7 @@ pub fn RegisterView() -> Html {
             move |request_signup_user| {
                 if let Some(response) = &request_signup_user.data {
                     log::debug!("Sign up response {}", &response);
-                    user_ctx.redirect_to(AppRoute::Login);
+                    //user_ctx.redirect_to(AppRoute::Login);
                 }
             },
             request_signup_user.clone() 

@@ -68,34 +68,16 @@ fn sidebar_top() -> Html {
 }
 
 fn sidebar_menu() -> Html {
-    let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
     let onclick_user = toggle_menu("user-menu".to_owned());
 
     html!{
         <div class="menu is-menu-main">
             <p class="menu-label">{"Administracion"}</p>
             <ul class="menu-list">
-                <li id="vehicule-menu">
-                    <a class="has-icon has-dropdown-icon" onclick={onclick_vehicule}>
+                <Link<AppRoute> to={AppRoute::Vehicules} >
                         <span class="icon"><i class="fa-solid fa-car"></i></span>
                         <span class="menu-item-label">{"Vehiculos"}</span>
-                        <div class="dropdown-icon">
-                          <span class="icon"><i class="fa-solid fa-angle-down"></i></span>
-                        </div>
-                    </a>
-                    <ul>
-                        <li>
-                            <Link<AppRoute> to={AppRoute::Vehicules} >
-                                <span class="menu-item-label">{"Ver Vehiculos"}</span>
-                            </Link<AppRoute>>
-                        </li>
-                        <li>
-                            <Link<AppRoute> to={AppRoute::VehiculesRegister} >
-                                <span class="menu-item-label">{"Registrar Vehiculo"}</span>
-                            </Link<AppRoute>>
-                        </li>
-                    </ul>
-                </li>
+                </Link<AppRoute>>
                 <li id="user-menu">
                     <a class="has-icon has-dropdown-icon" onclick={onclick_user}>
                         <span class="icon"><i class="fa-solid fa-users"></i></span>

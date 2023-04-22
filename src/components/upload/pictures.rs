@@ -4,6 +4,9 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
+use crate::shadow_clone;
+
+use crate::types::multipart::{MultipartForm, MultipartPart};
 
 use super::picture::Picture;
 
@@ -13,9 +16,10 @@ pub struct FileDetails {
     pub name: String,
     pub mime: String,
     //pub description: String,
-    pub path: Option<String>,
+    //pub path: Option<String>,
     pub bytes: Option<Vec<u8>>,
     pub started_upload: bool,
+    pub uploaded: bool,
 }
 
 pub enum FileActions {
@@ -24,6 +28,7 @@ pub enum FileActions {
     UploadStarted(Uuid),
     Uploaded(Uuid),
     Loaded(Uuid, Vec<u8>),
+    Reset,
     //Move(usize, usize),
 }
 
@@ -45,9 +50,9 @@ impl Reducible for Reducer {
                     id,
                     name,
                     mime,
-                    path: None,
                     bytes: None,
                     started_upload: false,
+                    uploaded: false
                 });
                 counter += 1;
             }
@@ -65,7 +70,12 @@ impl Reducible for Reducer {
                 }
             }
             FileActions::Uploaded(id) => {
-
+                for picture in &mut pictures {
+                    if picture.id.eq(&id) {
+                        picture.uploaded= true;
+                        break;
+                    }
+                }
             }
             FileActions::Loaded(id, bytes) => {
                 for mut picture in &mut pictures {
@@ -75,6 +85,10 @@ impl Reducible for Reducer {
                     }
                 }
             }
+            FileActions::Reset => {
+                pictures = vec![];
+                counter = 0;
+            }
         }
 
         Self { pictures, counter }.into()
@@ -82,9 +96,8 @@ impl Reducible for Reducer {
 }
 
 #[derive(Debug, PartialEq, Properties)]
-pub struct PicturesProps<T: Reducible + std::cmp::PartialEq >{
-    pub dispatcher: UseReducerDispatcher<T>,
-    //pub pictures: Vec<(String, String)>,
+pub struct PicturesProps {
+    pub upload_form: UseStateHandle<Option<MultipartForm>>,
     #[prop_or(1)]
     pub max_files: usize,
     #[prop_or(vec![String::from("image/*")])]
@@ -95,12 +108,13 @@ pub struct PicturesProps<T: Reducible + std::cmp::PartialEq >{
 
 
 #[function_component]
-pub fn Pictures<T: Reducible + std::cmp::PartialEq>(props: &PicturesProps<T>) -> Html {
+pub fn Pictures(props: &PicturesProps) -> Html {
     
     let max_files = props.max_files;
     let accept = props.accept.clone();
 
-    let dispatcher = props.dispatcher.clone();
+    let upload_form = props.upload_form.clone();
+
     let pictures = use_reducer(Reducer::default);
     let drag_over = use_counter(0);
     let readers = use_mut_ref(Vec::<FileReader>::new);
@@ -177,6 +191,28 @@ pub fn Pictures<T: Reducible + std::cmp::PartialEq>(props: &PicturesProps<T>) ->
     */
 
     let pics = pictures.pictures.clone();
+    let on_start_upload = {
+        shadow_clone![pics, pictures];
+        shadow_clone!(upload_form);
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+            let mut multipart = MultipartForm::default();
+            for file in pics.clone() {
+                if file.bytes.is_some() && !file.started_upload {
+                    let bytes = file.bytes.unwrap().clone();
+                    let name = file.name.clone();
+                    let mime = file.mime.clone();
+                    let id = file.id.clone();
+                    pictures.dispatch(FileActions::UploadStarted(id));
+                    let part = MultipartPart { bytes, name, mime };
+                    multipart.append(part);
+                }
+            }
+            log::debug!("multipart form\n{:?}", multipart);
+            upload_form.set(Some(multipart));
+        })
+    };
+
 
 
     html!{
@@ -187,7 +223,7 @@ pub fn Pictures<T: Reducible + std::cmp::PartialEq>(props: &PicturesProps<T>) ->
                     { 
                         for pics.iter().map(|p| {
                             html! {
-                                <Picture uploader_dispatcher={String::from("asd")} pictures_dispatcher={pictures.dispatcher()} file_details={p.clone()}/>
+                                <Picture pictures_dispatcher={pictures.dispatcher()} file_details={p.clone()}/>
                             }
                         })
                     }
@@ -200,6 +236,7 @@ pub fn Pictures<T: Reducible + std::cmp::PartialEq>(props: &PicturesProps<T>) ->
                             })}
                             ondragenter={on_drag_enter}
                             ondragleave={on_drag_leave}
+                            onchange={on_image_select}
                     >
                         <p>{ "Haz click en el boton o arrastra el archivo" }</p>
                         <i class="fa fa-cloud-upload"></i>
@@ -215,7 +252,7 @@ pub fn Pictures<T: Reducible + std::cmp::PartialEq>(props: &PicturesProps<T>) ->
                                 type="file"
                                 accept="image/*"
                                 multiple={props.multiple}
-                                onchange={on_image_select}
+                                onclick={on_start_upload}
                             />
                         </label>
                     </div>
@@ -315,3 +352,44 @@ fn is_accepted_file_type(file_type: String, accepted: Vec<String>) -> bool {
         return false;
     }
 }
+
+/*
+    if file.bytes.is_some() && !file.started_upload {
+        let bytes = file.bytes.clone();
+        let name = file.name.clone();
+        let mime = file.mime.clone();
+        let id = file.id.clone();
+        pictures_dispatcher.dispatch(FileActions::UploadStarted(id));
+        spawn_local(async move {
+            let multipart = match bytes {
+                None => {
+                    return;
+                }
+                Some(data) => {
+                    //pictures_dispatcher.dispatch(FileActions::Loaded(id, data.clone()));
+                    log::debug!("starting upload image");
+                    let multipart = reqwest::multipart::Form::new();
+                    let mut file = reqwest::multipart::Part::bytes(data);
+                    file = file.file_name(name.clone());
+                    file = match file.mime_str(&mime) {
+                        Ok(f) => f,
+                        Err(e) => {
+                            log::error!("Unable to set mime type: {e}");
+                            return;
+                        }
+                    };
+                    multipart.part(name.clone(), file)
+                }
+            };
+            
+            let response = request_admin_update_vehicule_picture("85c471d7-2a77-41f7-8a91-6a12cceafe47".to_string(), multipart).await;
+            match response {
+                Ok(r) => {
+                    log::debug!("image uploaded successfully\n {:?}", r);
+                }
+                Err(e) => {
+                    log::error!("image uploaded failed\n {:?}", e);
+                }
+            }
+        });
+*/

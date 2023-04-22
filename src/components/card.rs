@@ -7,6 +7,7 @@ use crate::shadow_clone;
 pub struct CardProps {
     pub header_icon_left: Option<String>,
     pub header_icon_right: Option<String>,
+    pub header_icon_right_label: Option<String>,
     pub header_icon_right_onclick: Option<Callback<MouseEvent>>,
     pub header_title: String,
     pub children: Children,
@@ -29,9 +30,16 @@ pub fn Card(props: &CardProps) -> Html {
 
                     { props.header_title }
                 </p>
-                if props.header_icon_right.is_some() {
+                if props.header_icon_right.is_some() || props.header_icon_right_label.is_some() {
                     <a href="#" class="card-header-icon" onclick={ props.header_icon_right_onclick }>
-                        <span class="icon"><i class={ props.header_icon_right.unwrap() }></i></span>
+                        <button class="button is-outlined is-info is-small" type="button">
+                        if props.header_icon_right.is_some() {
+                            <span class="icon"><i class={ props.header_icon_right.unwrap() }></i></span>
+                        }
+                        if props.header_icon_right_label.is_some() {
+                            <span>{ props.header_icon_right_label.unwrap() }</span>
+                        }
+                        </button>
                     </a>
                 }
             </header>

@@ -5,20 +5,14 @@ use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
 use crate::components::form::collapsible::FormCollapsible;
-use crate::components::upload::pictures::Pictures;
-
-use crate::context::vehicule::VehiculeItemState;
 
 #[function_component]
 pub fn HomeView() -> Html {
     let user_ctx = use_user_context();
 
-    let dispat = use_reducer(VehiculeItemState::default);
-
     html! {
         if user_ctx.is_authenticated() {
             <HomeLoggedInView/>
-            <Pictures<VehiculeItemState> dispatcher={dispat.dispatcher()}/>
         } else {
             <HomeLoggedOutView/>
         }

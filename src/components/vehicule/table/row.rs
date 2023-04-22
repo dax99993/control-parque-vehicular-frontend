@@ -2,15 +2,15 @@ use yew::prelude::*;
 
 use crate::types::vehicule::Vehicule;
 use crate::hooks::user_context::use_user_context;
-use crate::routes::AppRoute;
-use crate::utils::modal::open_modal;
-use crate::context::vehicule::{VehiculeItemContext, VehiculeItemAction};
+
+use crate::routes::admin::vehicule::reducer::{VehiculeReducer, VehiculeAction};
 
 use crate::shadow_clone;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
    pub vehicule: Vehicule, 
+   pub dispatcher: UseReducerDispatcher<VehiculeReducer>,
 }
 
 #[function_component]
@@ -21,41 +21,32 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
     // by constructing a global URL_BASE
     
     let user_ctx = use_user_context();
-    let vehicule_ctx = use_context::<VehiculeItemContext>().unwrap();
 
     let click_show = {
-        shadow_clone![vehicule_ctx, props];
+        shadow_clone![props];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            if (*vehicule_ctx).vehicule_id.is_none() {
-                let id = props.vehicule.vehicule_id.to_string();
-                vehicule_ctx.dispatch(VehiculeItemAction::Get(id));
-            }
-            //log::debug!("Vehicule delete context {:?}", vehicule_ctx);
-            open_modal("vehicule-details-modal".to_string()).emit(e);
+            let id = props.vehicule.vehicule_id.clone();
+            props.dispatcher.dispatch(VehiculeAction::ShowInfo(id));
         })
     };
     
     let click_delete = {
-        shadow_clone![vehicule_ctx, props];
+        shadow_clone![props];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            if (*vehicule_ctx).vehicule_id.is_none() {
-                let id = props.vehicule.vehicule_id.to_string();
-                vehicule_ctx.dispatch(VehiculeItemAction::Delete(id));
-            }
-            //log::debug!("Vehicule delete context {:?}", vehicule_ctx);
-            open_modal("vehicule-delete-modal".to_string()).emit(e);
+            let id = props.vehicule.vehicule_id.clone();
+            props.dispatcher.dispatch(VehiculeAction::DeleteVehicule(id));
         })
     };
     
 
     let click_edit = {
-        shadow_clone![user_ctx, props];
-        Callback::from(move |_: MouseEvent| {
-            user_ctx.redirect_to(AppRoute::VehiculesEdit { 
-                id: props.vehicule.clone().vehicule_id.to_string() 
-            });
+        shadow_clone![props];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+            let id = props.vehicule.vehicule_id.clone();
+            props.dispatcher.dispatch(VehiculeAction::UpdateInfo(id));
         })
     };
 
