@@ -49,6 +49,31 @@ impl Vehicule {
 
         self
     }
+
+    pub fn status_to_spanish(&self) -> String {
+        if self.is_occupied() {
+            return "ocupado".to_string();
+        }
+        if self.is_available() {
+            return "disponible".to_string();
+        }
+        if self.is_maintenance() {
+            return "mantenimiento".to_string();
+        }
+        else { return "desconocido".to_string() };
+    }
+
+    pub fn active_to_spanish(&self) -> String {
+        if self.active {
+            return "si".to_string();
+        } else { 
+            return "no".to_string()
+        };
+    }
+
+    pub fn get_picture_url(&self, base_url: &str) -> String {
+        format!("{base_url}api/images?filename={}", self.picture)
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]

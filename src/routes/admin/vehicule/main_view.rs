@@ -1,10 +1,10 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use yew_router::prelude::use_navigator;
 
 
 use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
-use crate::utils::modal::{open_modal, close_modal};
 
 
 use crate::components::main_section::MainSection;
@@ -29,7 +29,16 @@ pub fn AdminVehiculePage() -> Html {
     // hooks
     let reducer = use_reducer(VehiculeReducer::default);
     let current_page = use_state(|| reducer.current_page);
-    //let should_update = use_state(|| false);
+    let navigator = use_navigator();
+
+    // Add navigator
+    {
+        shadow_clone![reducer, navigator];
+        use_effect_with_deps(move |nav| {
+            reducer.dispatch(VehiculeAction::AddNavigator(nav.clone()));
+        },
+        navigator);
+    }
 
 
     /*

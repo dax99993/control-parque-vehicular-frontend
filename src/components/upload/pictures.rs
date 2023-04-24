@@ -191,6 +191,8 @@ pub fn Pictures(props: &PicturesProps) -> Html {
     */
 
     let pics = pictures.pictures.clone();
+
+    /*
     let on_start_upload = {
         shadow_clone![pics, pictures];
         shadow_clone!(upload_form);
@@ -210,9 +212,30 @@ pub fn Pictures(props: &PicturesProps) -> Html {
             }
             log::debug!("multipart form\n{:?}", multipart);
             upload_form.set(Some(multipart));
+            //not sure if this is the best place in case of error in server
+            //pictures.dispatch(FileActions::Reset);
         })
     };
+    */
 
+    if !pictures.pictures.is_empty() && pictures.pictures.iter().all(|f| f.bytes.is_some() && !f.started_upload) {
+            let mut multipart = MultipartForm::default();
+            for file in pics.clone() {
+                //if file.bytes.is_some() && !file.started_upload {
+                    let bytes = file.bytes.unwrap().clone();
+                    let name = file.name.clone();
+                    let mime = file.mime.clone();
+                    let id = file.id.clone();
+                    pictures.dispatch(FileActions::UploadStarted(id));
+                    let part = MultipartPart { bytes, name, mime };
+                    multipart.append(part);
+                //}
+            }
+            log::debug!("multipart form\n{:?}", multipart);
+            upload_form.set(Some(multipart));
+            //not sure if this is the best place in case of error in server
+            //pictures.dispatch(FileActions::Reset);
+    }
 
 
     html!{
@@ -236,7 +259,6 @@ pub fn Pictures(props: &PicturesProps) -> Html {
                             })}
                             ondragenter={on_drag_enter}
                             ondragleave={on_drag_leave}
-                            onchange={on_image_select}
                     >
                         <p>{ "Haz click en el boton o arrastra el archivo" }</p>
                         <i class="fa fa-cloud-upload"></i>
@@ -252,7 +274,7 @@ pub fn Pictures(props: &PicturesProps) -> Html {
                                 type="file"
                                 accept="image/*"
                                 multiple={props.multiple}
-                                onclick={on_start_upload}
+                                onchange={on_image_select}
                             />
                         </label>
                     </div>

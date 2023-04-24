@@ -1,6 +1,5 @@
 use yew::prelude::*;
 
-
 use crate::shadow_clone;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -10,7 +9,6 @@ pub struct Props {
 
 #[function_component]
 pub fn VehiculeTable(props: &Props) -> Html {
-
     shadow_clone!(props);
 
     html!{
@@ -19,12 +17,6 @@ pub fn VehiculeTable(props: &Props) -> Html {
             <table class="table is-narrow is-striped is-hoverable is-fullwidth">
                 <thead>
                     <tr>
-                        <th class="is-checkbox-cell">
-                            <label class="b-checkbox checkbox"> 
-                                <input type="checkbox" value={"false"} />
-                                <span class="check"></span>
-                            </label>
-                        </th>
                         <th></th>
                         <th>{"Marca"}</th>
                         <th>{"Modelo"}</th>
@@ -36,7 +28,6 @@ pub fn VehiculeTable(props: &Props) -> Html {
                         <th>{"Activo"}</th>
                         <th>{"Ultima modificacion"}</th>
                         <th>{"Fecha de creacion"}</th>
-
                         <th></th>
                     </tr>
                 </thead>

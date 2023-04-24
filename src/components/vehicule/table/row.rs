@@ -15,56 +15,50 @@ pub struct Props {
 
 #[function_component]
 pub fn VehiculeTableRow(props: &Props) -> Html {
-    shadow_clone!(props);
+    let Props { vehicule, dispatcher } = props;
 
     //TODO request vehicule picture
     // by constructing a global URL_BASE
+    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
+
     
     let user_ctx = use_user_context();
 
     let click_show = {
-        shadow_clone![props];
+        shadow_clone![vehicule, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = props.vehicule.vehicule_id.clone();
-            props.dispatcher.dispatch(VehiculeAction::ShowInfo(id));
+            let id = vehicule.vehicule_id.clone();
+            dispatcher.dispatch(VehiculeAction::ShowPicture(id));
         })
     };
     
     let click_delete = {
-        shadow_clone![props];
+        shadow_clone![vehicule, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = props.vehicule.vehicule_id.clone();
-            props.dispatcher.dispatch(VehiculeAction::DeleteVehicule(id));
+            let id = vehicule.vehicule_id.clone();
+            dispatcher.dispatch(VehiculeAction::DeleteVehicule(id));
         })
     };
     
 
     let click_edit = {
-        shadow_clone![props];
+        shadow_clone![vehicule, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = props.vehicule.vehicule_id.clone();
-            props.dispatcher.dispatch(VehiculeAction::UpdateInfo(id));
+            let id = vehicule.vehicule_id.clone();
+            dispatcher.dispatch(VehiculeAction::UpdateInfo(id));
         })
     };
 
 
-    {
-    let vehicule = props.vehicule.clone();
     html!{
         <tr>
-        <td class="is-checkbox-cell">
-          <label class="b-checkbox checkbox">
-            <input type="checkbox" value={"false"} />
-            <span class="check"></span>
-          </label>
-        </td>
         <td class="is-image-cell">
-            <div class="image">
-                <img src="https://avatars.dicebear.com/v2/initials/rebecca-bauch.svg" class="is-rounded"/>
-            </div>
+            <figure class="image is-16by9">
+                <img src={picture_url} />
+            </figure>
         </td>
 
         <td data-label="Marca">{&vehicule.branch}</td>
@@ -75,22 +69,8 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         <td data-label="Numero de placa">{&vehicule.number_plate}</td>
 
         if user_ctx.is_admin() {
-        <td data-label="Estado">{
-            if vehicule.is_available() {
-                "disponible"
-            } else if vehicule.is_occupied() {
-                "ocupado"
-            } else if vehicule.is_maintenance() {
-                "mantenimiento"
-            } else { "" }
-        }</td>
-        <td data-label="Activo">{
-            if vehicule.is_active() {
-                "si" 
-            } else {
-                "no"
-            }
-        }</td>
+        <td data-label="Estado">{ vehicule.status_to_spanish() }</td>
+        <td class="has-text-centered" data-label="Activo">{ vehicule.active_to_spanish() }</td>
         <td data-label="Ultima modificacion">{&vehicule.updated_at}</td>
         <td data-label="Fecha de creacion">{&vehicule.created_at}</td>
 
@@ -99,7 +79,7 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
             <div class="buttons is-right">
                 <button class="button is-small is-primary" type="button" onclick={click_show}>
                     <span class="icon"><i class="fa-solid fa-eye"></i></span>
-                    <span>{"Ver"}</span>
+                    <span>{"Imagen"}</span>
                 </button>
 
                 <button class="button is-info is-small" type="button" onclick={click_edit}>
@@ -116,6 +96,5 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         }
 
         </tr>
-    }
     }
 }

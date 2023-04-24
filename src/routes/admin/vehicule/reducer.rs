@@ -2,30 +2,27 @@ use uuid::Uuid;
 
 use yew::prelude::*;
 use yew::platform::spawn_local;
+use yew_router::prelude::Navigator;
 
-use super::edit::EditVehiculeView;
-use super::register::RegisterVehiculeView;
-
+use crate::routes::AppRoute;
 use crate::shadow_clone;
-use crate::types::vehicule::{Vehicule, NewVehicule, UpdateVehicule};
+use crate::types::vehicule::Vehicule;
 use crate::utils::modal::{open_modal, close_modal};
 
 
 use crate::services::vehicule::{
-    request_admin_get_vehicules,
     request_admin_delete_vehicule,
     request_admin_update_vehicule_picture
 };
 
 pub enum VehiculeAction {
+    AddNavigator(Option<Navigator>),
     AddVehicule,
     DeleteVehicule(Uuid),
     GetVehicules(Vec<Vehicule>),
-    //GetVehicules,
-    //UpdatePicture,
     UploadPicture(Uuid, reqwest::multipart::Form),
     UpdateInfo(Uuid),
-    ShowInfo(Uuid),
+    ShowPicture(Uuid),
     SetVehiculePerPage(usize),
     GoToPage(usize),
     ResetModal,
@@ -43,6 +40,7 @@ pub struct VehiculeReducer {
     pub current_page: usize,
     pub total_pages: usize,
     pub current_page_vehicules: Vec<Vehicule>, 
+    pub navigator: Option<Navigator>,
 }
 
 impl Default for VehiculeReducer {
@@ -58,6 +56,7 @@ impl Default for VehiculeReducer {
             current_page: 1,
             total_pages: 0,
             current_page_vehicules: vec![],
+            navigator: None, 
         }
     }
 }
@@ -76,31 +75,27 @@ impl Reducible for VehiculeReducer {
         let mut current_page = self.current_page.clone();
         let mut total_pages = self.total_pages.clone();
         let mut current_page_vehicules = self.current_page_vehicules.clone();
+        let mut navigator = self.navigator.clone();
 
         let id = self.selected_vehicule_id.clone();
         
         match action {
+            VehiculeAction::AddNavigator(nav) => {
+                navigator = nav;
+            }
             VehiculeAction::AddVehicule => {
-                //open_modal("vehicule-modal".to_string()).emit(MouseEvent::new("click").unwrap());
-                open_modal("vehicule-modal".to_string());
-                modal_body = Some(
-                   html!{ <RegisterVehiculeView /> }
-                );
-                modal_footer = None;
-                modal_onclick = {
-                    Some(
-                        Callback::from(move |e: MouseEvent| {
-                            e.prevent_default();
-                            log::debug!("AddVehicule onclose cb");
-                        })
-                    )
-                };
+                if let Some(nav) = navigator.clone() {
+                    nav.push(&AppRoute::VehiculeAdd);
+                } else {
+                    log::error!("navigator is None!");
+                }
             }
             VehiculeAction::DeleteVehicule(id) => {
                 open_modal("vehicule-modal".to_string());
                 if let Some(v) = vehicules.iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
                     log::debug!("should delete vehicule with id = {id}");
                     let msg = format!("Realmente desea borrar el vehiculo {}", &v.branch);
+
                     modal_body = Some(
                         html!{<p><b>{ msg }</b></p>}
                     );
@@ -151,20 +146,6 @@ impl Reducible for VehiculeReducer {
             }
             VehiculeAction::GetVehicules(new_vehicules) => {
                 vehicules = new_vehicules;
-                /*
-                spawn_local(async {
-                    match request_admin_get_vehicules().await {
-                        Ok(api_response) => {
-                            if let Some(v) = api_response.data {
-                                *vehicules = v;
-                            }
-                        }
-                        Err(api_error) => {
-                            log::error!("Failed to update vehicules {:?}", api_error);
-                        }
-                    }
-                });
-                */
             }
             VehiculeAction::UploadPicture(vehicule_id, multipart) => {
                 spawn_local(async move {
@@ -180,35 +161,20 @@ impl Reducible for VehiculeReducer {
                 });
             }
             VehiculeAction::UpdateInfo(id) => {
-                open_modal("vehicule-modal".to_string());
-                if let Some(v) = vehicules.iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
-                    log::debug!("should edit vehicule with id = {id}");
-                    modal_body = Some(
-                        html!{<EditVehiculeView id={v.vehicule_id.clone()} />}
-                    );
-                    modal_footer = None;
-                    modal_onclick = {
-                        Some(
-                            Callback::from(move |e: MouseEvent| {
-                                e.prevent_default();
-                                log::debug!("UpdateInfo onclose cb");
-                            })
-                        )
-                    };
+                if let Some(nav) = navigator.clone() {
+                    nav.push(&AppRoute::VehiculeEdit { id });
+                } else {
+                    log::error!("navigator is None!");
                 }
             }
-            VehiculeAction::ShowInfo(id) => {
+            VehiculeAction::ShowPicture(id) => {
                 open_modal("vehicule-modal".to_string());
-                //open_modal("vehicule-modal".to_string()).emit(MouseEvent::new("click").unwrap());
                 if let Some(v) = vehicules.iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
                     log::debug!("Vehicule selected {:?}", &v);
+                    let picture_url = format!("http://127.0.0.1:8000/api/images?filename={}", v.picture);
                     modal_body = Some(
                         html!{
-                            <>
-                                <p>{v.vehicule_id}</p>
-                                <p>{&v.branch}</p>
-                                <p>{&v.model}</p>
-                            </>
+                            <img src={picture_url} />
                         }
                     );
                     modal_footer = None;
@@ -258,7 +224,8 @@ impl Reducible for VehiculeReducer {
             vehicules_per_page,
             current_page,
             total_pages,
-            current_page_vehicules
+            current_page_vehicules,
+            navigator,
         }.into()    
     }
 }

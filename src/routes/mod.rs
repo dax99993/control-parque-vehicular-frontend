@@ -2,14 +2,12 @@ pub mod home;
 pub mod notfound;
 pub mod auth;
 
-//pub mod vehicule;
-//use self::vehicule::get::GetVehiculesView;
-
 pub mod admin;
 //pub mod normal;
 pub mod general;
 
 
+use uuid::Uuid;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -22,6 +20,9 @@ use self::auth::logout::LogoutView;
 use self::auth::register::RegisterView;
 
 use self::general::vehicule::VehiculesView;
+
+use self::admin::vehicule::edit::view::EditVehiculeView;
+use self::admin::vehicule::register::RegisterVehiculeView;
 
 
 ///App Routes
@@ -38,6 +39,11 @@ pub enum AppRoute {
     // Vehicule routes
     #[at("/vehicules")]
     Vehicules,
+    #[at("/vehicules/register")]
+    VehiculeAdd,
+    #[at("/vehicules/:id")]
+    VehiculeEdit {id: Uuid},
+    //VehiculesEdit {id: String},
     // User routes
     #[at("/users")]
     Users,
@@ -66,6 +72,8 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::Home => html! { <HomeView/> },
         // Vehicule routes
         AppRoute::Vehicules => html! { <VehiculesView/> },
+        AppRoute::VehiculeAdd => html! { <RegisterVehiculeView /> },
+        AppRoute::VehiculeEdit { id } => html! { <EditVehiculeView {id}/> },
         // User routes
         AppRoute::Users => html! { {"users"} },
         // Request routes

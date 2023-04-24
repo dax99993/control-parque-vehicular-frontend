@@ -1,6 +1,5 @@
-use uuid::Uuid;
-use yew::platform::spawn_local;
 use yew::prelude::*;
+use yew::platform::spawn_local;
 use yew_hooks::prelude::*;
 
 use std::cell::RefCell;
@@ -9,38 +8,35 @@ use std::rc::Rc;
 
 use validator::{Validate, ValidationErrors};
 
-use crate::hooks::user_context::use_user_context;
-use crate::services::vehicule::{request_admin_get_vehicule_with_id, request_admin_update_vehicule, request_admin_update_vehicule_picture};
+
+use crate::services::vehicule::{request_admin_update_vehicule, request_admin_update_vehicule_picture};
 use crate::types::vehicule::{Vehicule, UpdateVehicule};
 
 use crate::shadow_clone;
 use crate::utils::forms::{validate_form_field, set_input_value};
 
-//use crate::components::main_section::MainSection;
 use crate::components::form::form::{Form, FormField, InputFieldValidated, SelectFieldValidated};
 use crate::components::card::{Card, CardContent};
 
 use crate::components::upload::pictures::Pictures;
-use crate::types::multipart::{MultipartForm, MultipartPart};
-
+use crate::types::multipart::MultipartForm;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
-pub struct EditVehiculeProps {
-    pub id: Uuid,
+pub struct EditVehiculeFormProps {
+    pub vehicule: UseStateHandle<Vehicule>,
 }
 
 #[function_component]
-pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
-    let user_ctx = use_user_context();
-    if !user_ctx.is_authenticated() || !user_ctx.is_admin() {
-        user_ctx.redirect_home();
-    }
+pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     // States
-    let vehicule = use_state(|| Vehicule::default());  
+    //let vehicule = use_state(|| props.vehicule.clone());  
+    //let id = use_state(|| (*vehicule).vehicule_id.to_string());  
+    let EditVehiculeFormProps { vehicule } = props;
+
+    let upload_form = use_state(|| None::<MultipartForm>);
+
     let updated_vehicule = use_state(|| UpdateVehicule::default());  
     let updated_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
-    let id = use_state(|| props.id.to_string());  
-
 
     let onchange_branch = get_input_callback("branch", &updated_vehicule);
     let onchange_model = get_input_callback("model", &updated_vehicule);
@@ -68,82 +64,93 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
         })
     };
 
-    // ------- request vehicule information ------
-    let request_vehicule_with_id = {
-        shadow_clone!(id);
-        use_async(async move {
-            request_admin_get_vehicule_with_id((*id).clone()).await
-        })
-    };
-
-
-    // Request vehicule information on rendering
-    {
-        shadow_clone!(request_vehicule_with_id);
-        use_effect_with_deps(move |_| {
-            request_vehicule_with_id.run();
-        }, ())
-    }
 
     // ------- request vehicule update information ------
     // create request to update information
     let request_update_vehicule = {
-        shadow_clone![id, updated_vehicule];
+        //let id = (*vehicule).vehicule_id.to_string();
+        //shadow_clone![updated_vehicule];
+        shadow_clone![vehicule, updated_vehicule];
         use_async(async move {
-            request_admin_update_vehicule((*id).clone(), (*updated_vehicule).clone()).await
+            log::warn!("executing async request:\nid\n{:?}\nupdated vehicule\n{:?}", vehicule, updated_vehicule);
+            request_admin_update_vehicule((*vehicule).vehicule_id.to_string(), (*updated_vehicule).clone()).await
         })
     };
 
-    // create request to update picture 
-    let picture_url = format!("http://127.0.0.1:8000/api/images?filename=vehicules/default-picture.jpeg");
 
-
-    // Update the form fields when request_vehicule_with_id is done
+    // Update the form fields when vehicule state is done
     {
-        shadow_clone!(request_vehicule_with_id);
-        shadow_clone!(vehicule);
+        shadow_clone![vehicule];
         shadow_clone![branch, model, number_plate, year, number_card, short_name];
-        use_effect_with_deps(move |request_vehicule_with_id| {
-            if let Some(response) = &request_vehicule_with_id.data {
-                log::debug!("{:?}", response);
-                if let Some(veh) = &response.data {
-                    vehicule.set(veh.clone()); 
-                    set_input_value(&veh.branch, &branch);
-                    set_input_value(&veh.model, &model);
-                    set_input_value(&veh.year.to_string(), &year);
-                    set_input_value(&veh.number_plate, &number_plate);
-                    set_input_value(&veh.short_name, &short_name);
-                    set_input_value(&veh.number_card, &number_card);
-                }
-            }
+        use_effect_with_deps(move |vehicule| {
+            let veh = (*vehicule).clone();
+            set_input_value(&veh.branch, &branch);
+            set_input_value(&veh.model, &model);
+            set_input_value(&veh.year.to_string(), &year);
+            set_input_value(&veh.number_plate, &number_plate);
+            set_input_value(&veh.short_name, &short_name);
+            set_input_value(&veh.number_card, &number_card);
         },
-        request_vehicule_with_id.clone())
+        vehicule.clone())
     }
 
     // Re-render when request_update_vehicule is done and successful
     {
         shadow_clone!(request_update_vehicule);
-        shadow_clone!(request_vehicule_with_id);
         shadow_clone![vehicule, updated_vehicule, updated_vehicule_validation];
         use_effect_with_deps(move |request_update_vehicule| {
             if let Some(response) = &request_update_vehicule.data {
-                log::debug!("{:?}", response);
-                /*
+                log::debug!("update vehicule request successful\n{:?}", response);
                 if let Some(veh) = &response.data {
-                    let mut v = (*vehicule).clone();
-                    //v.update(updated_vehicule);
-                    v.update(veh);
+                    //let mut v = (*vehicule).clone();
+                    //v.update(veh);
+                    vehicule.set(veh.clone());
                     updated_vehicule.set(UpdateVehicule::default());
-                    vehicule.set(v);
+                    updated_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
                 }
-                */
-                updated_vehicule.set(UpdateVehicule::default());
-                updated_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
-                request_vehicule_with_id.run();
+            }
+            if let Some(response) = &request_update_vehicule.error {
+                log::error!("update vehicule request failed\n{:?}", response);
             }
         },
         request_update_vehicule.clone())
     }
+
+
+    // Picture upload
+    /*
+    {
+        //shadow_clone![id, upload_form];
+        let id = (*vehicule).vehicule_id.to_string();
+        shadow_clone![vehicule];
+        use_effect_with_deps(move |upload_form| {
+            if let Some(form) = (**upload_form).clone() {
+                log::debug!("form {:?}", form);
+                let multipart = form.into_reqwest_multipart();
+                let upload_form = upload_form.clone();
+                spawn_local(async move {
+                    let response = request_admin_update_vehicule_picture(id, multipart).await;
+                    match response {
+                        Ok(api_response) => {
+                            upload_form.set(None);
+                            log::debug!("successful vehicule picture update {:?}", api_response);
+                            // should update vehicule picture to updated one
+                            vehicule.set(api_response.data.clone().unwrap());
+                        }
+                        Err(api_error) => {
+                            log::error!("upload vehicule picture failed {:?}", api_error);
+                        }
+                    }
+                });
+                
+            } else {
+                log::warn!("No multipart for uploading");
+            }
+        },
+        upload_form.clone()
+        );
+    }
+    */
 
 
     // reset all form fields
@@ -172,14 +179,14 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
     let onsubmit = {
         shadow_clone![updated_vehicule, updated_vehicule_validation];
         shadow_clone![branch, model, number_plate, year, number_card, short_name];
-        shadow_clone![vehicule];
         shadow_clone![request_update_vehicule];
+        shadow_clone![vehicule];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
+            // make request to update vehicule fields 
             match updated_vehicule.validate() {
                 Ok(_) => {
-                    // make request to database
                     request_update_vehicule.run();
                 }
                 Err(e) => {
@@ -194,26 +201,29 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
                     updated_vehicule_validation.set(Rc::new(RefCell::new(e)));
                 }
             }
+
         })
     };
 
-    // Picture upload
-    let upload_form = use_state(|| None::<MultipartForm>);
     {
-        shadow_clone![id, upload_form];
-        use_effect_with_deps(|upload_form| {
-
+        shadow_clone![vehicule];
+        //shadow_clone![upload_form];
+        use_effect_with_deps(move |upload_form| {
+            // make request to update vehicule picture
             if let Some(form) = (**upload_form).clone() {
+                let id = (*vehicule).vehicule_id.to_string();
                 log::debug!("form {:?}", form);
                 let multipart = form.into_reqwest_multipart();
                 let upload_form = upload_form.clone();
                 spawn_local(async move {
-                    let response = request_admin_update_vehicule_picture((*id).clone(), multipart).await;
+                    let response = request_admin_update_vehicule_picture(id, multipart).await;
                     match response {
                         Ok(api_response) => {
                             upload_form.set(None);
                             log::debug!("successful vehicule picture update {:?}", api_response);
                             // should update vehicule picture to updated one
+                            vehicule.set(api_response.data.clone().unwrap());
+                            // should reset the picture component
                         }
                         Err(api_error) => {
                             log::error!("upload vehicule picture failed {:?}", api_error);
@@ -244,22 +254,8 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
 
                     <Form method="get">
 
-                        <div class="is-user-avatar image has-max-width is-aligned-center">
-                            <img src={picture_url} alt="John Doe" />
-                        </div>
-
-                        <hr/>
-
                         <FormField label="Imagen">
                             <Pictures upload_form={upload_form.clone()} />
-                        </FormField> 
-
-                        <hr/>
-
-                        <FormField label="Id">
-                            <div class="control is-clearfix">
-                                <input type="text" readonly={true} value={ vehicule.vehicule_id.to_string() } class="input is-static"/>
-                            </div>
                         </FormField> 
 
                         <hr/>

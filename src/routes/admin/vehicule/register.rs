@@ -6,15 +6,14 @@ use validator::{Validate, ValidationErrors};
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::request_admin_create_vehicule;
 use crate::types::vehicule::NewVehicule;
-//use crate::routes::AppRoute;
-//use crate::components::main_section::MainSection;
+use crate::routes::AppRoute;
+use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};
 use crate::components::vehicule::form::VehiculeCreateForm;
 
 use crate::utils::forms::{validate_form_field, reset_input};
 
 use crate::shadow_clone;
-use crate::routes::admin::vehicule::reducer::{VehiculeReducer, VehiculeAction};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
@@ -23,7 +22,7 @@ pub struct Props {
 
 
 #[function_component]
-pub fn RegisterVehiculeView(props: &Props) -> Html {
+pub fn RegisterVehiculeView(_props: &Props) -> Html {
     let user_ctx = use_user_context();
     if !user_ctx.is_authenticated() || !user_ctx.is_admin() {
         user_ctx.redirect_home();
@@ -90,14 +89,13 @@ pub fn RegisterVehiculeView(props: &Props) -> Html {
     };
 
     {
-        shadow_clone![props, request_create_vehicule_admin];
+        shadow_clone![request_create_vehicule_admin];
         use_effect_with_deps(move |request_create_vehicule_admin| {
             if let Some(response) = &request_create_vehicule_admin.data {
                 log::debug!("api response\n{:?}", &response);
                 if let Some(vehicule) = &response.data {
                     log::debug!("successful vehicule creation\n{:?}", vehicule);
-                    //user_ctx.redirect_to(AppRoute::VehiculesEdit { id: vehicule.vehicule_id.to_string() });
-                    //props.vehicule_dispatcher.dispatch(VehiculeAction::ResetModal);
+                    user_ctx.redirect_to(AppRoute::VehiculeEdit { id: vehicule.vehicule_id.clone() });
                 }
             }
             if let Some(api_error) = &request_create_vehicule_admin.error {
@@ -127,6 +125,7 @@ pub fn RegisterVehiculeView(props: &Props) -> Html {
     };
 
     html!{
+    <MainSection route="Admin" subroute="Vehiculos" title="Agregar Vehiculo">
         <Card header_icon_left={ "fa-solid fa-ballot" } header_title={ "Registro de Vehiculo" }>
             <CardContent>
                 <VehiculeCreateForm
@@ -153,6 +152,7 @@ pub fn RegisterVehiculeView(props: &Props) -> Html {
                 </VehiculeCreateForm>
             </CardContent>
         </Card>
+    </MainSection>
     }
 }
 
