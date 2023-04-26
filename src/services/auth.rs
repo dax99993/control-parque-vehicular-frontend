@@ -1,4 +1,4 @@
-use crate::types::user::{LoginUser, User, SignupUser};
+use common::models::user::{LoginUser, User, SignupUser};
 use crate::api_response::ApiResponse;
 
 use super::request::{request_get, request_post};

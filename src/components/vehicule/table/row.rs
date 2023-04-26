@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::types::vehicule::Vehicule;
+use common::models::vehicule::Vehicule;
 use crate::hooks::user_context::use_user_context;
 
 use crate::routes::admin::vehicule::reducer::{VehiculeReducer, VehiculeAction};

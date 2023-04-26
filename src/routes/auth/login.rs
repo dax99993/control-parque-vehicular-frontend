@@ -2,10 +2,11 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yew_router::prelude::*;
 
+use common::models::user::LoginUser;
+
 use crate::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
 use crate::hooks::user_context::use_user_context;
-use crate::types::user::LoginUser;
 use crate::routes::AppRoute;
 use crate::utils::forms::{validate_form_field, reset_input};
 

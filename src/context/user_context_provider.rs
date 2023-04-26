@@ -2,11 +2,12 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
+use common::models::user::User;
+
 use crate::shadow_clone;
 use crate::error::Error;
 use crate::services::auth::*;
 use crate::services::request::{get_token, store_token};
-use crate::types::user::User;
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {

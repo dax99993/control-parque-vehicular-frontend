@@ -142,3 +142,4 @@ pub fn VehiculeCreateForm(props: &Props) -> Html {
 
     }
 }
+

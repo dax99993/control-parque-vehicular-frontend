@@ -4,9 +4,9 @@ use yew::prelude::*;
 use yew::platform::spawn_local;
 use yew_router::prelude::Navigator;
 
+use common::models::vehicule::Vehicule;
+
 use crate::routes::AppRoute;
-use crate::shadow_clone;
-use crate::types::vehicule::Vehicule;
 use crate::utils::modal::{open_modal, close_modal};
 
 
@@ -66,7 +66,6 @@ impl Reducible for VehiculeReducer {
 
     fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
         let mut vehicules = self.vehicules.clone();
-        //let vehicules = &mut self.vehicules.clone();
         let mut modal_title = self.modal_title.clone();
         let mut modal_body = self.modal_body.clone();
         let mut modal_footer = self.modal_footer.clone();
@@ -86,6 +85,13 @@ impl Reducible for VehiculeReducer {
             VehiculeAction::AddVehicule => {
                 if let Some(nav) = navigator.clone() {
                     nav.push(&AppRoute::VehiculeAdd);
+                } else {
+                    log::error!("navigator is None!");
+                }
+            }
+            VehiculeAction::UpdateInfo(id) => {
+                if let Some(nav) = navigator.clone() {
+                    nav.push(&AppRoute::VehiculeEdit { id });
                 } else {
                     log::error!("navigator is None!");
                 }
@@ -123,7 +129,7 @@ impl Reducible for VehiculeReducer {
                                                 close_modal("vehicule-modal".to_string());
                                             }
                                             Err(_) => {
-                                                log::debug!("failed delete request what to do now?");
+                                                log::error!("delete vehicule request failed");
                                             }
                                         }
                                     });
@@ -155,23 +161,16 @@ impl Reducible for VehiculeReducer {
                             log::debug!("image uploaded successfully\n {:?}", r);
                         }
                         Err(e) => {
-                            log::error!("image uploaded failed\n {:?}", e);
+                            log::error!("image upload request failed\n {:?}", e);
                         }
                     }
                 });
             }
-            VehiculeAction::UpdateInfo(id) => {
-                if let Some(nav) = navigator.clone() {
-                    nav.push(&AppRoute::VehiculeEdit { id });
-                } else {
-                    log::error!("navigator is None!");
-                }
-            }
             VehiculeAction::ShowPicture(id) => {
                 open_modal("vehicule-modal".to_string());
-                if let Some(v) = vehicules.iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
-                    log::debug!("Vehicule selected {:?}", &v);
-                    let picture_url = format!("http://127.0.0.1:8000/api/images?filename={}", v.picture);
+                if let Some(vehicule) = vehicules.iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
+                    log::debug!("Vehicule selected {:?}", &vehicule);
+                    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
                     modal_body = Some(
                         html!{
                             <img src={picture_url} />

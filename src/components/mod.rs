@@ -10,3 +10,4 @@ pub mod card;
 pub mod pagination;
 pub mod collapsible;
 pub mod upload;
+pub mod profile;

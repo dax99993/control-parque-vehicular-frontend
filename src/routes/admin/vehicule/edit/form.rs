@@ -8,9 +8,9 @@ use std::rc::Rc;
 
 use validator::{Validate, ValidationErrors};
 
+use common::models::vehicule::{Vehicule, UpdateVehicule};
 
 use crate::services::vehicule::{request_admin_update_vehicule, request_admin_update_vehicule_picture};
-use crate::types::vehicule::{Vehicule, UpdateVehicule};
 
 use crate::shadow_clone;
 use crate::utils::forms::{validate_form_field, set_input_value};
@@ -18,7 +18,7 @@ use crate::utils::forms::{validate_form_field, set_input_value};
 use crate::components::form::form::{Form, FormField, InputFieldValidated, SelectFieldValidated};
 use crate::components::card::{Card, CardContent};
 
-use crate::components::upload::pictures::Pictures;
+use crate::components::upload::pictures::{Pictures, Reducer, FileActions};
 use crate::types::multipart::MultipartForm;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -34,6 +34,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     let EditVehiculeFormProps { vehicule } = props;
 
     let upload_form = use_state(|| None::<MultipartForm>);
+    let upload_form_reducer = use_reducer(Reducer::default);
 
     let updated_vehicule = use_state(|| UpdateVehicule::default());  
     let updated_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
@@ -207,7 +208,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
 
     {
         shadow_clone![vehicule];
-        //shadow_clone![upload_form];
+        shadow_clone![upload_form_reducer];
         use_effect_with_deps(move |upload_form| {
             // make request to update vehicule picture
             if let Some(form) = (**upload_form).clone() {
@@ -224,6 +225,8 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             // should update vehicule picture to updated one
                             vehicule.set(api_response.data.clone().unwrap());
                             // should reset the picture component
+                            //upload_form_reducer.dispatch(FileActions::Uploaded(())
+                            upload_form_reducer.dispatch(FileActions::Reset);
                         }
                         Err(api_error) => {
                             log::error!("upload vehicule picture failed {:?}", api_error);
@@ -255,7 +258,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                     <Form method="get">
 
                         <FormField label="Imagen">
-                            <Pictures upload_form={upload_form.clone()} />
+                            <Pictures upload_form={upload_form.clone()} upload_reducer={upload_form_reducer.clone()}/>
                         </FormField> 
 
                         <hr/>

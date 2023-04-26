@@ -7,9 +7,10 @@ use std::ops::Deref;
 use std::rc::Rc;
 use validator::{ValidationErrors, Validate};
 
+use common::models::user::SignupUser;
+
 use crate::shadow_clone;
 use crate::services::auth::request_signup;
-use crate::types::user::SignupUser;
 use crate::routes::AppRoute;
 use crate::hooks::user_context::use_user_context;
 use crate::utils::forms::{validate_form_field, reset_input};
@@ -126,7 +127,7 @@ pub fn RegisterView() -> Html {
                         <FormField label="Apellidos" is_horizontal={false}>
                             <InputFieldValidated
                                 placeholder="e.g. Sanchez Perez"
-                                msg="Escribir primero apellido materno"
+                                msg="Escribir primero apellido paterno"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
                                 name="last_name"
                                 input_ref={lastname_ref}
@@ -153,7 +154,7 @@ pub fn RegisterView() -> Html {
                         <FormField label="Contraseña" is_horizontal={false}>
                             <InputFieldValidated
                                 input_type="password"
-                                msg="Colocar Correo Electronico"
+                                msg="Contraseña debe tener un minimo de 6 caracteres a-zA-z"
                                 icon_left={"fa-solid fa-lock"}
                                 icon_right={"fa-solid fa-triangle-exclamation"}
                                 name="password"

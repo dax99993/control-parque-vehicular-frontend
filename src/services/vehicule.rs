@@ -1,4 +1,5 @@
-use crate::types::vehicule::{Vehicule, FilteredVehicule, NewVehicule, UpdateVehicule};
+use common::models::vehicule::{Vehicule, FilteredVehicule, NewVehicule, UpdateVehicule};
+
 use crate::api_response::ApiResponse;
 
 use super::request::{request_get, request_post, request_delete, request_patch, request_multipart_patch};

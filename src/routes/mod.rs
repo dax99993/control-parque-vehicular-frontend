@@ -20,9 +20,12 @@ use self::auth::logout::LogoutView;
 use self::auth::register::RegisterView;
 
 use self::general::vehicule::VehiculesView;
+use self::general::profile::ProfileView;
 
 use self::admin::vehicule::edit::view::EditVehiculeView;
 use self::admin::vehicule::register::RegisterVehiculeView;
+
+
 
 
 ///App Routes
@@ -47,6 +50,8 @@ pub enum AppRoute {
     // User routes
     #[at("/users")]
     Users,
+    #[at("/users/profile")]
+    UserProfile,
     // Request routes
     #[at("/requests")]
     Requests,
@@ -76,6 +81,7 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::VehiculeEdit { id } => html! { <EditVehiculeView {id}/> },
         // User routes
         AppRoute::Users => html! { {"users"} },
+        AppRoute::UserProfile => html! { <ProfileView/> },
         // Request routes
         AppRoute::Requests => html! { {"requests"} },
         // Report routes

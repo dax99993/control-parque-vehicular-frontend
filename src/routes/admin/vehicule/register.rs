@@ -2,10 +2,10 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 
 use validator::{Validate, ValidationErrors};
+use common::models::vehicule::NewVehicule;
 
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::request_admin_create_vehicule;
-use crate::types::vehicule::NewVehicule;
 use crate::routes::AppRoute;
 use crate::components::main_section::MainSection;
 use crate::components::card::{Card, CardContent};

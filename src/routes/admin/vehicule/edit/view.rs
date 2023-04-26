@@ -2,10 +2,10 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 
 use uuid::Uuid;
+use common::models::vehicule::Vehicule;
 
 use crate::hooks::user_context::use_user_context;
 use crate::services::vehicule::request_admin_get_vehicule_with_id;
-use crate::types::vehicule::Vehicule;
 
 use crate::shadow_clone;
 

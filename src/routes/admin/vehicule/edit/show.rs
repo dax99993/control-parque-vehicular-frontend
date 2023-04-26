@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use crate::types::vehicule::Vehicule;
+use common::models::vehicule::Vehicule;
 
 use crate::components::form::form::FormField;
 use crate::components::card::{Card, CardContent};

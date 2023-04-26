@@ -1,10 +1,10 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+use common::models::user::User;
+
 use crate::routes::AppRoute;
 use crate::services::request::store_token;
-//use crate::types::user::FilteredUser;
-use crate::types::user::User;
 
 use std::ops::Deref;
 

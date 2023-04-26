@@ -2,6 +2,7 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yew_router::prelude::use_navigator;
 
+use common::models::vehicule::Vehicule;
 
 use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
@@ -15,7 +16,6 @@ use crate::components::pagination::Pagination;
 
 use super::reducer::{VehiculeReducer, VehiculeAction};
 
-use crate::types::vehicule::Vehicule;
 use crate::services::vehicule::request_admin_get_vehicules;
 
 
@@ -100,7 +100,7 @@ pub fn AdminVehiculePage() -> Html {
     {
         shadow_clone![reducer, current_page];
         shadow_clone![request_vehicule_admin];
-        use_effect_with_deps(move |(current_page, request_vehicule_admin)| {
+        use_effect_with_deps(move |(current_page, _)| {
         //use_effect_with_deps(move |current_page| {
             log::debug!("effect pagination page = {:?}", current_page);
             reducer.dispatch(VehiculeAction::GoToPage(**current_page));

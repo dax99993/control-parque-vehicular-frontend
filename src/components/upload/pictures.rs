@@ -97,6 +97,7 @@ impl Reducible for Reducer {
 
 #[derive(Debug, PartialEq, Properties)]
 pub struct PicturesProps {
+    pub upload_reducer: UseReducerHandle<Reducer>,
     pub upload_form: UseStateHandle<Option<MultipartForm>>,
     #[prop_or(1)]
     pub max_files: usize,
@@ -115,7 +116,8 @@ pub fn Pictures(props: &PicturesProps) -> Html {
 
     let upload_form = props.upload_form.clone();
 
-    let pictures = use_reducer(Reducer::default);
+    //let pictures = use_reducer(|| (*props.upload_dispatcher).clone());
+    let pictures = props.upload_reducer.clone();
     let drag_over = use_counter(0);
     let readers = use_mut_ref(Vec::<FileReader>::new);
 
@@ -237,6 +239,14 @@ pub fn Pictures(props: &PicturesProps) -> Html {
             //pictures.dispatch(FileActions::Reset);
     }
 
+    let button_loading_class = {
+        //if !pictures.pictures.is_empty() && pictures.pictures.iter().any(|f| f.started_upload && !f.uploaded) {
+        if !pictures.pictures.is_empty() && pictures.pictures.iter().any(|f| f.started_upload) {
+            "is-loading"
+        } else {
+            ""
+        }
+    };
 
     html!{
             <div class="container">
@@ -264,7 +274,7 @@ pub fn Pictures(props: &PicturesProps) -> Html {
                         <i class="fa fa-cloud-upload"></i>
                         <p>{ format!("Subir maximo {max_files}") }</p>
                         <label for="file-upload" class="upload control">
-                            <a class="button is-primary">
+                            <a class={classes!["button", "is-primary", button_loading_class]}>
                                 <span class="icon"><i class="fa fa-upload"></i></span>
                                 <span>{"Subir imagen"}</span>
                             </a>

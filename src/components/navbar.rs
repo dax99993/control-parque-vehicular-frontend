@@ -5,7 +5,7 @@ use yew_router::prelude::*;
 use crate::routes::AppRoute;
 use crate::shadow_clone;
 use crate::utils::{remove_class, add_class, has_class, toggle_class};
-use crate::hooks::user_context::use_user_context;
+use crate::hooks::user_context::{use_user_context, UseUserContextHandle};
 
 use gloo::utils::{document, document_element};
 
@@ -65,7 +65,8 @@ pub fn NavBar() -> Html {
     html!{
         <nav id="navbar-main" class="navbar is-fixed-top has-shadow">
             { 
-                navbar_brand(user_ctx.is_authenticated(), aside_mobile_toggle) 
+                //navbar_brand(user_ctx.is_authenticated(), aside_mobile_toggle) 
+                navbar_brand(user_ctx.clone(), aside_mobile_toggle) 
             }
             {
                 navbar_brand_right(navbar_menu_mobile_toggle)
@@ -85,15 +86,24 @@ pub fn NavBar() -> Html {
     }
 }
 
-fn navbar_brand(logged_in: bool, onclick: Callback<MouseEvent>) -> Html {
+//fn navbar_brand(logged_in: bool, onclick: Callback<MouseEvent>) -> Html {
+fn navbar_brand(user_ctx: UseUserContextHandle, onclick: Callback<MouseEvent>) -> Html {
+    let onclick_go_home = {
+        shadow_clone![user_ctx];
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+            user_ctx.redirect_home();
+        })
+    };
+
     html!{
         <div class="navbar-brand">
-            if logged_in {
+            if user_ctx.is_authenticated() {
             <a class="navbar-item is-hidden-desktop jb-aside-mobile-toggle" {onclick}>
                 <span class="icon"><i id="navbar-toggle-sidebar-button" class="fa-solid fa-bars"></i></span>
             </a>
             }
-            <div class="navbar-item" href="https://bulma.io">
+            <div class="navbar-item" href="https://bulma.io" onclick={onclick_go_home}>
                 <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
             </div>
         </div>
@@ -112,6 +122,9 @@ fn navbar_brand_right(onclick: Callback<MouseEvent>) -> Html {
 
 
 fn navbar_end_logged_in(first_name: String) -> Html {
+    //TODO
+    //construct user profile picture url instead of using dummy one 
+    
     html!{
         <div class="navbar-end">
             <div class="navbar-item has-dropdown has-dropdown-with-icons has-divider has-user-avatar is-hoverable">
@@ -125,6 +138,12 @@ fn navbar_end_logged_in(first_name: String) -> Html {
                     <span class="icon"><i class="fa-solid fa-chevron-down"></i></span>
                 </a>
                 <div class="navbar-dropdown is-right">
+                    <div class="navbar-item">
+                        <Link<AppRoute> to={AppRoute::UserProfile}>
+                            <span class="icon"><i class="fa-solid fa-user"></i></span>
+                            { "Perfil" }
+                        </Link<AppRoute>>
+                    </div>
                     <div class="navbar-item">
                         <Link<AppRoute> to={AppRoute::Logout}>
                             <span class="icon"><i class="fa-solid fa-power-off"></i></span>
