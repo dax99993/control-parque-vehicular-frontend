@@ -1,30 +1,23 @@
-pub mod home;
-pub mod notfound;
-pub mod auth;
-
-pub mod admin;
-//pub mod normal;
-pub mod general;
-
-
-use uuid::Uuid;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+use uuid::Uuid;
 
-use home::HomeView;
-use notfound::NotFoundView;
 
-use self::auth::login::LoginView;
-use self::auth::logout::LogoutView;
-use self::auth::register::RegisterView;
+use crate::pages::HomeView;
+use crate::pages::NotFoundView;
 
-use self::general::vehicule::VehiculesView;
-use self::general::profile::ProfileView;
+use crate::pages::LoginView;
+use crate::pages::LogoutView;
+use crate::pages::SignupView;
 
-use self::admin::vehicule::edit::view::EditVehiculeView;
-use self::admin::vehicule::register::RegisterVehiculeView;
+use crate::pages::VehiculesView;
+use crate::pages::EditVehiculeView;
+use crate::pages::RegisterVehiculeView;
 
+use crate::pages::ProfileView;
+
+use crate::pages::UsersView;
 
 
 
@@ -35,8 +28,8 @@ pub enum AppRoute {
     Home,
     #[at("/login")]
     Login,
-    #[at("/register")]
-    Register,
+    #[at("/signup")]
+    Signup,
     #[at("/logout")]
     Logout,
     // Vehicule routes
@@ -46,10 +39,11 @@ pub enum AppRoute {
     VehiculeAdd,
     #[at("/vehicules/:id")]
     VehiculeEdit {id: Uuid},
-    //VehiculesEdit {id: String},
     // User routes
     #[at("/users")]
     Users,
+    #[at("/users/:id")]
+    UserEdit {id: Uuid},
     #[at("/users/profile")]
     UserProfile,
     // Request routes
@@ -58,9 +52,6 @@ pub enum AppRoute {
     // Report routes
     #[at("/reports")]
     Reports,
-    // Report routes
-    #[at("/admin")]
-    Admin,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -70,7 +61,7 @@ pub enum AppRoute {
 pub fn switch(route: AppRoute) -> Html {
     match route {
         // Auth routes
-        AppRoute::Register => html! { <RegisterView/> },
+        AppRoute::Signup => html! { <SignupView/> },
         AppRoute::Login => html! { <LoginView/> },
         AppRoute::Logout => html! { <LogoutView/> },
         // Home route
@@ -80,7 +71,9 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::VehiculeAdd => html! { <RegisterVehiculeView /> },
         AppRoute::VehiculeEdit { id } => html! { <EditVehiculeView {id}/> },
         // User routes
-        AppRoute::Users => html! { {"users"} },
+        AppRoute::Users => html! { <UsersView/> },
+        AppRoute::UserEdit { id } => html! { {format!("Edit user {id}")}  },
+        // Profile routes
         AppRoute::UserProfile => html! { <ProfileView/> },
         // Request routes
         AppRoute::Requests => html! { {"requests"} },
@@ -88,8 +81,6 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::Reports => html! { {"reports"} },
         // Nofound route
         AppRoute::NotFound => html! { <NotFoundView/> },
-        // Admin route
-        AppRoute::Admin => html! { <p>{"admin"}</p> },
     }
 }
 

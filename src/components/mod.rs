@@ -1,13 +1,9 @@
-pub mod navbar;
-pub mod main_section;
-pub mod sidebar;
-pub mod footer;
-pub mod form;
-pub mod vehicule;
-pub mod user;
-pub mod modal;
+pub mod button;
 pub mod card;
-pub mod pagination;
 pub mod collapsible;
+pub mod form;
+pub mod icon;
+pub mod modal;
+pub mod pagination;
 pub mod upload;
-pub mod profile;
+

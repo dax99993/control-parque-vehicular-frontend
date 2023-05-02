@@ -1,0 +1,30 @@
+use yew::prelude::*;
+
+use crate::features::authentication::components::LoginForm;
+use crate::hooks::user_context::use_user_context;
+
+
+#[function_component]
+pub fn LoginView() -> Html {
+    // Context
+    let user_ctx = use_user_context();
+
+    if user_ctx.is_authenticated() {
+        user_ctx.redirect_home();
+    }
+
+
+    html! {
+    <section class="hero is-fullheight is-primary">
+        <div class="hero-body">
+            <div class="container"> 
+                <div class="columns is-centered ">
+                <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                    <LoginForm/>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    }
+}

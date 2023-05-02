@@ -1,7 +1,7 @@
 use common::models::user::{User, ChangePasswordMe};
 use crate::api_response::ApiResponse;
 
-use super::request::{request_get, request_post, request_patch, request_multipart_patch};
+use crate::services::request::{request_post, request_patch, request_multipart_patch};
 use crate::error::Error;
 
 // General user routes
@@ -18,4 +18,3 @@ pub async fn request_update_profile(updated_profile) -> Result<ApiResponse::<Use
 pub async fn request_update_profile_picture(picture: reqwest::multipart::Form) -> Result<ApiResponse::<User>, Error> {
     request_multipart_patch(format!("api/users/me/picture"), picture).await
 }
-

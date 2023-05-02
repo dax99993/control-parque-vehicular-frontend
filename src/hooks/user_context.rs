@@ -53,6 +53,10 @@ impl UseUserContextHandle {
         }
     }
 
+    pub fn get_user(&self) -> Option<User> {
+        return (*self.inner).clone();
+    }
+
     pub fn redirect_to<R>(&self, route: R)
     where 
         R: Routable
