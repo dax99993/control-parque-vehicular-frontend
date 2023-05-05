@@ -1,20 +1,26 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yew_router::prelude::use_navigator;
+use yew::platform::spawn_local;
+
+use std::ops::Deref;
+use std::thread::current;
 
 use common::models::vehicule::Vehicule;
 
 use super::{VehiculeTable, VehiculeTableRow};
-use super::super::reducers::{VehiculeAction, VehiculeReducer};
-use super::super::services::request_admin_get_vehicules;
+use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
+use super::super::services::{request_admin_get_vehicules, request_admin_delete_vehicule};
 
 use crate::shadow_clone;
 use crate::components::card::{Card, CardContent};
+use crate::components::filter_search::FilterSearch;
 use crate::components::modal::Modal;
 use crate::components::pagination::Pagination;
 use crate::hooks::user_context::use_user_context;
 use crate::layout::main_section::MainSection;
 
+use crate::utils::modal::{open_modal, close_modal};
 
 //use crate::services::vehicule::request_admin_get_vehicules;
 
@@ -29,101 +35,134 @@ pub fn AdminVehiculeView() -> Html {
     }
 
     // Hooks
-    let reducer = use_reducer(VehiculeReducer::default);
-    let current_page = use_state(|| reducer.current_page);
+    let table_reducer = use_reducer(VehiculeTableReducer::default);
+    //
+    let vehicules = use_state(|| vec![]);
+    let current_page = use_state(|| 1);
+    let vehicules_per_page = use_state(|| 4);
     let navigator = use_navigator();
+    let reload_table = use_state(|| false);
 
-    // Add navigator
+    let search_state = use_state(|| None::<String>);
+    let selected_filter = use_state(|| None::<String>);
+    let filter_fields = vec!["Marca".to_string(), "Modelo".to_string(),
+    "Año".to_string()];
+
+    // Add navigator to table reducer for redirecting
     {
-        shadow_clone![reducer, navigator];
-        use_effect_with_deps(move |nav| {
-            reducer.dispatch(VehiculeAction::AddNavigator(nav.clone()));
+        shadow_clone![table_reducer];
+        use_effect_with_deps(move |navigator| {
+            if let Some(nav) = navigator.clone() {
+                table_reducer.dispatch(VehiculeTableAction::AddNavigator(nav));
+            }
         },
-        navigator);
+        navigator.clone())
     }
 
-
-    /*
-    {
-        let reducer = reducer.clone();
-        use_effect_with_deps(move |_| {
-            reducer.dispatch(VehiculeAction::GetVehicules); 
-        },
-        ());
-    }
-    */
     
-    // Api fetch request
-    let request_vehicule_admin = {
-        use_async(async {
-            request_admin_get_vehicules().await
-        })
-    };
-
-    // Fetch api when rendered
+    // Effect for keeping in sync vehicules with pagination
     {
-        shadow_clone!(request_vehicule_admin);
-        use_effect_with_deps(move |_| {
-            request_vehicule_admin.run()
-        },
-        ());
-    }
-
-    // Update vehicule vector when fetching from api
-    {
-        shadow_clone![reducer, request_vehicule_admin];
-        use_effect_with_deps(
-            move |request_vehicule| {
-                if let Some(api_response) = &request_vehicule.data {
-                    log::debug!("vehicules successful api response\n {:?}", &api_response);
-                    if let Some(vec_vehicules) = api_response.data.clone() {
-                        reducer.dispatch(VehiculeAction::GetVehicules(vec_vehicules));
+        shadow_clone![vehicules];
+        use_effect_with_deps(move |(current_page, vehicules_per_page, selected_filter, search_state, _)| {
+            //reload_table.set(false);
+            let page = **current_page;
+            let limit = **vehicules_per_page;
+            let filter = (**selected_filter).clone();
+            let search = (**search_state).clone();
+            spawn_local(async move {
+                log::debug!("get vehicules in page {}", page);
+                let response = request_admin_get_vehicules(page, limit, filter, search).await;
+                match response {
+                    Ok(res) => {
+                        if let Some(v) = res.data {
+                            vehicules.set(v);
+                        }
+                    }
+                    Err(_) => {
+                        log::error!("vehicule get request failed");
                     }
                 }
-                if let Some(api_response) = &request_vehicule.error {
-                    log::warn!("vehicules failed api response\n {:?}", &api_response);
-                }
-            },
-            request_vehicule_admin.clone() 
+            });
+        },
+        (current_page.clone(), vehicules_per_page.clone(), selected_filter.clone(), search_state.clone(), reload_table.clone())
         );
     }
-    
 
-    // Re-fetch api when clicking on button
-    let onclick_add_vehicule = {
-        shadow_clone!(reducer);
+    let vehicule_picture = {
+        match table_reducer.selected_vehicule_to_show_id {
+            Some(id) => {
+                if let Some(vehicule) = vehicules.deref().iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
+                    log::debug!("Vehicule selected {:?}", &vehicule);
+                    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
+                    html!{
+                        <img src={picture_url} />
+                    }
+                } else {
+                    html!{}
+                }
+            },
+            None => html!{},
+        }
+    };
+
+    let onclick_delete = {
+        shadow_clone![reload_table, vehicules];
+        let selected_vehicule_to_delete_id = table_reducer.selected_vehicule_to_delete_id.clone();
         Callback::from(move |e: MouseEvent| {
-            e.prevent_default(); 
-            reducer.dispatch(VehiculeAction::AddVehicule);
+            e.prevent_default();
+            // Execute api
+            shadow_clone![reload_table, vehicules];
+            if let Some(id) = selected_vehicule_to_delete_id {
+                spawn_local(async move {
+                    log::debug!("will delete vehicule with id {}", id.to_string());
+                    let response = request_admin_delete_vehicule(id.to_string()).await;
+                    match response {
+                        Ok(_) => {
+                            close_modal("vehicule-delete-modal".to_string());
+                            // Delete row from table
+                            let vehs: Vec<Vehicule> = vehicules.deref().clone()
+                                .into_iter()
+                                .filter(|v| v.vehicule_id.ne(&id))
+                                .collect();
+                            vehicules.set(vehs);
+                            // Or we can reload current page
+                            //reload_table.set(!(*reload_table));
+                        }
+                        Err(_) => {
+                            log::error!("delete vehicule request failed");
+                        }
+                    }
+                });
+            }
         })
     };
 
-    // Effect for keeping in sync Pagination state with reducer
-    {
-        shadow_clone![reducer, current_page];
-        shadow_clone![request_vehicule_admin];
-        use_effect_with_deps(move |(current_page, _)| {
-        //use_effect_with_deps(move |current_page| {
-            log::debug!("effect pagination page = {:?}", current_page);
-            reducer.dispatch(VehiculeAction::GoToPage(**current_page));
-        },
-        (current_page.clone(), request_vehicule_admin.clone())
-        //current_page.clone()
-        );
-    }
-
+    let total_pages = {
+        //if vehicules.deref().len() < *vehicules_per_page.deref() {
+        //    *current_page 
+        if vehicules.deref().is_empty() {
+            *current_page
+        } else {
+            *current_page + 1
+        }
+    };
 
     html! {
         <MainSection route="Admin" subroute="Vehiculos" title="Vehiculos">
+
+            <FilterSearch filter_fields={filter_fields.clone()} selected_filter_state={selected_filter.clone()} search_state={search_state.clone()} />
+
+            <div/>
+
             <Card classes={classes!["has-table"]}
                 header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } 
                 header_icon_right={ "fa-solid fa-plus" } header_icon_right_label={ "Agregar vehiculo" }
-                header_icon_right_onclick={ onclick_add_vehicule } 
+                header_icon_right_onclick={ Callback::from(|e: MouseEvent| { e.prevent_default(); log::debug!("what should i do?");})} 
             >
                 <CardContent>
                     <VehiculeTable>
                         {
-                            vehicule_to_vehicule_table_row(reducer.current_page_vehicules.clone(), reducer.dispatcher())
+                            vehicule_to_vehicule_table_row(vehicules.deref().clone(), table_reducer.dispatcher())
                         }
                     </VehiculeTable>
                 </CardContent>
@@ -131,35 +170,63 @@ pub fn AdminVehiculeView() -> Html {
             </Card>
 
             <Pagination 
-                total_pages = { reducer.total_pages }
+                total_pages = { total_pages }
                 current_page_state = { current_page.clone() }
             />
 
+
             <Modal 
-                id={"vehicule-modal"}
-                title={reducer.modal_title.clone()}
-                body={if reducer.modal_body.is_some() { reducer.modal_body.as_ref().unwrap().clone() } else {html!{}}}
-                footer={reducer.modal_footer.clone()}
+                id={"vehicule-delete-modal"}
+                title={"".to_string()}
+                body={ html!{<p><b>{ "Realmente desea borrar el vehiculo" }</b></p>} }
+                footer={
+                        html!{
+                            <>
+                            <button class="button jb-modal-close" onclick={
+                                Callback::from(move |e: MouseEvent| {
+                                    e.prevent_default();
+                                    close_modal("vehicule-delete-modal".to_string());
+                                })
+                            }>
+                            { "Cancelar" }
+                            </button>
+                            <button class="button is-danger jb-modal-close" onclick={onclick_delete}>
+                            { "Borrar" }
+                            </button>
+                            </>
+                        }
+                }
                 onclose={
-                    //if reducer.modal_onclick.is_some() 
-                    //    { reducer.modal_onclick.as_ref().unwrap().clone() }
-                    //else {
-                        shadow_clone![reducer];
+                        shadow_clone![table_reducer];
                         Callback::from(move |e: MouseEvent| {
                             e.prevent_default();
-                            reducer.dispatch(VehiculeAction::ResetModal);
+                            table_reducer.dispatch(VehiculeTableAction::ResetSelectedDelete);
                         })
-                    //}
                 }
             >
            </Modal>
+
+
+           <Modal 
+                id={"vehicule-picture-modal"}
+                title={"".to_string()}
+                body={vehicule_picture}
+                onclose={
+                    shadow_clone![table_reducer];
+                    Callback::from(move |e: MouseEvent| {
+                        e.prevent_default();
+                        table_reducer.dispatch(VehiculeTableAction::ResetSelectedShow);
+                    })
+                }
+            >
+            </Modal>
 
         </MainSection>
     }
 }
 
 
-fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>, dispatcher: UseReducerDispatcher<VehiculeReducer>) -> Vec<Html> {
+fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>, dispatcher: UseReducerDispatcher<VehiculeTableReducer>) -> Vec<Html> {
     vehicules.into_iter().map(|v| {
         html!{
             <VehiculeTableRow
@@ -171,3 +238,6 @@ fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>, dispatcher: UseReduc
     })
     .collect()
 }
+
+/*
+*/

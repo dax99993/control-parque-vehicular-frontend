@@ -6,4 +6,5 @@ pub mod icon;
 pub mod modal;
 pub mod pagination;
 pub mod upload;
+pub mod filter_search;
 

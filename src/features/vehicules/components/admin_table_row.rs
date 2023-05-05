@@ -3,13 +3,13 @@ use yew::prelude::*;
 use common::models::vehicule::Vehicule;
 
 use crate::shadow_clone;
-use super::super::reducers::{VehiculeAction, VehiculeReducer};
+use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
 
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
    pub vehicule: Vehicule, 
-   pub dispatcher: UseReducerDispatcher<VehiculeReducer>,
+   pub dispatcher: UseReducerDispatcher<VehiculeTableReducer>,
 }
 
 #[function_component]
@@ -26,7 +26,7 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = vehicule.vehicule_id.clone();
-            dispatcher.dispatch(VehiculeAction::ShowPicture(id));
+            dispatcher.dispatch(VehiculeTableAction::ShowVehiculePicture(id));
         })
     };
     
@@ -35,7 +35,7 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = vehicule.vehicule_id.clone();
-            dispatcher.dispatch(VehiculeAction::DeleteVehicule(id));
+            dispatcher.dispatch(VehiculeTableAction::DeleteVehicule(id));
         })
     };
     
@@ -45,7 +45,7 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = vehicule.vehicule_id.clone();
-            dispatcher.dispatch(VehiculeAction::UpdateInfo(id));
+            dispatcher.dispatch(VehiculeTableAction::UpdateVehicule(id));
         })
     };
 
