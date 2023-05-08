@@ -1,14 +1,14 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use common::models::vehicule::Vehicule;
+use common::models::vehicule::Vehiculo;
 use uuid::Uuid;
 
 use crate::shadow_clone;
-use crate::features::vehicule_edit::{EditVehiculeForm, EditVehiculeShow};
 use crate::hooks::user_context::use_user_context;
 use crate::layout::main_section::MainSection;
-use super::super::services::vehicule::request_admin_get_vehicule_with_id;
+use super::{EditVehiculeShow, EditVehiculeForm};
+use super::super::services::request_admin_get_vehicule_with_id;
 
 
 
@@ -19,7 +19,7 @@ pub struct EditVehiculeProps {
 
 
 #[function_component]
-pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
+pub fn EditVehiculeAdminView(props: &EditVehiculeProps) -> Html {
     // Context
     let user_ctx = use_user_context();
 
@@ -29,7 +29,7 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
 
     // States
     let id = use_state(|| props.id.to_string());  
-    let vehicule = use_state(|| Vehicule::default());  
+    let vehiculo = use_state(|| Vehiculo::default());  
 
 
     // ------- request vehicule information ------
@@ -50,15 +50,15 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
 
     // Request vehicule from id
     {
-        shadow_clone![request_vehicule_with_id, vehicule];
+        shadow_clone![request_vehicule_with_id, vehiculo];
         use_effect_with_deps(move |request_vehicule| {
             if let Some(response) = &request_vehicule.data {
-                log::debug!("Successful get vehicule {:?}", response);
+                log::debug!("Peticion obtener vehiculo exitosa {:?}", response);
                 if let Some(veh) = &response.data {
-                    vehicule.set(veh.clone()); 
+                    vehiculo.set(veh.clone()); 
                 }
                 if let Some(response) = &request_vehicule.error {
-                    log::error!("get vehicule request failed {:?}", response);
+                    log::error!("Peticion obtener vehiculo fallo {:?}", response);
                 }
             }
         },
@@ -69,15 +69,15 @@ pub fn EditVehiculeView(props: &EditVehiculeProps) -> Html {
 
     // HTML
     {
-        shadow_clone![vehicule];
+        shadow_clone![vehiculo];
         html!{
         <MainSection route="Admin" subroute="Vehiculos" title="Editar Vehiculo">
             <div class="tile is-ancestor">
                 <div class="tile is-parent">
-                    <EditVehiculeForm vehicule={vehicule.clone()}/>
+                    <EditVehiculeForm estado_vehiculo={vehiculo.clone()}/>
                 </div>
                 <div class="tile is-parent">
-                    <EditVehiculeShow vehicule={vehicule.clone()}/>
+                    <EditVehiculeShow estado_vehiculo={vehiculo.clone()}/>
                 </div>
             </div>
         </MainSection>

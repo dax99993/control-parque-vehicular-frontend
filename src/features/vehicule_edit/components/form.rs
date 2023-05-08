@@ -8,9 +8,8 @@ use std::rc::Rc;
 
 use validator::{Validate, ValidationErrors};
 
-use common::models::vehicule::{Vehicule, UpdateVehicule};
+use common::models::vehicule::{Vehiculo, ActualizaVehiculo, EstadoVehiculo};
 
-//use crate::services::vehicule::{request_admin_update_vehicule, request_admin_update_vehicule_picture};
 use super::super::services::{request_admin_update_vehicule, request_admin_update_vehicule_picture};
 
 use crate::shadow_clone;
@@ -23,43 +22,44 @@ use crate::utils::forms::{validate_form_field, set_input_value};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct EditVehiculeFormProps {
-    pub vehicule: UseStateHandle<Vehicule>,
+    pub estado_vehiculo: UseStateHandle<Vehiculo>,
 }
 
 #[function_component]
 pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     // States
-    let EditVehiculeFormProps { vehicule } = props;
+    let EditVehiculeFormProps { estado_vehiculo } = props;
+    let vehiculo = estado_vehiculo.clone();
 
     let upload_form = use_state(|| None::<MultipartForm>);
     let upload_form_reducer = use_reducer(Reducer::default);
 
-    let updated_vehicule = use_state(|| UpdateVehicule::default());  
-    let updated_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
+    let vehiculo_actualiza = use_state(|| ActualizaVehiculo::default());  
+    let vehiculo_actualiza_validacion = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_branch = get_input_callback("branch", &updated_vehicule);
-    let onchange_model = get_input_callback("model", &updated_vehicule);
-    let onchange_year = get_input_callback("year", &updated_vehicule);
-    let onchange_number_plate= get_input_callback("number_plate", &updated_vehicule);
-    let onchange_short_name = get_input_callback("short_name", &updated_vehicule);
-    let onchange_number_card = get_input_callback("number_card", &updated_vehicule);
-    let onchange_status = get_input_callback("status", &updated_vehicule);
-    let onchange_active = get_input_callback("active", &updated_vehicule);
+    let onchange_marca = get_input_callback("marca", &vehiculo_actualiza);
+    let onchange_modelo = get_input_callback("modelo", &vehiculo_actualiza);
+    let onchange_año = get_input_callback("año", &vehiculo_actualiza);
+    let onchange_numero_placa= get_input_callback("numero_placa", &vehiculo_actualiza);
+    let onchange_nombre_economico = get_input_callback("nombre_economico", &vehiculo_actualiza);
+    let onchange_numero_tarjeta = get_input_callback("numero_tarjeta", &vehiculo_actualiza);
+    let onchange_estado = get_input_callback("estado", &vehiculo_actualiza);
+    let onchange_activo = get_input_callback("activo", &vehiculo_actualiza);
 
-    let branch = NodeRef::default();
-    let model = NodeRef::default();
-    let year = NodeRef::default();
-    let number_plate = NodeRef::default();
-    let short_name = NodeRef::default();
-    let number_card = NodeRef::default();
-    let status = NodeRef::default();
-    let active = NodeRef::default();
+    let marca = NodeRef::default();
+    let modelo = NodeRef::default();
+    let año = NodeRef::default();
+    let numero_placa = NodeRef::default();
+    let nombre_economico = NodeRef::default();
+    let numero_tarjeta = NodeRef::default();
+    let estado = NodeRef::default();
+    let activo = NodeRef::default();
 
     let validate_input_on_blur = {
-        shadow_clone![updated_vehicule, updated_vehicule_validation];
+        shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
         Callback::from(move |(name, value): (String, String)| {
-            set_form_field(name.as_str(), value, &updated_vehicule);
-            validate_form_field(name.as_str(), &updated_vehicule, &updated_vehicule_validation);
+            set_form_field(name.as_str(), value, &vehiculo_actualiza);
+            validate_form_field(name.as_str(), &vehiculo_actualiza, &vehiculo_actualiza_validacion);
         })
     };
 
@@ -68,48 +68,50 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     // create request to update information
     let request_update_vehicule = {
         //let id = (*vehicule).vehicule_id.to_string();
-        //shadow_clone![updated_vehicule];
-        shadow_clone![vehicule, updated_vehicule];
+        //shadow_clone![vehiculo_actualiza];
+        shadow_clone![vehiculo, vehiculo_actualiza];
         use_async(async move {
-            log::warn!("executing async request:\nid\n{:?}\nupdated vehicule\n{:?}", vehicule, updated_vehicule);
-            request_admin_update_vehicule((*vehicule).vehicule_id.to_string(), (*updated_vehicule).clone()).await
+            log::warn!("Ejecutando peticion asincrona:\nid\n{:?}\nvehiculo actualizado\n{:?}", vehiculo, vehiculo_actualiza);
+            request_admin_update_vehicule((*vehiculo).vehiculo_id.to_string(), (*vehiculo_actualiza).clone()).await
         })
     };
 
 
     // Update the form fields when vehicule state is done
     {
-        shadow_clone![vehicule];
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
-        use_effect_with_deps(move |vehicule| {
-            let veh = (*vehicule).clone();
-            set_input_value(&veh.branch, &branch);
-            set_input_value(&veh.model, &model);
-            set_input_value(&veh.year.to_string(), &year);
-            set_input_value(&veh.number_plate, &number_plate);
-            set_input_value(&veh.short_name, &short_name);
-            set_input_value(&veh.number_card, &number_card);
+        shadow_clone![vehiculo];
+        shadow_clone![marca, modelo, numero_placa, año, numero_tarjeta, nombre_economico, estado];
+        use_effect_with_deps(move |vehiculo| {
+            let veh = (*vehiculo).clone();
+            set_input_value(&veh.marca, &marca);
+            set_input_value(&veh.modelo, &modelo);
+            set_input_value(&veh.año.to_string(), &año);
+            set_input_value(&veh.numero_placa, &numero_placa);
+            set_input_value(&veh.nombre_economico, &nombre_economico);
+            set_input_value(&veh.numero_tarjeta, &numero_tarjeta);
+
+            //set_input_value(&veh.estado.to_string(), &estado);
         },
-        vehicule.clone())
+        vehiculo.clone())
     }
 
     // Re-render when request_update_vehicule is done and successful
     {
         shadow_clone!(request_update_vehicule);
-        shadow_clone![vehicule, updated_vehicule, updated_vehicule_validation];
+        shadow_clone![vehiculo, vehiculo_actualiza, vehiculo_actualiza_validacion];
         use_effect_with_deps(move |request_update_vehicule| {
             if let Some(response) = &request_update_vehicule.data {
-                log::debug!("update vehicule request successful\n{:?}", response);
+                log::debug!("Peticion actualizar vehiculo exitosa\n{:?}", response);
                 if let Some(veh) = &response.data {
                     //let mut v = (*vehicule).clone();
                     //v.update(veh);
-                    vehicule.set(veh.clone());
-                    updated_vehicule.set(UpdateVehicule::default());
-                    updated_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
+                    vehiculo.set(veh.clone());
+                    vehiculo_actualiza.set(ActualizaVehiculo::default());
+                    vehiculo_actualiza_validacion.set(Rc::new(RefCell::new(ValidationErrors::new())));
                 }
             }
             if let Some(response) = &request_update_vehicule.error {
-                log::error!("update vehicule request failed\n{:?}", response);
+                log::error!("Peticion actualizar vehiculo fallo\n{:?}", response);
             }
         },
         request_update_vehicule.clone())
@@ -154,50 +156,51 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
 
     // reset all form fields
     let onreset = {
-        shadow_clone![updated_vehicule, updated_vehicule_validation];
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
-        shadow_clone![vehicule];
+        shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
+        shadow_clone![marca, modelo, numero_placa, año, numero_tarjeta, nombre_economico];
+        shadow_clone![vehiculo];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
-            updated_vehicule.set(UpdateVehicule::default());
-            updated_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
+            vehiculo_actualiza.set(ActualizaVehiculo::default());
+            vehiculo_actualiza_validacion.set(Rc::new(RefCell::new(ValidationErrors::new())));
 
-            let veh = (*vehicule).clone();
-            set_input_value(&veh.branch, &branch);
-            set_input_value(&veh.model, &model);
-            set_input_value(&veh.year.to_string(), &year);
-            set_input_value(&veh.number_plate, &number_plate);
-            set_input_value(&veh.short_name, &short_name);
-            set_input_value(&veh.number_card, &number_card);
+            let veh = (*vehiculo).clone();
+            set_input_value(&veh.marca, &marca);
+            set_input_value(&veh.modelo, &modelo);
+            set_input_value(&veh.año.to_string(), &año);
+            set_input_value(&veh.numero_placa, &numero_placa);
+            set_input_value(&veh.nombre_economico, &nombre_economico);
+            set_input_value(&veh.numero_tarjeta, &numero_tarjeta);
+
             //TODO This does not reset the select fields!
         })
     };
 
     // Submit valid form
     let onsubmit = {
-        shadow_clone![updated_vehicule, updated_vehicule_validation];
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
+        shadow_clone![marca, modelo, numero_placa, año, numero_tarjeta, nombre_economico];
         shadow_clone![request_update_vehicule];
-        shadow_clone![vehicule];
+        shadow_clone![vehiculo];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
             // make request to update vehicule fields 
-            match updated_vehicule.validate() {
+            match vehiculo_actualiza.validate() {
                 Ok(_) => {
                     request_update_vehicule.run();
                 }
                 Err(e) => {
-                    let veh = (*vehicule).clone();
-                    set_input_value(&veh.branch, &branch);
-                    set_input_value(&veh.model, &model);
-                    set_input_value(&veh.year.to_string(), &year);
-                    set_input_value(&veh.number_plate, &number_plate);
-                    set_input_value(&veh.short_name, &short_name);
-                    set_input_value(&veh.number_card, &number_card);
+                    let veh = (*vehiculo).clone();
+                    set_input_value(&veh.marca, &marca);
+                    set_input_value(&veh.modelo, &modelo);
+                    set_input_value(&veh.año.to_string(), &año);
+                    set_input_value(&veh.numero_placa, &numero_placa);
+                    set_input_value(&veh.nombre_economico, &nombre_economico);
+                    set_input_value(&veh.numero_tarjeta, &numero_tarjeta);
                     //TODO This does not reset the select fields!
-                    updated_vehicule_validation.set(Rc::new(RefCell::new(e)));
+                    vehiculo_actualiza_validacion.set(Rc::new(RefCell::new(e)));
                 }
             }
 
@@ -205,12 +208,12 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     };
 
     {
-        shadow_clone![vehicule];
+        shadow_clone![vehiculo];
         shadow_clone![upload_form_reducer];
         use_effect_with_deps(move |upload_form| {
             // make request to update vehicule picture
             if let Some(form) = (**upload_form).clone() {
-                let id = (*vehicule).vehicule_id.to_string();
+                let id = (*vehiculo).vehiculo_id.to_string();
                 log::debug!("form {:?}", form);
                 let multipart = form.into_reqwest_multipart();
                 let upload_form = upload_form.clone();
@@ -219,21 +222,18 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                     match response {
                         Ok(api_response) => {
                             upload_form.set(None);
-                            log::debug!("successful vehicule picture update {:?}", api_response);
+                            log::debug!("Peticion actulizar imagen vehiculo exitosa {:?}", api_response);
                             // should update vehicule picture to updated one
-                            vehicule.set(api_response.data.clone().unwrap());
+                            vehiculo.set(api_response.data.clone().unwrap());
                             // should reset the picture component
                             //upload_form_reducer.dispatch(FileActions::Uploaded(())
                             upload_form_reducer.dispatch(FileActions::Reset);
                         }
                         Err(api_error) => {
-                            log::error!("upload vehicule picture failed {:?}", api_error);
+                            log::error!("Peticion actulizar imagen vehiculo exitosa fallo {:?}", api_error);
                         }
                     }
                 });
-                
-            } else {
-                log::warn!("No multipart for uploading");
             }
         },
         upload_form.clone()
@@ -241,9 +241,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     }
 
 
+    let has_errors = !(*vehiculo_actualiza_validacion).borrow().errors().is_empty();
+
     // HTML
     {
-    shadow_clone![vehicule];
+    shadow_clone![vehiculo];
     html!{
     <div class="tile is-ancestor">
         <div class="tile is-parent">
@@ -263,14 +265,13 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
 
                         <FormField label="Marca">
                             <InputFieldValidated 
-                                placeholder={vehicule.deref().branch.clone()}
                                 msg="Colocar nombre economico del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="branch"
-                                input_ref={branch}
-                                handle_onchange={onchange_branch}
+                                name="marca"
+                                input_ref={marca}
+                                handle_onchange={onchange_marca}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField> 
 
@@ -278,11 +279,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <InputFieldValidated 
                                 msg="Colocar Modelo del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="model"
-                                input_ref={model}
-                                handle_onchange={onchange_model}
+                                name="modelo"
+                                input_ref={modelo}
+                                handle_onchange={onchange_modelo}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -290,11 +291,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <InputFieldValidated 
                                 msg="Colocar año del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="year"
-                                input_ref={year}
-                                handle_onchange={onchange_year}
+                                name="año"
+                                input_ref={año}
+                                handle_onchange={onchange_año}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -302,11 +303,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <InputFieldValidated 
                                 msg="Colocar placas del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="number_plate"
-                                input_ref={number_plate}
-                                handle_onchange={onchange_number_plate}
+                                name="numero_placa"
+                                input_ref={numero_placa}
+                                handle_onchange={onchange_numero_placa}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -314,11 +315,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <InputFieldValidated 
                                 msg="Colocar numero de tarjeta del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="number_card"
-                                input_ref={number_card}
-                                handle_onchange={onchange_number_card}
+                                name="numero_tarjeta"
+                                input_ref={numero_tarjeta}
+                                handle_onchange={onchange_numero_tarjeta}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -326,11 +327,11 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <InputFieldValidated 
                                 msg="Colocar nombre economico del vehiculo"
                                 icon_right={"fa-solid fa-triangle-exclamation"}
-                                name="short_name"
-                                input_ref={short_name}
-                                handle_onchange={onchange_short_name}
+                                name="nombre_economico"
+                                input_ref={nombre_economico}
+                                handle_onchange={onchange_nombre_economico}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -338,15 +339,15 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
 
                         <FormField label="Estado">
                             <SelectFieldValidated 
-                                options={vec![("available".into(), "Disponible".into()),
-                                    ("occupied".into(), "Ocupado".into()),
-                                    ("maintenance".into(), "Mantenimiento".into())]}
-                                name="status"
-                                input_ref={status}
-                                selected={Some(vehicule.status.clone())}
-                                handle_onchange={onchange_status}
+                                options={vec![("Disponible".into(), "Disponible".into()),
+                                    ("Ocupado".into(), "Ocupado".into()),
+                                    ("Mantenimiento".into(), "Mantenimiento".into())]}
+                                name="estado"
+                                input_ref={estado}
+                                selected={Some(vehiculo.estado.to_string())}
+                                handle_onchange={onchange_estado}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
@@ -354,25 +355,25 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                             <SelectFieldValidated 
                                 options={vec![("true".into(), "Si".into()),
                                     ("false".into(), "No".into())]}
-                                name="active"
-                                input_ref={active}
-                                selected={Some(vehicule.active.to_string())}
-                                handle_onchange={onchange_active}
+                                name="activo"
+                                input_ref={activo}
+                                selected={Some(vehiculo.activo.to_string())}
+                                handle_onchange={onchange_activo}
                                 handle_on_input_blur={validate_input_on_blur.clone()}
-                                errors={&*updated_vehicule_validation.clone()}
+                                errors={&*vehiculo_actualiza_validacion.clone()}
                             />
                         </FormField>
 
                         
                         <FormField label="Ultima modificacion">
                             <div class="control is-clearfix">
-                                <input type="text" readonly={true} value={ vehicule.updated_at.to_string() } class="input is-static"/>
+                                <input type="text" readonly={true} value={ vehiculo.modificado_en.to_string() } class="input is-static"/>
                             </div>
                         </FormField>
 
                         <FormField label="Fecha de creacion">
                             <div class="control is-clearfix">
-                                <input type="text" readonly={true} value={ vehicule.created_at.to_string() } class="input is-static"/>
+                                <input type="text" readonly={true} value={ vehiculo.creado_en.to_string() } class="input is-static"/>
                             </div>
                         </FormField>
 
@@ -383,7 +384,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                               <div class="control">
                                 <button type="submit" 
                                     onclick={onsubmit}
-                                    class={classes!["button", if (*updated_vehicule_validation).borrow().errors().is_empty() { "is-primary"} else { "is-danger" }]}
+                                    class={classes!["button", if has_errors { "is-danger" } else { "is-primary" }]}
                                 >
                                   <span>{ "Actualizar" }</span>
                                 </button>
@@ -394,7 +395,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                                 </button>
                               </div>
                             </div>
-                            if !(*updated_vehicule_validation).borrow().errors().is_empty() {
+                            if has_errors {
                                 <p class="help is-danger">{ "Rellenar o corregir los campos" }</p>
                             }
                         </FormField>
@@ -413,7 +414,7 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    form: &UseStateHandle<UpdateVehicule>,
+    form: &UseStateHandle<ActualizaVehiculo>,
 ) -> Callback<String> {
     let cloned_form = form.clone();
     Callback::from(move |value| {
@@ -421,24 +422,27 @@ fn get_input_callback(
     })
 }
 
+
+use std::str::FromStr;
+
 fn set_form_field<'a>(
     name: &'a str,
     value: String,
-    form: &UseStateHandle<UpdateVehicule>,)
+    form: &UseStateHandle<ActualizaVehiculo>,)
 {
     let mut data = form.deref().clone();
     match name {
-        "branch" => data.branch = Some(value),
-        "model" => data.model = Some(value),
+        "marca" => data.marca= Some(value),
+        "modelo" => data.modelo = Some(value),
         // Maybe need parsing
-        "year" => data.year = if let Ok(number) = value.parse::<i16>() {Some(number)} else { Some(-1) },
-        "number_plate" => data.number_plate = Some(value),
-        "short_name" => data.short_name = Some(value),
-        "number_card" => data.number_card = Some(value),
+        "año" => data.año = if let Ok(number) = value.parse::<i16>() {Some(number)} else { Some(-1) },
+        "numero_placa" => data.numero_placa= Some(value),
+        "nombre_economico" => data.nombre_economico= Some(value),
+        "numero_tarjeta" => data.numero_tarjeta= Some(value),
         // Maybe need to create other function for dropdown list
-        "status" => data.status = Some(value),
+        "estado" => data.estado = if let Ok(estado) = EstadoVehiculo::from_str(value.as_str()) { Some(estado) } else { None },
         // Maybe need to create other function for boolean checkbox
-        "active" => data.active = if let Ok(b) = value.parse::<bool>() {Some(b)} else { None },
+        "activo" => data.activo = if let Ok(b) = value.parse::<bool>() {Some(b)} else { None },
         _ => (),
     }
     log::debug!("Onblur update data {:?}", &data); 

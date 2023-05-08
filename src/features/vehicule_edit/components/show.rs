@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use common::models::vehicule::Vehicule;
+use common::models::vehicule::Vehiculo;
 
 use crate::components::form::FormField;
 use crate::components::card::{Card, CardContent};
@@ -8,21 +8,18 @@ use crate::components::card::{Card, CardContent};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct EditVehiculeShowProps {
-    pub vehicule: UseStateHandle<Vehicule>,
+    pub estado_vehiculo: UseStateHandle<Vehiculo>,
 }
 
 #[function_component]
 pub fn EditVehiculeShow(props: &EditVehiculeShowProps) -> Html {
-    let EditVehiculeShowProps { vehicule: vehicule_state } = props;
-    let vehicule = (*vehicule_state).clone();
+    let EditVehiculeShowProps { estado_vehiculo } = props;
+    let vehiculo = (*estado_vehiculo).clone();
 
-    // create picture url
-    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
+    // crear imagen url
+    let imagen_url = vehiculo.imagen_url("http://127.0.0.1:8000/");
 
-    let active = match vehicule.active {
-        true => "si".to_string(),
-        false => "no".to_string(),
-    };
+    let active = vehiculo.activo_a_palabra();
 
     html!{
             <Card classes={classes!["tile", "is-child"]}
@@ -30,55 +27,55 @@ pub fn EditVehiculeShow(props: &EditVehiculeShowProps) -> Html {
             >
                 <CardContent>
                     <div class="is-user-avatar image has-max-width is-aligned-center">
-                        <img src={ picture_url } />
+                        <img src={ imagen_url } />
                     </div>
                     <hr/>
 
                     <FormField label="Id">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.vehicule_id.to_string() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.vehiculo_id.to_string() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Marca">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.branch.clone() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.marca.clone() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Modelo">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.model.clone() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.modelo.clone() } class="input is-static"/>
                         </div>
                     </FormField>
                     
                     <FormField label="Año">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.year.to_string() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.año.to_string() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Placa">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.number_plate.clone() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.numero_placa.clone() } class="input is-static"/>
                         </div>
                     </FormField>
                     
                     <FormField label="Numero de tarjeta">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.number_card.clone() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.numero_tarjeta.clone() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Nombre economico">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.short_name.clone() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.nombre_economico.clone() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Estado">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.status_to_spanish() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.estado.to_string() } class="input is-static"/>
                         </div>
                     </FormField>
 
@@ -90,13 +87,13 @@ pub fn EditVehiculeShow(props: &EditVehiculeShowProps) -> Html {
 
                     <FormField label="Ultima modificacion">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.updated_at.to_string() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.modificado_en.to_string() } class="input is-static"/>
                         </div>
                     </FormField>
 
                     <FormField label="Fecha de creacion">
                         <div class="control is-clearfix">
-                            <input type="text" readonly={true} value={ vehicule.created_at.to_string() } class="input is-static"/>
+                            <input type="text" readonly={true} value={ vehiculo.creado_en.to_string() } class="input is-static"/>
                         </div>
                     </FormField>
                 </CardContent>

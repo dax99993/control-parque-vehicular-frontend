@@ -6,7 +6,7 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 use validator::{Validate, ValidationErrors};
-use common::models::vehicule::NewVehicule;
+use common::models::vehicule::NuevoVehiculo;
 
 use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
@@ -20,61 +20,61 @@ use crate::utils::forms::{validate_form_field, reset_input};
 pub fn VehiculeRegisterForm() -> Html {
     let user_ctx = use_user_context();
 
-    let new_vehicule = use_state(|| NewVehicule::default());
-    let new_vehicule_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
+    let vehiculo_nuevo = use_state(|| NuevoVehiculo::default());
+    let vehiculo_nuevo_validacion = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_branch = get_input_callback("branch", &new_vehicule);
-    let onchange_model = get_input_callback("model", &new_vehicule);
-    let onchange_year = get_input_callback("year", &new_vehicule);
-    let onchange_number_plate= get_input_callback("number_plate", &new_vehicule);
-    let onchange_short_name = get_input_callback("short_name", &new_vehicule);
-    let onchange_number_card = get_input_callback("number_card", &new_vehicule);
+    let onchange_marca= get_input_callback("marca", &vehiculo_nuevo);
+    let onchange_modelo= get_input_callback("modelo", &vehiculo_nuevo);
+    let onchange_año= get_input_callback("año", &vehiculo_nuevo);
+    let onchange_numero_placa= get_input_callback("numero_placa", &vehiculo_nuevo);
+    let onchange_nombre_economico= get_input_callback("nombre_economico", &vehiculo_nuevo);
+    let onchange_numero_tarjeta= get_input_callback("numero_tarjeta", &vehiculo_nuevo);
 
-    let branch = NodeRef::default();
-    let model = NodeRef::default();
-    let year = NodeRef::default();
-    let number_plate = NodeRef::default();
-    let short_name = NodeRef::default();
-    let number_card = NodeRef::default();
+    let marca = NodeRef::default();
+    let modelo = NodeRef::default();
+    let año = NodeRef::default();
+    let numero_placa = NodeRef::default();
+    let nombre_economico = NodeRef::default();
+    let numero_tarjeta = NodeRef::default();
     
     let validate_input_on_blur = {
-        shadow_clone![new_vehicule, new_vehicule_validation];
+        shadow_clone![vehiculo_nuevo, vehiculo_nuevo_validacion];
         Callback::from(move |(name, value): (String, String)| {
-            set_form_field(name.as_str(), value, &new_vehicule);
-            validate_form_field(name.as_str(), &new_vehicule, &new_vehicule_validation);
+            set_form_field(name.as_str(), value, &vehiculo_nuevo);
+            validate_form_field(name.as_str(), &vehiculo_nuevo, &vehiculo_nuevo_validacion);
         })
     };
 
     
     let request_create_vehicule_admin = {
-        shadow_clone!(new_vehicule);
+        shadow_clone!(vehiculo_nuevo);
         use_async(async move {
-            request_admin_create_vehicule((*new_vehicule).clone()).await
+            request_admin_create_vehicule((*vehiculo_nuevo).clone()).await
         })
     };
 
 
     // Submit valid form
     let onsubmit = {
-        shadow_clone![new_vehicule, new_vehicule_validation];
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        shadow_clone![vehiculo_nuevo, vehiculo_nuevo_validacion];
+        shadow_clone![marca, modelo, año, numero_placa, numero_tarjeta, nombre_economico];
         shadow_clone![request_create_vehicule_admin];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
-            match new_vehicule.validate() {
+            match vehiculo_nuevo.validate() {
                 Ok(_) => {
-                    reset_input(&branch);
-                    reset_input(&model);
-                    reset_input(&year);
-                    reset_input(&number_plate);
-                    reset_input(&short_name);
-                    reset_input(&number_card);
+                    reset_input(&marca);
+                    reset_input(&modelo);
+                    reset_input(&año);
+                    reset_input(&numero_placa);
+                    reset_input(&nombre_economico);
+                    reset_input(&numero_tarjeta);
                     // make request to database
                     request_create_vehicule_admin.run();
                 }
                 Err(e) => {
-                    new_vehicule_validation.set(Rc::new(RefCell::new(e)));
+                    vehiculo_nuevo_validacion.set(Rc::new(RefCell::new(e)));
                 }
             }
         })
@@ -84,14 +84,14 @@ pub fn VehiculeRegisterForm() -> Html {
         shadow_clone![request_create_vehicule_admin];
         use_effect_with_deps(move |request_create_vehicule_admin| {
             if let Some(response) = &request_create_vehicule_admin.data {
-                log::debug!("api response\n{:?}", &response);
-                if let Some(vehicule) = &response.data {
-                    log::debug!("successful vehicule creation\n{:?}", vehicule);
-                    user_ctx.redirect_to(AppRoute::VehiculeEdit { id: vehicule.vehicule_id.clone() });
+                log::debug!("Respuesta api\n{:?}", &response);
+                if let Some(vehiculo) = &response.data {
+                    log::debug!("Creacion de vehiculo exitosa\n{:?}", vehiculo);
+                    user_ctx.redirect_to(AppRoute::VehiculeEdit { id: vehiculo.vehiculo_id.clone() });
                 }
             }
             if let Some(api_error) = &request_create_vehicule_admin.error {
-                log::error!("api error\n{:?}", api_error);
+                log::error!("Peticion para crear vehiculo fallo\n{:?}", api_error);
             }
         },
         request_create_vehicule_admin.clone())
@@ -99,41 +99,41 @@ pub fn VehiculeRegisterForm() -> Html {
 
     // reset all form fields
     let onreset = {
-        shadow_clone![new_vehicule, new_vehicule_validation];
-        shadow_clone![branch, model, number_plate, year, number_card, short_name];
+        shadow_clone![vehiculo_nuevo, vehiculo_nuevo_validacion];
+        shadow_clone![marca, modelo, año, numero_placa, numero_tarjeta, nombre_economico];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
-            new_vehicule.set(NewVehicule::default());
-            new_vehicule_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
+            vehiculo_nuevo.set(NuevoVehiculo::default());
+            vehiculo_nuevo_validacion.set(Rc::new(RefCell::new(ValidationErrors::new())));
 
-            reset_input(&branch);
-            reset_input(&model);
-            reset_input(&year);
-            reset_input(&number_plate);
-            reset_input(&short_name);
-            reset_input(&number_card);
+            reset_input(&marca);
+            reset_input(&modelo);
+            reset_input(&año);
+            reset_input(&numero_placa);
+            reset_input(&nombre_economico);
+            reset_input(&numero_tarjeta);
         })
     };
 
     html!{
             <VehiculeRegisterFormFields
-                {onchange_branch}
-                {onchange_model}
-                {onchange_year}
-                {onchange_short_name}
-                {onchange_number_plate}
-                {onchange_number_card}
+                {onchange_marca}
+                {onchange_modelo}
+                {onchange_año}
+                {onchange_nombre_economico}
+                {onchange_numero_placa}
+                {onchange_numero_tarjeta}
 
-                branch={branch}
-                model={model}
-                year={year}
-                short_name={short_name}
-                number_plate={number_plate}
-                number_card={number_card}
+                marca={marca}
+                modelo={modelo}
+                año={año}
+                nombre_economico={nombre_economico}
+                numero_placa={numero_placa}
+                numero_tarjeta={numero_tarjeta}
 
                 handle_on_input_blur={validate_input_on_blur}
-                validation_errors={&*new_vehicule_validation}
+                validation_errors={&*vehiculo_nuevo_validacion}
                 
                 {onsubmit}
                 {onreset}
@@ -145,7 +145,7 @@ pub fn VehiculeRegisterForm() -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    form: &UseStateHandle<NewVehicule>,
+    form: &UseStateHandle<NuevoVehiculo>,
 ) -> Callback<String> {
     let cloned_form = form.clone();
     Callback::from(move |value| {
@@ -157,16 +157,16 @@ fn get_input_callback(
 fn set_form_field<'a>(
     name: &'a str,
     value: String,
-    form: &UseStateHandle<NewVehicule>,)
+    form: &UseStateHandle<NuevoVehiculo>,)
 {
         let mut data = form.deref().clone();
         match name {
-            "branch" => data.branch = value,
-            "model" => data.model = value,
-            "year" => data.year = if let Ok(number) = value.parse::<i16>() {number} else { -1 },
-            "number_plate" => data.number_plate = value,
-            "short_name" => data.short_name= value,
-            "number_card" => data.number_card= value,
+            "marca" => data.marca= value,
+            "modelo" => data.modelo = value,
+            "año" => data.año= if let Ok(number) = value.parse::<i16>() {number} else { -1 },
+            "numero_placa" => data.numero_placa= value,
+            "nombre_economico" => data.nombre_economico= value,
+            "numero_tarjeta" => data.numero_tarjeta= value,
             _ => (),
         }
         form.set(data);
@@ -179,22 +179,22 @@ use crate::components::button::{Button, ButtonType};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
-    pub onchange_branch: Callback<String>, 
-    pub onchange_model: Callback<String>, 
-    pub onchange_year: Callback<String>, 
-    pub onchange_short_name: Callback<String>, 
-    pub onchange_number_plate: Callback<String>, 
-    pub onchange_number_card: Callback<String>, 
+    pub onchange_marca: Callback<String>, 
+    pub onchange_modelo: Callback<String>, 
+    pub onchange_año: Callback<String>, 
+    pub onchange_nombre_economico: Callback<String>, 
+    pub onchange_numero_placa: Callback<String>, 
+    pub onchange_numero_tarjeta: Callback<String>, 
 
     pub handle_on_input_blur: Callback<(String, String)>,
     pub validation_errors: Rc<RefCell<ValidationErrors>>,
 
-    pub branch: NodeRef,
-    pub model: NodeRef,
-    pub year: NodeRef,
-    pub short_name: NodeRef,
-    pub number_plate: NodeRef,
-    pub number_card: NodeRef,
+    pub marca: NodeRef,
+    pub modelo: NodeRef,
+    pub año: NodeRef,
+    pub nombre_economico: NodeRef,
+    pub numero_placa: NodeRef,
+    pub numero_tarjeta: NodeRef,
 
     pub onsubmit: Callback<MouseEvent>,
     pub onreset: Callback<MouseEvent>,
@@ -213,9 +213,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. Nissan"
                     msg="Colocar nombre marca del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="branch"
-                    input_ref={props.branch}
-                    handle_onchange={props.onchange_branch}
+                    name="marca"
+                    input_ref={props.marca}
+                    handle_onchange={props.onchange_marca}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />
@@ -226,9 +226,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. Leaf"
                     msg="Colocar Modelo del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="model"
-                    input_ref={props.model}
-                    handle_onchange={props.onchange_model}
+                    name="modelo"
+                    input_ref={props.modelo}
+                    handle_onchange={props.onchange_modelo}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />
@@ -239,9 +239,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. 2016"
                     msg="Colocar año del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="year"
-                    input_ref={props.year}
-                    handle_onchange={props.onchange_year}
+                    name="año"
+                    input_ref={props.año}
+                    handle_onchange={props.onchange_año}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />
@@ -252,9 +252,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. ABCD XYZ 123"
                     msg="Colocar placas del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="number_plate"
-                    input_ref={props.number_plate}
-                    handle_onchange={props.onchange_number_plate}
+                    name="numero_placa"
+                    input_ref={props.numero_placa}
+                    handle_onchange={props.onchange_numero_placa}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />
@@ -265,9 +265,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. 12345678asd"
                     msg="Colocar numero de tarjeta del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="number_card"
-                    input_ref={props.number_card}
-                    handle_onchange={props.onchange_number_card}
+                    name="numero_tarjeta"
+                    input_ref={props.numero_tarjeta}
+                    handle_onchange={props.onchange_numero_tarjeta}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />
@@ -278,9 +278,9 @@ pub fn VehiculeRegisterFormFields(props: &Props) -> Html {
                     placeholder="e.g. Leaf 202"
                     msg="Colocar nombre economico del vehiculo"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="short_name"
-                    input_ref={props.short_name}
-                    handle_onchange={props.onchange_short_name}
+                    name="nombre_economico"
+                    input_ref={props.nombre_economico}
+                    handle_onchange={props.onchange_nombre_economico}
                     handle_on_input_blur={props.handle_on_input_blur.clone()}
                     errors={&props.validation_errors.clone()}
                 />

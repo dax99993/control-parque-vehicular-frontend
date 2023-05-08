@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use common::models::vehicule::Vehicule;
+use common::models::vehicule::Vehiculo;
 
 use crate::shadow_clone;
 use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
@@ -8,43 +8,43 @@ use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
-   pub vehicule: Vehicule, 
+   pub vehiculo: Vehiculo, 
    pub dispatcher: UseReducerDispatcher<VehiculeTableReducer>,
 }
 
 #[function_component]
 pub fn VehiculeTableRow(props: &Props) -> Html {
-    let Props { vehicule, dispatcher } = props;
+    let Props { vehiculo, dispatcher } = props;
 
-    //TODO request vehicule picture
+    //TODO request vehiculo picture
     // by constructing a global URL_BASE
-    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
+    let imagen_url = vehiculo.imagen_url("http://127.0.0.1:8000/");
 
     
     let click_show = {
-        shadow_clone![vehicule, dispatcher];
+        shadow_clone![vehiculo, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = vehicule.vehicule_id.clone();
+            let id = vehiculo.vehiculo_id.clone();
             dispatcher.dispatch(VehiculeTableAction::ShowVehiculePicture(id));
         })
     };
     
     let click_delete = {
-        shadow_clone![vehicule, dispatcher];
+        shadow_clone![vehiculo, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = vehicule.vehicule_id.clone();
+            let id = vehiculo.vehiculo_id.clone();
             dispatcher.dispatch(VehiculeTableAction::DeleteVehicule(id));
         })
     };
     
 
     let click_edit = {
-        shadow_clone![vehicule, dispatcher];
+        shadow_clone![vehiculo, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = vehicule.vehicule_id.clone();
+            let id = vehiculo.vehiculo_id.clone();
             dispatcher.dispatch(VehiculeTableAction::UpdateVehicule(id));
         })
     };
@@ -54,21 +54,21 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         <tr>
         <td class="is-image-cell">
             <figure class="image is-16by9">
-                <img src={picture_url} />
+                <img src={imagen_url} />
             </figure>
         </td>
 
-        <td data-label="Marca">{&vehicule.branch}</td>
-        <td data-label="Modelo">{&vehicule.model}</td>
-        <td data-label="Año">{&vehicule.year}</td>
-        <td data-label="Nombre economico">{&vehicule.short_name}</td>
-        <td data-label="Numero de tarjeta">{&vehicule.number_card}</td>
-        <td data-label="Numero de placa">{&vehicule.number_plate}</td>
+        <td data-label="Marca">{&vehiculo.marca}</td>
+        <td data-label="Modelo">{&vehiculo.modelo}</td>
+        <td data-label="Año">{&vehiculo.año}</td>
+        <td data-label="Nombre economico">{&vehiculo.nombre_economico}</td>
+        <td data-label="Numero de tarjeta">{&vehiculo.numero_tarjeta}</td>
+        <td data-label="Numero de placa">{&vehiculo.numero_placa}</td>
 
-        <td data-label="Estado">{ vehicule.status_to_spanish() }</td>
-        <td class="has-text-centered" data-label="Activo">{ vehicule.active_to_spanish() }</td>
-        <td data-label="Ultima modificacion">{&vehicule.updated_at}</td>
-        <td data-label="Fecha de creacion">{&vehicule.created_at}</td>
+        <td data-label="Estado">{ &vehiculo.estado }</td>
+        <td class="has-text-centered" data-label="Activo">{ vehiculo.activo.to_string() }</td>
+        <td data-label="Ultima modificacion">{&vehiculo.modificado_en}</td>
+        <td data-label="Fecha de creacion">{&vehiculo.creado_en}</td>
 
 
         <td class="is-actions-cell">

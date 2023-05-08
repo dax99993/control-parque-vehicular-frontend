@@ -48,28 +48,26 @@ pub fn FilterSearch(props: &FilterSearchProps) -> Html {
     };
 
     html!{
-        <div class="container">
-            <nav class="level">
-                <div class="level-left">
-                    <div class="level-item">
-                        <div class="field has-addons">
+        <nav class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <div class="field has-addons">
 
-                            <DropDown dropdown_button_label={props.default_filter_label.clone()} selected_state={selected_filter_state} dropdown_items_labels={filter_fields.clone()}/>
+                        <DropDown dropdown_button_label={props.default_filter_label.clone()} selected_state={selected_filter_state} dropdown_items_labels={filter_fields.clone()}/>
 
-                            <p class="control">
-                                <input ref={search_ref} class="input" type="text" placeholder={"Encontrar vehiculo"}/>
-                            </p>
+                        <p class="control">
+                            <input ref={search_ref} class="input" type="text" placeholder={"Encontrar vehiculo"}/>
+                        </p>
 
-                            <p class="control">
-                                <button class="button" onclick={onclick_get_search}>
-                                    {"Buscar"}
-                                </button>
-                            </p>
+                        <p class="control">
+                            <button class="button" onclick={onclick_get_search}>
+                                {"Buscar"}
+                            </button>
+                        </p>
 
-                        </div>
                     </div>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     }
 }

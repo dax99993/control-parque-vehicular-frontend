@@ -6,7 +6,7 @@ use yew::platform::spawn_local;
 use std::ops::Deref;
 use std::thread::current;
 
-use common::models::vehicule::Vehicule;
+use common::models::vehicule::Vehiculo;
 
 use super::{VehiculeTable, VehiculeTableRow};
 use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
@@ -22,7 +22,7 @@ use crate::layout::main_section::MainSection;
 
 use crate::utils::modal::{open_modal, close_modal};
 
-//use crate::services::vehicule::request_admin_get_vehicules;
+//use crate::services::vehicule::request_admin_get_vehiculos;
 
 
 #[function_component]
@@ -37,9 +37,9 @@ pub fn AdminVehiculeView() -> Html {
     // Hooks
     let table_reducer = use_reducer(VehiculeTableReducer::default);
     //
-    let vehicules = use_state(|| vec![]);
+    let vehiculos = use_state(|| vec![]);
     let current_page = use_state(|| 1);
-    let vehicules_per_page = use_state(|| 4);
+    let vehiculos_per_page = use_state(|| 4);
     let navigator = use_navigator();
     let reload_table = use_state(|| false);
 
@@ -60,40 +60,40 @@ pub fn AdminVehiculeView() -> Html {
     }
 
     
-    // Effect for keeping in sync vehicules with pagination
+    // Effect for keeping in sync vehiculos with pagination
     {
-        shadow_clone![vehicules];
-        use_effect_with_deps(move |(current_page, vehicules_per_page, selected_filter, search_state, _)| {
+        shadow_clone![vehiculos];
+        use_effect_with_deps(move |(current_page, vehiculos_per_page, selected_filter, search_state, _)| {
             //reload_table.set(false);
             let page = **current_page;
-            let limit = **vehicules_per_page;
+            let limit = **vehiculos_per_page;
             let filter = (**selected_filter).clone();
             let search = (**search_state).clone();
             spawn_local(async move {
-                log::debug!("get vehicules in page {}", page);
+                log::debug!("obtener vehiculos en pagina {}", page);
                 let response = request_admin_get_vehicules(page, limit, filter, search).await;
                 match response {
                     Ok(res) => {
                         if let Some(v) = res.data {
-                            vehicules.set(v);
+                            vehiculos.set(v);
                         }
                     }
                     Err(_) => {
-                        log::error!("vehicule get request failed");
+                        log::error!("peticion de obtener vehiculos fallo");
                     }
                 }
             });
         },
-        (current_page.clone(), vehicules_per_page.clone(), selected_filter.clone(), search_state.clone(), reload_table.clone())
+        (current_page.clone(), vehiculos_per_page.clone(), selected_filter.clone(), search_state.clone(), reload_table.clone())
         );
     }
 
     let vehicule_picture = {
         match table_reducer.selected_vehicule_to_show_id {
             Some(id) => {
-                if let Some(vehicule) = vehicules.deref().iter().filter(|v| v.vehicule_id.eq(&id)).map(|v| v).next() {
-                    log::debug!("Vehicule selected {:?}", &vehicule);
-                    let picture_url = vehicule.get_picture_url("http://127.0.0.1:8000/");
+                if let Some(vehiculo) = vehiculos.deref().iter().filter(|v| v.vehiculo_id.eq(&id)).map(|v| v).next() {
+                    log::debug!("Vehiculo seleccionado {:?}", &vehiculo);
+                    let picture_url = vehiculo.imagen_url("http://127.0.0.1:8000/");
                     html!{
                         <img src={picture_url} />
                     }
@@ -106,30 +106,30 @@ pub fn AdminVehiculeView() -> Html {
     };
 
     let onclick_delete = {
-        shadow_clone![reload_table, vehicules];
+        shadow_clone![reload_table, vehiculos];
         let selected_vehicule_to_delete_id = table_reducer.selected_vehicule_to_delete_id.clone();
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             // Execute api
-            shadow_clone![reload_table, vehicules];
+            shadow_clone![reload_table, vehiculos];
             if let Some(id) = selected_vehicule_to_delete_id {
                 spawn_local(async move {
-                    log::debug!("will delete vehicule with id {}", id.to_string());
+                    log::debug!("se borrara el vehiculo con id {}", id.to_string());
                     let response = request_admin_delete_vehicule(id.to_string()).await;
                     match response {
                         Ok(_) => {
                             close_modal("vehicule-delete-modal".to_string());
                             // Delete row from table
-                            let vehs: Vec<Vehicule> = vehicules.deref().clone()
+                            let vehs: Vec<Vehiculo> = vehiculos.deref().clone()
                                 .into_iter()
-                                .filter(|v| v.vehicule_id.ne(&id))
+                                .filter(|v| v.vehiculo_id.ne(&id))
                                 .collect();
-                            vehicules.set(vehs);
+                            vehiculos.set(vehs);
                             // Or we can reload current page
                             //reload_table.set(!(*reload_table));
                         }
                         Err(_) => {
-                            log::error!("delete vehicule request failed");
+                            log::error!("Peticion de borrar vehiculo fallo");
                         }
                     }
                 });
@@ -138,9 +138,9 @@ pub fn AdminVehiculeView() -> Html {
     };
 
     let total_pages = {
-        //if vehicules.deref().len() < *vehicules_per_page.deref() {
+        //if vehiculos.deref().len() < *vehicules_per_page.deref() {
         //    *current_page 
-        if vehicules.deref().is_empty() {
+        if vehiculos.deref().is_empty() {
             *current_page
         } else {
             *current_page + 1
@@ -152,7 +152,7 @@ pub fn AdminVehiculeView() -> Html {
 
             <FilterSearch filter_fields={filter_fields.clone()} selected_filter_state={selected_filter.clone()} search_state={search_state.clone()} />
 
-            <div/>
+            <div class="mb-3"/>
 
             <Card classes={classes!["has-table"]}
                 header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } 
@@ -162,7 +162,7 @@ pub fn AdminVehiculeView() -> Html {
                 <CardContent>
                     <VehiculeTable>
                         {
-                            vehicule_to_vehicule_table_row(vehicules.deref().clone(), table_reducer.dispatcher())
+                            vehicule_to_vehicule_table_row(vehiculos.deref().clone(), table_reducer.dispatcher())
                         }
                     </VehiculeTable>
                 </CardContent>
@@ -226,11 +226,11 @@ pub fn AdminVehiculeView() -> Html {
 }
 
 
-fn vehicule_to_vehicule_table_row(vehicules: Vec<Vehicule>, dispatcher: UseReducerDispatcher<VehiculeTableReducer>) -> Vec<Html> {
-    vehicules.into_iter().map(|v| {
+fn vehicule_to_vehicule_table_row(vehiculos: Vec<Vehiculo>, dispatcher: UseReducerDispatcher<VehiculeTableReducer>) -> Vec<Html> {
+    vehiculos.into_iter().map(|v| {
         html!{
             <VehiculeTableRow
-                vehicule={v}
+                vehiculo={v}
                 dispatcher={dispatcher.clone()}
             >
             </VehiculeTableRow>

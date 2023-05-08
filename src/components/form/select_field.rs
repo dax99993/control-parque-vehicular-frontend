@@ -26,6 +26,7 @@ pub struct SelectFieldValidatedProps {
 pub fn SelectFieldValidated(props: &SelectFieldValidatedProps) -> Html {
     shadow_clone!(props);
     let is_init = use_state(|| true);
+    log::debug!("select field selected\n{:?}\nvalues\n{:?}", props.selected, props.options);
 
     let onclick = {
         shadow_clone!(props);
