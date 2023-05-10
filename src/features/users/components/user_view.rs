@@ -122,7 +122,7 @@ pub fn AdminUsersView() -> Html {
             />
 
             <Modal 
-                id={"vehicule-modal"}
+                id={"user-modal"}
                 title={reducer.modal_title.clone()}
                 body={if reducer.modal_body.is_some() { reducer.modal_body.as_ref().unwrap().clone() } else {html!{}}}
                 footer={reducer.modal_footer.clone()}

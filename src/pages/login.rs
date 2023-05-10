@@ -15,7 +15,7 @@ pub fn LoginView() -> Html {
 
 
     html! {
-    <section class="hero is-fullheight is-primary">
+    <section class="hero-background is-fullheight">
         <div class="hero-body">
             <div class="container"> 
                 <div class="columns is-centered ">

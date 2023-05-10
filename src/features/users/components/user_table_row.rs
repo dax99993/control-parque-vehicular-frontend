@@ -79,7 +79,7 @@ pub fn UsersTableRow(props: &Props) -> Html {
         <td data-label="Departamento">{department}</td>
         <td data-label="Numero de empleado">{employee_number}</td>
         <td data-label="Correo Electronico">{&user.email}</td>
-
+        <td data-label="Estado">{ &user.role }</td>
         <td class="has-text-centered" data-label="Activo">{ user.active_to_spanish() }</td>
         <td data-label="Ultima modificacion">{&user.updated_at}</td>
         <td data-label="Fecha de creacion">{&user.created_at}</td>

@@ -74,21 +74,35 @@ fn HomeLoggedInView() -> Html {
 #[function_component]
 fn HomeLoggedOutView() -> Html {
     html!{
-        <section class="hero is-fullheight is-info is-medium is-bold">
+        <section class="hero-background is-fullheight is-medium is-bold">
             <div class="hero-body">
-                <div class="container has-text-centered">
-                    <h1 class="title">{"Control Parque Vehicular"}</h1>
-                    <h1 class="title">{"Iniciar sesion o crear cuenta"}</h1>
-                    <br/>
-                    <h2 class="subtitle has-text-danger-dark">{"Home Anonymous user"}</h2>
+                <div class="container">
+                    <div class="columns is-centered">
+                        <div class="column is-6-dektop is-5-widescreen">
+                            <div class="box">
+                                <div class="columns is-centered">
+                                    <div class="column is-full has-text-centered ">
+                                        <h1 class="title">{"Control Parque Vehicular"}</h1>
+                                    </div>
+                                </div>
 
-                    <Link<AppRoute> to={AppRoute::Login} classes="button is-rounded is-info is-outlined is-inverted">
-                    {"Iniciar sesion"}
-                    </Link<AppRoute>>
+                                <div class="columns is-centered has-text-centered">
+                                    <div class="column">
+                                        <Link<AppRoute> to={AppRoute::Login} classes="button is-rounded is-info">
+                                        {"Iniciar sesion"}
+                                        </Link<AppRoute>>
+                                    </div>
 
-                    <Link<AppRoute> to={AppRoute::Signup} classes="button is-rounded is-primary is-outlined is-inverted">
-                    {"Registrar cuenta"}
-                    </Link<AppRoute>>
+                                    <div class="column">
+                                        <Link<AppRoute> to={AppRoute::Signup} classes="button is-rounded is-primary">
+                                        {"Registrar cuenta"}
+                                        </Link<AppRoute>>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

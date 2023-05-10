@@ -16,7 +16,7 @@ pub fn VehiculeTable(props: &Props) -> Html {
 
     html!{
     <div class="b-table has-pagination">
-        <div class="table-wrapper has-mobile-cards table-container">
+        <div class="table-wrapper has-mobile-cards">
             <table class="table is-narrow is-striped is-hoverable is-fullwidth">
                 <thead>
                     <tr>

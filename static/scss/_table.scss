@@ -151,3 +151,12 @@ table.table {
   }
 }
 
+@include mobile {
+    .b-table .table-wrapper.has-mobile-cards tr:not(.detail):not(.is-empty):not(.table-footer) td.is-image-cell .image {
+        //width: 128px;
+        width: auto;
+        height: auto;
+        margin: $default-padding * .25 auto $default-padding * .25;
+    }
+}
+

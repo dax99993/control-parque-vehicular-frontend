@@ -26,7 +26,6 @@ pub fn UsersTable(props: &Props) -> Html {
                         <th>{"Departamento"}</th>
                         <th>{"Numero de empleado"}</th>
                         <th>{"Correo Electronico"}</th>
-                        <th>{"Numero de placa"}</th>
                         <th>{"Estado"}</th>
                         <th>{"Activo"}</th>
                         <th>{"Ultima modificacion"}</th>

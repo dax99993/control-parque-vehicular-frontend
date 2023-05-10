@@ -53,8 +53,8 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
     html!{
         <tr>
         <td class="is-image-cell">
-            <figure class="image is-16by9">
-                <img src={imagen_url} />
+            <figure class="is-flex is-align-items-center is-justify-content-center image is-128x128">
+                <img src={imagen_url.clone()} onclick={click_show.clone()} />
             </figure>
         </td>
 

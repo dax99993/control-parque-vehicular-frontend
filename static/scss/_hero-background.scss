@@ -1,0 +1,15 @@
+//@import "./bulma/sass/layout/hero.sass";
+
+//$backgrounds: (parque: '/static/parque-vehicular-background.jpg');
+
+//@each $key, $image in $backgrounds
+//  .hero-#{$key}
+//    @extend .hero
+//    background-image: url(#{'$image'})
+
+
+.hero-background {
+  @extend .hero;
+  background-image: url('./parque-vehicular-background.jpg');
+  background-size: cover ;
+}
