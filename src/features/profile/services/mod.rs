@@ -1,11 +1,11 @@
-use common::models::user::{User, ChangePasswordMe};
+use common::models::user::{Usuario, CambiarMiPassword};
 use crate::api_response::ApiResponse;
 
 use crate::services::request::{request_post, request_patch, request_multipart_patch};
 use crate::error::Error;
 
 // General user routes
-pub async fn request_change_password(password: ChangePasswordMe) -> Result<ApiResponse::<()>, Error> {
+pub async fn request_change_password(password: CambiarMiPassword) -> Result<ApiResponse::<()>, Error> {
     request_post(format!("api/users/me/change-password"), password).await
 }
 
@@ -15,6 +15,6 @@ pub async fn request_update_profile(updated_profile) -> Result<ApiResponse::<Use
 }
 */
 
-pub async fn request_update_profile_picture(picture: reqwest::multipart::Form) -> Result<ApiResponse::<User>, Error> {
+pub async fn request_update_profile_picture(picture: reqwest::multipart::Form) -> Result<ApiResponse::<Usuario>, Error> {
     request_multipart_patch(format!("api/users/me/picture"), picture).await
 }

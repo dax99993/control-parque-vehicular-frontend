@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::routes::AppRoute;
 use crate::services::request::store_token;
@@ -13,13 +13,13 @@ use std::ops::Deref;
 /// State handle for the ['use_user_context'] hook
 #[derive(Debug, PartialEq)]
 pub struct UseUserContextHandle {
-    inner: UseStateHandle<Option<User>>,
+    inner: UseStateHandle<Option<Usuario>>,
     //inner: UseStateHandle<Option<FilteredUser>>,
     navigator: Navigator,
 }
 
 impl UseUserContextHandle {
-    pub fn login(&self, user: &User) {
+    pub fn login(&self, user: &Usuario) {
         // Store token to local storage
         //store_token(Some(token));
         // Set state to logged in User
@@ -47,13 +47,13 @@ impl UseUserContextHandle {
 
     pub fn is_admin(&self) -> bool {
         if let Some(user) = (*self.inner).clone() {
-            return user.is_admin();
+            return user.es_admin();
         } else {
             return false;
         }
     }
 
-    pub fn get_user(&self) -> Option<User> {
+    pub fn get_user(&self) -> Option<Usuario> {
         return (*self.inner).clone();
     }
 
@@ -74,7 +74,7 @@ impl Clone for UseUserContextHandle {
     }
 }
 impl Deref for UseUserContextHandle {
-    type Target = Option<User>;
+    type Target = Option<Usuario>;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -85,7 +85,7 @@ impl Deref for UseUserContextHandle {
 
 #[hook]
 pub fn use_user_context() -> UseUserContextHandle {
-    let inner = use_context::<UseStateHandle<Option<User>>>().unwrap();
+    let inner = use_context::<UseStateHandle<Option<Usuario>>>().unwrap();
     let navigator = use_navigator().unwrap();
 
     UseUserContextHandle { inner, navigator }

@@ -1,4 +1,4 @@
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::api_response::ApiResponse;
 
@@ -7,7 +7,7 @@ use crate::error::Error;
 
 
 // Admin routes
-pub async fn request_admin_get_users() -> Result<ApiResponse::<Vec<User>>, Error> {
+pub async fn request_admin_get_users() -> Result<ApiResponse::<Vec<Usuario>>, Error> {
     request_get(format!("api/users")).await
 }
 

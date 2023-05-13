@@ -24,19 +24,19 @@ use std::ops::Deref;
 
 use validator::{ValidationErrors, Validate};
 
-use common::models::user::ChangePasswordMe;
+use common::models::user::CambiarMiPassword;
 
 use crate::shadow_clone;
 use crate::utils::forms::{validate_form_field, reset_input};
 
 #[function_component]
 pub fn ChangePasswordForm() -> Html {
-    let password = use_state(|| ChangePasswordMe::default());
+    let password = use_state(|| CambiarMiPassword::default());
     let password_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_current_password= get_input_callback("current_password", &password);
-    let onchange_new_password = get_input_callback("new_password", &password);
-    let onchange_re_new_password = get_input_callback("re_new_password", &password);
+    let onchange_current_password= get_input_callback("password_actual", &password);
+    let onchange_new_password = get_input_callback("nuevo_password", &password);
+    let onchange_re_new_password = get_input_callback("re_nuevo_password", &password);
 
     
     let current_password = NodeRef::default();
@@ -111,7 +111,7 @@ pub fn ChangePasswordForm() -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
 
-            password.set(ChangePasswordMe::default());
+            password.set(CambiarMiPassword::default());
             password_validation.set(Rc::new(RefCell::new(ValidationErrors::new())));
 
             reset_input(&current_password);
@@ -129,7 +129,7 @@ pub fn ChangePasswordForm() -> Html {
                     input_type="password"
                     msg="Colocar contraseña actual"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="current_password"
+                    name="password_actual"
                     input_ref={current_password}
                     handle_onchange={onchange_current_password}
                     handle_on_input_blur={validate_input_on_blur.clone()}
@@ -142,7 +142,7 @@ pub fn ChangePasswordForm() -> Html {
                     input_type="password"
                     msg="La contraseña debe contener minimo 6 caracteres"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="new_password"
+                    name="nuevo_password"
                     input_ref={new_password}
                     handle_onchange={onchange_new_password}
                     handle_on_input_blur={validate_input_on_blur.clone()}
@@ -155,7 +155,7 @@ pub fn ChangePasswordForm() -> Html {
                     input_type="password"
                     msg="vuelva a escribir la contraseña"
                     icon_right={"fa-solid fa-triangle-exclamation"}
-                    name="re_new_password"
+                    name="re_nuevo_password"
                     input_ref={re_new_password}
                     handle_onchange={onchange_re_new_password}
                     handle_on_input_blur={validate_input_on_blur.clone()}
@@ -191,7 +191,7 @@ pub fn ChangePasswordForm() -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    form: &UseStateHandle<ChangePasswordMe>,
+    form: &UseStateHandle<CambiarMiPassword>,
 ) -> Callback<String> {
     let cloned_form = form.clone();
     Callback::from(move |value| {
@@ -202,13 +202,13 @@ fn get_input_callback(
 fn set_form_field<'a>(
     name: &'a str,
     value: String,
-    form: &UseStateHandle<ChangePasswordMe>,)
+    form: &UseStateHandle<CambiarMiPassword>,)
 {
     let mut data = form.deref().clone();
     match name {
-        "current_password" => data.current_password = value,
-        "new_password" => data.new_password = value,
-        "re_new_password" => data.re_new_password = value,
+        "password_actual" => data.password_actual= value,
+        "nuevo_password" => data.nuevo_password = value,
+        "re_nuevo_password" => data.re_nuevo_password = value,
         _ => (),
     }
     log::debug!("Onblur update data {:?}", &data); 

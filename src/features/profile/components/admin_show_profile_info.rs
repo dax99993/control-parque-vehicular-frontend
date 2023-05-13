@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::components::form::{FormField, StaticField};
 use crate::components::card::{Card, CardContent};
@@ -8,7 +8,7 @@ use crate::components::card::{Card, CardContent};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
-    pub user_state: UseStateHandle<User>,
+    pub user_state: UseStateHandle<Usuario>,
 }
 
 #[function_component]
@@ -18,25 +18,25 @@ pub fn AdminProfileInfo(props: &Props) -> Html {
     let user = (*user_state).clone();
 
     // create picture url
-    let picture_url = user.get_picture_url("http://127.0.0.1:8000/");
+    let picture_url = user.imagen_url("http://127.0.0.1:8000/");
 
     // Map fields to nice strings
-    let employee_number = match user.employee_number{
+    let numero_empleado = match user.numero_empleado{
         Some(n) => n.to_string(),
         None => "No asignado".to_string(),
     };
 
-    let department = match user.department {
+    let departamento = match user.departamento{
         Some(n) => n.to_string(),
         None => "No asignado".to_string(),
     };
 
-    let verified = match user.verified{
+    let verificado = match user.verificado {
         true => "si".to_string(),
         false => "no".to_string(),
     };
 
-    let active = match user.active {
+    let activo = match user.activo {
         true => "si".to_string(),
         false => "no".to_string(),
     };
@@ -53,19 +53,19 @@ pub fn AdminProfileInfo(props: &Props) -> Html {
                     <hr/>
 
                     <FormField label="Id" is_horizontal={false}>
-                        <StaticField value={ user.user_id.to_string() }/>
+                        <StaticField value={ user.usuario_id.to_string() }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Nombre" is_horizontal={false}>
-                        <StaticField value={ user.first_name.clone() }/>
+                        <StaticField value={ user.nombres.clone() }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Apellido" is_horizontal={false}>
-                        <StaticField value={ user.last_name.clone() }/>
+                        <StaticField value={ user.apellidos.clone() }/>
                     </FormField>
 
                     <hr/>
@@ -77,43 +77,43 @@ pub fn AdminProfileInfo(props: &Props) -> Html {
                     <hr/>
                     
                     <FormField label="Numero de empleado" is_horizontal={false}>
-                        <StaticField value={ employee_number }/>
+                        <StaticField value={ numero_empleado }/>
                     </FormField>
                     
                     <hr/>
 
                     <FormField label="Departamento" is_horizontal={false}>
-                        <StaticField value={ department }/>
+                        <StaticField value={ departamento }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Rol" is_horizontal={false}>
-                        <StaticField value={ user.role.clone() }/>
+                        <StaticField value={ user.rol.to_string() }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Cuenta Verificada" is_horizontal={false}>
-                        <StaticField value={ verified }/>
+                        <StaticField value={ verificado }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Activo" is_horizontal={false}>
-                        <StaticField value={ active }/>
+                        <StaticField value={ activo }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Ultima modificacion" is_horizontal={false}>
-                        <StaticField value={ user.updated_at.to_string() }/>
+                        <StaticField value={ user.modificado_en.to_string() }/>
                     </FormField>
 
                     <hr/>
 
                     <FormField label="Fecha de creacion" is_horizontal={false}>
-                        <StaticField value={ user.created_at.to_string() }/>
+                        <StaticField value={ user.creado_en.to_string() }/>
                     </FormField>
                 </CardContent>
             </Card>

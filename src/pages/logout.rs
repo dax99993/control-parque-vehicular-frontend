@@ -3,7 +3,8 @@ use yew_hooks::prelude::*;
 
 use crate::shadow_clone;
 use crate::hooks::user_context::use_user_context;
-use crate::services::auth::request_logout;
+//use crate::services::auth::request_logout;
+use crate::features::authentication::services::auth::request_logout;
 
 #[function_component]
 pub fn LogoutView() -> Html {

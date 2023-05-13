@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::shadow_clone;
 use crate::hooks::user_context::{use_user_context, UseUserContextHandle};
@@ -10,43 +10,32 @@ use crate::utils::{remove_class, add_class, has_class, toggle_class};
 
 use gloo::utils::{document, document_element};
 
+use crate::layout::sidebar::toggle_sidebar;
+
 #[function_component]
 pub fn NavBar() -> Html {
+    // Context
     let user_ctx = use_user_context();
 
-    let document_el = use_state(|| document_element());
-    
-    {
-        shadow_clone![document_el];
-        use_effect_with_deps(|document_el| {
-            if let Some(dropdownicon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
-                if !has_class(&(*document_el), "has-aside-mobile-expanded") {
-                    add_class(&dropdownicon, "fa-bars");
-                    remove_class(&dropdownicon, "fa-xmark");
-                }
-            }
-        }, 
-        document_el.clone())
-    }
-
+    // Expand/Collapse sidebar
     let aside_mobile_toggle = {
         Callback::from(move |_| {
-            if let Some(dropdownicon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
-                let e = document_element();
+            if let Some(icon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
+                //toggle_sidebar();
+                let e = document_element(); 
                 if has_class(&e, "has-aside-mobile-expanded") {
                     remove_class(&e, "has-aside-mobile-expanded");
                 } else {
-                    //add_class(&dropdownicon, "fa-bars");
-                    //remove_class(&dropdownicon, "fa-xmark");
                     add_class(&e, "has-aside-mobile-expanded");
                 }
-                toggle_class(&dropdownicon, "fa-bars");
-                toggle_class(&dropdownicon, "fa-xmark");
-                log::debug!("icon dropdown classes {:?}", dropdownicon.class_name());
+                
+                toggle_class(&icon, "fa-bars");
+                toggle_class(&icon, "fa-xmark");
             }
         })
     };
 
+    // Expand/Collapse Navbar mobile menu
     let navbar_menu_mobile_toggle = 
         Callback::from(move |_| {
             if let Some(element) = document().get_element_by_id("navbar-menu") {
@@ -56,13 +45,12 @@ pub fn NavBar() -> Html {
                     // Toggle icon
                     toggle_class(&dropdownicon, "fa-ellipsis-vertical");
                     toggle_class(&dropdownicon, "fa-xmark");
-                    log::debug!("icon menu classes {:?}", dropdownicon.class_name());
                 }
-                log::debug!("navbar right dropdown classes {:?}", element.class_name());
             }
         });
 
 
+    // HTML
     html!{
         <nav id="navbar-main" class="navbar is-fixed-top has-shadow">
             { 
@@ -86,8 +74,12 @@ pub fn NavBar() -> Html {
     }
 }
 
-//fn navbar_brand(logged_in: bool, onclick: Callback<MouseEvent>) -> Html {
+
 fn navbar_brand(user_ctx: UseUserContextHandle, onclick: Callback<MouseEvent>) -> Html {
+
+    let image_logo_url = "https://bulma.io/images/bulma-logo.png";
+
+    // Redirect home on logo click
     let onclick_go_home = {
         shadow_clone![user_ctx];
         Callback::from(move |e: MouseEvent| {
@@ -96,6 +88,7 @@ fn navbar_brand(user_ctx: UseUserContextHandle, onclick: Callback<MouseEvent>) -
         })
     };
 
+
     html!{
         <div class="navbar-brand">
             if user_ctx.is_authenticated() {
@@ -103,12 +96,13 @@ fn navbar_brand(user_ctx: UseUserContextHandle, onclick: Callback<MouseEvent>) -
                 <span class="icon"><i id="navbar-toggle-sidebar-button" class="fa-solid fa-bars"></i></span>
             </a>
             }
-            <div class="navbar-item" href="https://bulma.io" onclick={onclick_go_home}>
-                <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
+            <div class="navbar-item" onclick={onclick_go_home}>
+                <img src={image_logo_url} width="112" height="28" />
             </div>
         </div>
     }
 }
+
 
 fn navbar_brand_right(onclick: Callback<MouseEvent>) -> Html {
     html!{
@@ -121,21 +115,20 @@ fn navbar_brand_right(onclick: Callback<MouseEvent>) -> Html {
 }
 
 
-fn navbar_end_logged_in(user: User) -> Html {
-    //TODO
-    //construct user profile picture url instead of using dummy one 
-    let first_name = user.first_name.clone();
-    let picture_url = user.get_picture_url("http://127.0.0.1:8000/");
+fn navbar_end_logged_in(user: Usuario) -> Html {
+
+    let nombres = user.nombres.clone();
+    let imagen_url = user.imagen_url("http://127.0.0.1:8000/");
     
     html!{
         <div class="navbar-end">
             <div class="navbar-item has-dropdown has-dropdown-with-icons has-divider has-user-avatar is-hoverable">
                 <a class="navbar-link is-arrowless">
                     <div class="is-user-avatar">
-                        <img src={ picture_url } />
+                        <img src={ imagen_url } />
                     </div>
                     <div class="is-user-name">
-                        <span>{ first_name }</span>
+                        <span>{ nombres }</span>
                     </div>
                     <span class="icon"><i class="fa-solid fa-chevron-down"></i></span>
                 </a>

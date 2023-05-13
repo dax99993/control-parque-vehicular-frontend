@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::shadow_clone;
 use super::super::reducer::{UsersAction, UsersReducer};
@@ -8,7 +8,7 @@ use super::super::reducer::{UsersAction, UsersReducer};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {
-   pub user: User, 
+   pub user: Usuario, 
    pub dispatcher: UseReducerDispatcher<UsersReducer>,
 }
 
@@ -18,14 +18,14 @@ pub fn UsersTableRow(props: &Props) -> Html {
 
     //TODO request user picture
     // by constructing a global URL_BASE
-    let picture_url = user.get_picture_url("http://127.0.0.1:8000/");
+    let picture_url = user.imagen_url("http://127.0.0.1:8000/");
 
     
     let click_show = {
         shadow_clone![user, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = user.user_id.clone();
+            let id = user.usuario_id.clone();
             dispatcher.dispatch(UsersAction::ShowPicture(id));
         })
     };
@@ -34,7 +34,7 @@ pub fn UsersTableRow(props: &Props) -> Html {
         shadow_clone![user, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = user.user_id.clone();
+            let id = user.usuario_id.clone();
             dispatcher.dispatch(UsersAction::DeleteUser(id));
         })
     };
@@ -44,7 +44,7 @@ pub fn UsersTableRow(props: &Props) -> Html {
         shadow_clone![user, dispatcher];
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            let id = user.user_id.clone();
+            let id = user.usuario_id.clone();
             dispatcher.dispatch(UsersAction::UpdateInfo(id));
         })
     };
@@ -52,15 +52,15 @@ pub fn UsersTableRow(props: &Props) -> Html {
 
     // Should make a request to get department from db 
     // and get the actual department name instead of row id
-    let department = {
-        match user.department {
+    let departamento = {
+        match user.departamento {
             Some(d) => d.to_string(),
             None => "Sin Asignar".to_string(),
         }
     };
 
-    let employee_number = {
-        match user.employee_number{
+    let numero_empleado = {
+        match user.numero_empleado{
             Some(d) => d.to_string(),
             None => "Sin Asignar".to_string(),
         }
@@ -74,15 +74,15 @@ pub fn UsersTableRow(props: &Props) -> Html {
             </figure>
         </td>
 
-        <td data-label="Nombres">{&user.first_name}</td>
-        <td data-label="Apellidos">{&user.last_name}</td>
-        <td data-label="Departamento">{department}</td>
-        <td data-label="Numero de empleado">{employee_number}</td>
+        <td data-label="Nombres">{&user.nombres}</td>
+        <td data-label="Apellidos">{&user.apellidos}</td>
+        <td data-label="Departamento">{departamento}</td>
+        <td data-label="Numero de empleado">{numero_empleado}</td>
         <td data-label="Correo Electronico">{&user.email}</td>
-        <td data-label="Estado">{ &user.role }</td>
-        <td class="has-text-centered" data-label="Activo">{ user.active_to_spanish() }</td>
-        <td data-label="Ultima modificacion">{&user.updated_at}</td>
-        <td data-label="Fecha de creacion">{&user.created_at}</td>
+        <td data-label="Estado">{ &user.rol.to_string() }</td>
+        <td class="has-text-centered" data-label="Activo">{ user.activo_a_palabra() }</td>
+        <td data-label="Ultima modificacion">{&user.modificado_en}</td>
+        <td data-label="Fecha de creacion">{&user.creado_en}</td>
 
 
         <td class="is-actions-cell">

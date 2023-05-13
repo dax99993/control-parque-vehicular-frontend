@@ -2,31 +2,24 @@ use gloo::utils::{document, document_element};
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+use yew_hooks::use_click_away;
+
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 use crate::shadow_clone;
-use crate::utils::{toggle_class, remove_class, add_class};
+use crate::utils::{toggle_class, remove_class, add_class, has_class};
 
 
 //TODO: Create a sidebar for normal user and move current one to SidebarAdmin
 
 #[function_component]
 pub fn Sidebar() -> Html {
+    // Context
     let user_ctx = use_user_context();
 
+    // States
     let sidebar_node_ref = use_node_ref();
 
-    // Close sidebar on mobile when clicking outside of it
-    /*
-    use_click_away(sidebar_node_ref.clone(), move |_: Event| {
-        log::debug!("Click outside of navbar!");
-        let element = document_element();
-        // Maybe should check if has such class first then remove it
-        if has_class(&element, "has-aside-mobile-expanded") {
-            remove_class(&element, "has-aside-mobile-expanded");
-        }
-    });
-    */
     
     // Dont show sidebar if not logged in
     {
@@ -47,17 +40,37 @@ pub fn Sidebar() -> Html {
         user_ctx.clone())
     }
 
-    html! {
-        if user_ctx.is_admin() {
-        <aside class="aside is-placed-left is-expanded" ref={sidebar_node_ref}>
-            { sidebar_top() }
-            { sidebar_menu() }
-        </aside>
+    // Close sidebar on mobile when clicking outside of it
+    /*
+    use_click_away(sidebar_node_ref.clone(), move |_: Event| {
+        //collapse_sidebar();
+        if let Some(icon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
+            //toggle_class(&document_element(), "has-aside-mobile-expanded");
+            let e = document_element(); 
+            if has_class(&e, "has-aside-mobile-expanded") {
+                remove_class(&e, "has-aside-mobile-expanded");
+            }
+            toggle_class(&icon, "fa-bars");
+            toggle_class(&icon, "fa-xmark");
         }
+    });
+    */
+
+
+    html! {
+        <aside class="aside is-placed-left is-expanded" ref={sidebar_node_ref}>
+            if user_ctx.is_admin() {
+                { admin_sidebar_top() }
+                { admin_sidebar_menu() }
+            } else if user_ctx.is_authenticated() {
+                { normal_sidebar_top() }
+                { normal_sidebar_menu() }
+            }
+        </aside>
     }
 }
 
-fn sidebar_top() -> Html {
+fn admin_sidebar_top() -> Html {
     html!{
         <div class="aside-tools">
             <div class="aside-tools-label">
@@ -67,7 +80,7 @@ fn sidebar_top() -> Html {
     }
 }
 
-fn sidebar_menu() -> Html {
+fn admin_sidebar_menu() -> Html {
     let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
     let onclick_user = toggle_menu("user-menu".to_owned());
 
@@ -130,6 +143,48 @@ fn sidebar_menu() -> Html {
     }
 }
 
+fn normal_sidebar_top() -> Html {
+
+    html!{
+        <div class="aside-tools">
+            <div class="aside-tools-label">
+                <span><b>{"Usuario"}</b></span>
+            </div>
+        </div>
+    }
+}
+
+fn normal_sidebar_menu() -> Html {
+    let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
+
+    html!{
+        <div class="menu is-menu-main">
+            <p class="menu-label">{"Administracion"}</p>
+            <ul class="menu-list">
+                <li id="vehicule-menu">
+                    <a class="has-icon has-dropdown-icon" onclick={onclick_vehicule}>
+                        <span class="icon"><i class="fa-solid fa-car"></i></span>
+                        <span class="menu-item-label">{"Vehiculos"}</span>
+                        <div class="dropdown-icon">
+                          <span class="icon"><i class="fa-solid fa-angle-down"></i></span>
+                        </div>
+                    </a>
+                    <ul>
+                        <li>
+                            <Link<AppRoute> to={AppRoute::Vehicules} >
+                                    <span class="menu-item-label">{"Ver vehiculos"}</span>
+                            </Link<AppRoute>>
+                        </li>
+                    </ul>
+                </li>
+                <Link<AppRoute> to={AppRoute::Requests} >
+                        <span class="icon"><i class="fa-solid fa-id-card"></i></span>
+                        <span class="menu-item-label">{"Peticiones"}</span>
+                </Link<AppRoute>>
+            </ul>
+        </div>
+    }
+}
 
 fn toggle_menu(menu_id: String) -> Callback<MouseEvent> {
     Callback::from(move |_: MouseEvent| {

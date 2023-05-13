@@ -8,13 +8,14 @@ use std::rc::Rc;
 
 use validator::{ValidationErrors, Validate};
 
-use common::models::user::LoginUser;
+use common::models::user::LoginUsuario;
 
 use crate::shadow_clone;
 use crate::components::form::{Form, FormField, InputFieldValidated };
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
-use crate::services::auth::{request_login, request_me};
+//use crate::services::auth::{request_login, request_me};
+use crate::features::authentication::services::auth::{request_login, request_me};
 use crate::services::request::store_token;
 use crate::utils::forms::{validate_form_field, reset_input};
 
@@ -26,8 +27,10 @@ use crate::utils::forms::{validate_form_field, reset_input};
 pub fn LoginForm() -> Html {
     // Context
     let user_ctx = use_user_context();
+
+
     // States
-    let login_user = use_state(|| LoginUser::default());
+    let login_user = use_state(|| LoginUsuario::default());
     let login_user_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
     let email_input_ref = NodeRef::default();
@@ -192,7 +195,7 @@ pub fn LoginForm() -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    form: &UseStateHandle<LoginUser>,
+    form: &UseStateHandle<LoginUsuario>,
 ) -> Callback<String> {
     let cloned_form = form.clone();
     Callback::from(move |value| {
@@ -204,7 +207,7 @@ fn get_input_callback(
 fn set_form_field<'a>(
     name: &'a str,
     value: String,
-    form: &UseStateHandle<LoginUser>,)
+    form: &UseStateHandle<LoginUsuario>,)
 {
     let mut data = form.deref().clone();
     match name {

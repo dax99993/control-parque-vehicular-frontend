@@ -4,7 +4,7 @@ use yew_router::prelude::Navigator;
 
 use uuid::Uuid;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::routes::AppRoute;
 use crate::utils::modal::{open_modal, close_modal};
@@ -15,7 +15,7 @@ use super::super::services::request_admin_delete_user;
 pub enum UsersAction {
     AddNavigator(Option<Navigator>),
     DeleteUser(Uuid),
-    GetUsers(Vec<User>),
+    GetUsers(Vec<Usuario>),
     UpdateInfo(Uuid),
     ShowPicture(Uuid),
     SetVehiculePerPage(usize),
@@ -25,7 +25,7 @@ pub enum UsersAction {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UsersReducer {
-    pub users: Vec<User>, 
+    pub users: Vec<Usuario>, 
     pub selected_user_id: Option<String>,
     pub modal_title: Option<String>,
     pub modal_body: Option<Html>,
@@ -34,7 +34,7 @@ pub struct UsersReducer {
     pub users_per_page: usize,
     pub current_page: usize,
     pub total_pages: usize,
-    pub current_page_users: Vec<User>, 
+    pub current_page_users: Vec<Usuario>, 
     pub navigator: Option<Navigator>,
 }
 
@@ -86,9 +86,9 @@ impl Reducible for UsersReducer {
             }
             UsersAction::DeleteUser(id) => {
                 open_modal("user-modal".to_string());
-                if let Some(u) = users.iter().filter(|u| u.user_id.eq(&id)).map(|u| u).next() {
+                if let Some(u) = users.iter().filter(|u| u.usuario_id.eq(&id)).map(|u| u).next() {
                     log::debug!("should delete vehicule with id = {id}");
-                    let msg = format!("Realmente desea borrar el vehiculo {}", &u.first_name);
+                    let msg = format!("Realmente desea borrar el vehiculo {}", &u.nombres);
 
                     modal_body = Some(
                         html!{<p><b>{ msg }</b></p>}
@@ -105,7 +105,7 @@ impl Reducible for UsersReducer {
                             { "Cancelar" }
                             </button>
                             <button class="button is-danger jb-modal-close" onclick={
-                                let id = u.user_id.clone();
+                                let id = u.usuario_id.clone();
                                 Callback::from(move |e: MouseEvent| {
                                     e.prevent_default();
                                     // Execute api
@@ -143,12 +143,12 @@ impl Reducible for UsersReducer {
             }
             UsersAction::ShowPicture(id) => {
                 open_modal("users-modal".to_string());
-                if let Some(user) = users.iter().filter(|u| u.user_id.eq(&id)).map(|u| u).next() {
+                if let Some(user) = users.iter().filter(|u| u.usuario_id.eq(&id)).map(|u| u).next() {
                     log::debug!("User selected {:?}", &user);
-                    let picture_url = user.get_picture_url("http://127.0.0.1:8000/");
+                    let imagen_url = user.imagen_url("http://127.0.0.1:8000/");
                     modal_body = Some(
                         html!{
-                            <img src={picture_url} />
+                            <img src={imagen_url} />
                         }
                     );
                     modal_footer = None;
@@ -165,12 +165,12 @@ impl Reducible for UsersReducer {
                 log::debug!("vehicules set\n {:?}", &users);
                 log::debug!("total pages set\n {:?}", &total_pages);
                 // Split vec into pages and get current
-                let split: Vec<&[User]> = users.chunks(users_per_page)
+                let split: Vec<&[Usuario]> = users.chunks(users_per_page)
                     .into_iter()
                     .collect();
                 // Remember 0 indexing!
                 if let Some(users_page) = split.get(current_page - 1) {
-                    let vp: Vec<User> = users_page.into_iter()
+                    let vp: Vec<Usuario> = users_page.into_iter()
                         .map(|v| v.clone())
                         .collect();
                     current_page_users = vp;

@@ -2,7 +2,7 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 use yew_router::prelude::use_navigator;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use super::{UsersTable, UsersTableRow};
 use super::super::reducer::{UsersAction, UsersReducer};
@@ -145,7 +145,7 @@ pub fn AdminUsersView() -> Html {
 }
 
 
-fn users_to_user_table_rows(users: Vec<User>, dispatcher: UseReducerDispatcher<UsersReducer>) -> Vec<Html> {
+fn users_to_user_table_rows(users: Vec<Usuario>, dispatcher: UseReducerDispatcher<UsersReducer>) -> Vec<Html> {
     users.into_iter().map(|u| {
         html!{
             <UsersTableRow

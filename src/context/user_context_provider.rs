@@ -2,12 +2,13 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use common::models::user::User;
+use common::models::user::Usuario;
 
 use crate::shadow_clone;
 use crate::error::Error;
-use crate::services::auth::*;
 use crate::services::request::{get_token, store_token};
+//use crate::services::auth::*;
+use crate::features::authentication::services::auth::request_me;
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {
@@ -17,7 +18,7 @@ pub struct Props {
 /// User context provider.
 #[function_component]
 pub fn UserContextProvider(props: &Props) -> Html {
-    let user_ctx = use_state( || None::<User>);
+    let user_ctx = use_state( || None::<Usuario>);
 
     // Api fetch request
     let current_user = {
@@ -60,8 +61,8 @@ pub fn UserContextProvider(props: &Props) -> Html {
     }
 
     html! {
-        <ContextProvider<UseStateHandle<Option<User>>> context={user_ctx}>
+        <ContextProvider<UseStateHandle<Option<Usuario>>> context={user_ctx}>
             { for props.children.iter() }
-        </ContextProvider<UseStateHandle<Option<User>>>>
+        </ContextProvider<UseStateHandle<Option<Usuario>>>>
     }
 }

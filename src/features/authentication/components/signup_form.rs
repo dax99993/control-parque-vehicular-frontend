@@ -8,13 +8,14 @@ use std::ops::Deref;
 
 use validator::{Validate, ValidationErrors};
 
-use common::models::user::SignupUser;
+use common::models::user::SignupUsuario;
 
 use crate::shadow_clone;
 use crate::components::form::{Form, FormField, InputFieldValidated};
 use crate::components::button::{Button, ButtonType};
 use crate::routes::AppRoute;
-use crate::services::auth::request_signup;
+//use crate::services::auth::request_signup;
+use crate::features::authentication::services::auth::request_signup;
 use crate::utils::forms::{validate_form_field, reset_input};
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -149,7 +150,7 @@ pub fn SignupFormFields(props: &Props) -> Html {
 #[function_component]
 pub fn SignupForm() -> Html {
     // States
-    let signup_user = use_state(|| SignupUser::default());
+    let signup_user = use_state(|| SignupUsuario::default());
     let signup_user_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
     let navigator = use_navigator();
 
@@ -170,11 +171,11 @@ pub fn SignupForm() -> Html {
     };
 
 
-    let handle_firstname_input = get_input_callback("first_name", &signup_user);
-    let handle_lastname_input = get_input_callback("last_name", &signup_user);
+    let handle_firstname_input = get_input_callback("nombres", &signup_user);
+    let handle_lastname_input = get_input_callback("apellidos", &signup_user);
     let handle_email_input = get_input_callback("email", &signup_user);
     let handle_password_input = get_input_callback("password", &signup_user);
-    let handle_repassword_input = get_input_callback("password", &signup_user);
+    let handle_repassword_input = get_input_callback("re_password", &signup_user);
 
 
     // Async api request states
@@ -258,7 +259,7 @@ pub fn SignupForm() -> Html {
 
 fn get_input_callback(
     name: &'static str,
-    form: &UseStateHandle<SignupUser>,
+    form: &UseStateHandle<SignupUsuario>,
 ) -> Callback<String> {
     let cloned_form = form.clone();
     Callback::from(move |value| {
@@ -269,12 +270,12 @@ fn get_input_callback(
 fn set_form_field<'a>(
     name: &'a str,
     value: String,
-    form: &UseStateHandle<SignupUser>,)
+    form: &UseStateHandle<SignupUsuario>,)
 {
     let mut data = form.deref().clone();
     match name {
-        "first_name" => data.first_name= value,
-        "last_name" => data.last_name = value,
+        "nombres" => data.nombres= value,
+        "apellidos" => data.apellidos= value,
         "email" => data.email = value,
         "password" => data.password = value,
         "re_password" => data.re_password = value,
