@@ -4,8 +4,6 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use crate::shadow_clone;
-
 use crate::types::multipart::{MultipartForm, MultipartPart};
 
 use super::picture::Picture;
@@ -251,8 +249,8 @@ pub fn Pictures(props: &PicturesProps) -> Html {
     html!{
             <div class="container">
             <div class="columns is-centered has-text-centered">
-            <div class="card column is-half">
-                <div class={classes!["card-content", if pics.len() == 0 { "is-hidden" } else {""}]}>
+            <div class="card column">
+                <div class={classes!["card-content", if pics.is_empty() { "is-hidden" } else {""}]}>
                     { 
                         for pics.iter().map(|p| {
                             html! {

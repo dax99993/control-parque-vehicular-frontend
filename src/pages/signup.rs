@@ -27,24 +27,3 @@ pub fn SignupView() -> Html {
     </section>
     }
 }
-
-
-use std::borrow::Cow;
-
-fn validate_name<'a, T>(value: T) -> bool
-where 
-    T: Into<Cow<'a, str>>
-{
-    let val = value.into();
-    if val.is_empty() || val.chars().all(char::is_whitespace) {
-        return false;
-    }
-
-    for c in val.chars() {
-        if c.is_digit(10)  {
-            return false;
-        }
-    }
-
-    return true;
-}

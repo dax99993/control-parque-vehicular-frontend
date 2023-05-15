@@ -1,10 +1,8 @@
 use yew::prelude::*;
-use yew_hooks::prelude::*;
 use yew_router::prelude::use_navigator;
 use yew::platform::spawn_local;
 
 use std::ops::Deref;
-use std::thread::current;
 
 use common::models::vehicule::Vehiculo;
 
@@ -39,7 +37,7 @@ pub fn AdminVehiculeView() -> Html {
     //
     let vehiculos = use_state(|| vec![]);
     let current_page = use_state(|| 1);
-    let vehiculos_per_page = use_state(|| 4);
+    let vehiculos_por_pagina = use_state(|| 4);
     let navigator = use_navigator();
     let reload_table = use_state(|| false);
 
@@ -47,6 +45,7 @@ pub fn AdminVehiculeView() -> Html {
     let selected_filter = use_state(|| None::<String>);
     let filter_fields = vec!["Marca".to_string(), "Modelo".to_string(),
     "Año".to_string()];
+
 
     // Add navigator to table reducer for redirecting
     {
@@ -63,10 +62,9 @@ pub fn AdminVehiculeView() -> Html {
     // Effect for keeping in sync vehiculos with pagination
     {
         shadow_clone![vehiculos];
-        use_effect_with_deps(move |(current_page, vehiculos_per_page, selected_filter, search_state, _)| {
-            //reload_table.set(false);
+        use_effect_with_deps(move |(current_page, vehiculos_por_pagina, selected_filter, search_state, _)| {
             let page = **current_page;
-            let limit = **vehiculos_per_page;
+            let limit = **vehiculos_por_pagina;
             let filter = (**selected_filter).clone();
             let search = (**search_state).clone();
             spawn_local(async move {
@@ -84,7 +82,7 @@ pub fn AdminVehiculeView() -> Html {
                 }
             });
         },
-        (current_page.clone(), vehiculos_per_page.clone(), selected_filter.clone(), search_state.clone(), reload_table.clone())
+        (current_page.clone(), vehiculos_por_pagina.clone(), selected_filter.clone(), search_state.clone(), reload_table.clone())
         );
     }
 
@@ -106,12 +104,12 @@ pub fn AdminVehiculeView() -> Html {
     };
 
     let onclick_delete = {
-        shadow_clone![reload_table, vehiculos];
+        shadow_clone![reload_table];
         let selected_vehicule_to_delete_id = table_reducer.selected_vehicule_to_delete_id.clone();
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             // Execute api
-            shadow_clone![reload_table, vehiculos];
+            shadow_clone![reload_table];
             if let Some(id) = selected_vehicule_to_delete_id {
                 spawn_local(async move {
                     log::debug!("se borrara el vehiculo con id {}", id.to_string());
@@ -119,14 +117,8 @@ pub fn AdminVehiculeView() -> Html {
                     match response {
                         Ok(_) => {
                             close_modal("vehicule-delete-modal".to_string());
-                            // Delete row from table
-                            let vehs: Vec<Vehiculo> = vehiculos.deref().clone()
-                                .into_iter()
-                                .filter(|v| v.vehiculo_id.ne(&id))
-                                .collect();
-                            vehiculos.set(vehs);
-                            // Or we can reload current page
-                            //reload_table.set(!(*reload_table));
+                            // reload current page
+                            reload_table.set(!reload_table.deref());
                         }
                         Err(_) => {
                             log::error!("Peticion de borrar vehiculo fallo");
@@ -138,10 +130,8 @@ pub fn AdminVehiculeView() -> Html {
     };
 
     let total_pages = {
-        //if vehiculos.deref().len() < *vehicules_per_page.deref() {
-        //    *current_page 
-        if vehiculos.deref().is_empty() {
-            *current_page
+        if vehiculos.deref().len() < *vehiculos_por_pagina.deref() {
+            *current_page 
         } else {
             *current_page + 1
         }
@@ -156,8 +146,14 @@ pub fn AdminVehiculeView() -> Html {
 
             <Card classes={classes!["has-table"]}
                 header_icon_left={ "fa-solid fa-car" } header_title={ "Vehiculos" } 
-                header_icon_right={ "fa-solid fa-plus" } header_icon_right_label={ "Agregar vehiculo" }
-                header_icon_right_onclick={ Callback::from(|e: MouseEvent| { e.prevent_default(); log::debug!("what should i do?");})} 
+                header_icon_right={ "fa-solid fa-rotate-right" } header_icon_right_label={ "Recargar tabla" }
+                header_icon_right_onclick={ 
+                    shadow_clone![reload_table]; 
+                    Callback::from(move |e: MouseEvent| {
+                        e.prevent_default();
+                        reload_table.set(!reload_table.deref());
+                    }) 
+                }
             >
                 <CardContent>
                     <VehiculeTable>

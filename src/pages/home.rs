@@ -1,11 +1,12 @@
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_router::components::Link;
 
 use crate::components::collapsible::FormCollapsible;
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
+
+use crate::features::departments::DepartmentDropDown;
 
 
 #[function_component]
@@ -66,6 +67,8 @@ fn HomeLoggedInView() -> Html {
         </dialog>
         
         <FormCollapsible/>
+
+        <DepartmentDropDown/>
     </>
     }
 }

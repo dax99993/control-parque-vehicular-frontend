@@ -10,7 +10,6 @@ use crate::utils::{remove_class, add_class, has_class, toggle_class};
 
 use gloo::utils::{document, document_element};
 
-use crate::layout::sidebar::toggle_sidebar;
 
 #[function_component]
 pub fn NavBar() -> Html {
@@ -21,7 +20,6 @@ pub fn NavBar() -> Html {
     let aside_mobile_toggle = {
         Callback::from(move |_| {
             if let Some(icon) = document().get_element_by_id("navbar-toggle-sidebar-button") {
-                //toggle_sidebar();
                 let e = document_element(); 
                 if has_class(&e, "has-aside-mobile-expanded") {
                     remove_class(&e, "has-aside-mobile-expanded");
@@ -77,7 +75,8 @@ pub fn NavBar() -> Html {
 
 fn navbar_brand(user_ctx: UseUserContextHandle, onclick: Callback<MouseEvent>) -> Html {
 
-    let image_logo_url = "https://bulma.io/images/bulma-logo.png";
+    //let image_logo_url = "https://bulma.io/images/bulma-logo.png";
+    let image_logo_url = "cpv_logo.png";
 
     // Redirect home on logo click
     let onclick_go_home = {

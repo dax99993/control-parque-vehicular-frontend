@@ -4,7 +4,7 @@ use std::ops::Deref;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct DropDownProps {
-    #[prop_or("Selecciona Filtro".to_string())]
+    #[prop_or("Seleccionar".to_string())]
     pub dropdown_button_label: String,
     #[prop_or_default]
     pub dropdown_items_labels: Vec<String>,

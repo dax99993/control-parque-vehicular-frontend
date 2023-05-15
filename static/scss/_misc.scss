@@ -3,6 +3,10 @@
     max-width: $size-base * 7;
   }
 
+  &.has-max-height {
+    max-height: $size-base * 7;
+  }
+
   &.is-aligned-center {
     margin: 0 auto;
   }
@@ -10,6 +14,33 @@
   img {
     margin: 0 auto;
     border-radius: $radius-rounded;
+  }
+}
+
+.is-tile-image {
+  &.has-max-width {
+    max-width: $size-base * 8;
+  }
+
+  &.has-max-height {
+    max-height: $size-base * 8;
+    overflow: hidden;
+  }
+
+  &.has-min-height {
+    min-height: $size-base * 8;
+  }
+
+  &.is-aligned-center {
+    margin: 0 auto;
+  }
+
+  &.is-rounded {
+    border-radius: $radius-rounded;
+  }
+
+  img {
+    margin: 0 auto;
   }
 }
 

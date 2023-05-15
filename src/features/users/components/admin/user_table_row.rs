@@ -3,7 +3,7 @@ use yew::prelude::*;
 use common::models::user::Usuario;
 
 use crate::shadow_clone;
-use super::super::reducer::{UsersAction, UsersReducer};
+use crate::features::users::reducer::{UsersAction, UsersReducer};
 
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -26,7 +26,7 @@ pub fn UsersTableRow(props: &Props) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = user.usuario_id.clone();
-            dispatcher.dispatch(UsersAction::ShowPicture(id));
+            dispatcher.dispatch(UsersAction::ShowUserPicture(id));
         })
     };
     

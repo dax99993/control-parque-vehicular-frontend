@@ -66,7 +66,7 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
         <td data-label="Numero de placa">{&vehiculo.numero_placa}</td>
 
         <td data-label="Estado">{ &vehiculo.estado }</td>
-        <td class="has-text-centered" data-label="Activo">{ vehiculo.activo.to_string() }</td>
+        <td class="has-text-centered" data-label="Activo">{ vehiculo.activo_a_palabra() }</td>
         <td data-label="Ultima modificacion">{&vehiculo.modificado_en}</td>
         <td data-label="Fecha de creacion">{&vehiculo.creado_en}</td>
 

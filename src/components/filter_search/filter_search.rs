@@ -3,7 +3,7 @@ use yew::prelude::*;
 
 use std::ops::Deref;
 
-use super::dropdown::DropDown;
+use crate::components::dropdown::DropDown;
 
 
 #[derive(Debug, Clone, PartialEq, Properties)]

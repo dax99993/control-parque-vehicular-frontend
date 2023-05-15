@@ -7,3 +7,5 @@ pub mod vehicule_edit;
 pub mod profile;
 
 pub mod users;
+
+pub mod departments;
