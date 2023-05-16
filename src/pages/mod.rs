@@ -30,3 +30,4 @@ pub use vehicule_edit::EditVehiculeView;
 pub use profile::ProfileView;
 
 pub use users::UsersView;
+pub use user_edit::EditUserView;

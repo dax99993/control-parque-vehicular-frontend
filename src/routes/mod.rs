@@ -18,6 +18,7 @@ use crate::pages::RegisterVehiculeView;
 use crate::pages::ProfileView;
 
 use crate::pages::UsersView;
+use crate::pages::EditUserView;
 
 
 
@@ -72,7 +73,7 @@ pub fn switch(route: AppRoute) -> Html {
         AppRoute::VehiculeEdit { id } => html! { <EditVehiculeView {id}/> },
         // User routes
         AppRoute::Users => html! { <UsersView/> },
-        AppRoute::UserEdit { id } => html! { {format!("Edit user {id}")}  },
+        AppRoute::UserEdit { id } => html! { <EditUserView {id} />  },
         // Profile routes
         AppRoute::UserProfile => html! { <ProfileView/> },
         // Request routes
