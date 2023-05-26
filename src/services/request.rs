@@ -4,8 +4,10 @@ use gloo::storage::{LocalStorage, Storage};
 use crate::api_response::ApiResponse;
 use crate::error::Error;
 
-pub const API_ROOT: &str = "http://localhost:8000/";
+
+pub const API_ROOT: &str = "http://localhost:8000";
 const TOKEN_KEY: &str = "yew.token";
+
 
 pub fn store_token(token: Option<String>) {
     if let Some(t) = token {
@@ -154,4 +156,43 @@ where
     T: DeserializeOwned
 {
     request_multipart(reqwest::Method::PATCH, url, body).await
+}
+
+
+pub async fn request_image(url: String) -> Result<Vec<u8>, Error> {
+    let url = format!("{}{}", API_ROOT, url);
+
+    //let mut builder = reqwest::Client::new().request(method, &url);
+    let mut builder = reqwest::Client::new().request(reqwest::Method::GET, &url);
+
+    if let Some(token) = get_token() {
+       builder = builder.bearer_auth(token);
+    }
+
+    match builder.send().await {
+        Ok(response) => {
+            match response.status().as_u16() {
+                // Succesfull response
+                200..=299 => {
+                    match response.bytes().await {
+                        Ok(bytes) => {
+                            Ok(bytes.as_ref().to_vec())
+                        },
+                        Err(_) => {
+                            Err(Error::DeserializeError)
+                        },
+                    }
+                }
+
+                400 => Err(Error::BadRequestError),
+                401 => Err(Error::UnathorizedError),
+                403 => Err(Error::ForbiddenError),
+                404 => Err(Error::NotFoundError),
+                500 => Err(Error::InternalServerError),
+                _ => Err(Error::UnexpectedError),
+            }
+        }
+        Err(_) => Err(Error::FailedRequestError),
+    }
+    
 }

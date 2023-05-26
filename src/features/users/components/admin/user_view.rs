@@ -8,7 +8,7 @@ use common::models::user::Usuario;
 
 use super::{UsersTable, UsersTableRow};
 use crate::features::users::reducer::{UsersAction, UsersReducer};
-use crate::features::users::services::{request_admin_get_users, request_admin_delete_user};
+use crate::features::users::services::{request_admin_get_users, request_admin_delete_user, request_imagen_usuario};
 
 use crate::utils::close_modal;
 
@@ -19,6 +19,8 @@ use crate::components::pagination::Pagination;
 use crate::hooks::user_context::use_user_context;
 use crate::layout::main_section::MainSection;
 
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 
 #[function_component]
 pub fn AdminUsersView() -> Html {
@@ -31,10 +33,11 @@ pub fn AdminUsersView() -> Html {
 
     // Hooks
     let reducer = use_reducer(UsersReducer::default);
-    let users = use_state(|| vec![]);
+    let usuarios = use_state(|| vec![]);
     let current_page = use_state(|| 1);
     let total_pages = use_state(|| 1);
     let navigator = use_navigator();
+    let imagen_usuario = use_state(|| vec![]);
 
 
     // Add navigator
@@ -48,7 +51,7 @@ pub fn AdminUsersView() -> Html {
 
 
     // Api fetch request
-    let request_get_users = {
+    let request_get_usuarios = {
         use_async(async {
             request_admin_get_users().await
         })
@@ -56,71 +59,86 @@ pub fn AdminUsersView() -> Html {
 
     // Fetch api when rendered
     {
-        shadow_clone!(request_get_users);
+        shadow_clone!(request_get_usuarios);
         use_effect_with_deps(move |_| {
-            request_get_users.run()
+            request_get_usuarios.run()
         },
         ());
     }
 
     // Update users vector when fetching from api
     {
-        shadow_clone![users];
+        shadow_clone![usuarios];
         use_effect_with_deps(
             move |request| {
                 if let Some(api_response) = &request.data {
                     log::debug!("users successful api response\n {:?}", &api_response);
                     if let Some(vec_users) = api_response.data.clone() {
-                        users.set(vec_users);
+                        usuarios.set(vec_users);
                     }
                 }
                 if let Some(api_response) = &request.error {
                     log::warn!("users failed api response\n {:?}", &api_response);
                 }
             },
-            request_get_users.clone() 
+            request_get_usuarios.clone() 
         );
     }
     
 
     // Re-fetch api when clicking on button
     let onclick_reload_table = {
-        shadow_clone!(request_get_users);
+        shadow_clone!(request_get_usuarios);
         Callback::from(move |e: MouseEvent| {
             e.prevent_default(); 
-            request_get_users.run();
+            request_get_usuarios.run();
         })
     };
 
 
-
-    // Modal 
-    let user_picture = {
-        match reducer.selected_user_to_show_id {
-            Some(id) => {
-                if let Some(user) = users.deref().iter().filter(|u| u.usuario_id.eq(&id)).map(|u| u).next() {
-                    log::debug!("usuario seleccionado {:?}", &user);
-                    let picture_url = user.imagen_url("http://127.0.0.1:8000/");
-                    html!{
-                        <img src={picture_url} />
+    // Fetch imagen del usuario cuando se selecciona un vehiculo
+    {
+        let usuarios = usuarios.clone();
+        let imagen_usuario = imagen_usuario.clone();
+        use_effect_with_deps(move |reducer| {
+            match reducer.selected_user_to_show_id {
+                Some(id) => {
+                    if let Some(usuario) = usuarios.deref().iter().filter(|v| v.usuario_id.eq(&id)).map(|v| v).next() {
+                        log::debug!("usuario seleccionado {:?}", &usuario);
+                        let imagen_filename = usuario.imagen.clone();
+                        let imagen_usuario = imagen_usuario.clone();
+                        spawn_local(async move {
+                            let response = request_imagen_usuario(imagen_filename).await;
+                            log::debug!("ejecutando peticion de imagen");
+                            match response {
+                                Ok(bytes) => {
+                                    imagen_usuario.set(bytes.clone());
+                                }
+                                Err(_) => {
+                                    log::error!("peticion de imagen fallo");
+                                    imagen_usuario.set(vec![]);
+                                }
+                            }
+                        });
                     }
-                } else {
-                    html!{}
                 }
-            },
-            None => html!{},
-        }
-    };
+                None => { imagen_usuario.set(vec![]); }
+            }
+        },
+        reducer.clone())
+    }
 
+
+    // Callbacks
     let onclick_delete = {
         //shadow_clone![reload_table, vehiculos];
-        shadow_clone![users];
+        shadow_clone![usuarios];
         let selected_user_to_delete_id = reducer.selected_user_to_delete_id.clone();
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             // Execute api
             //shadow_clone![reload_table, vehiculos];
-            shadow_clone![users];
+            shadow_clone![usuarios];
             if let Some(id) = selected_user_to_delete_id {
                 spawn_local(async move {
                     log::debug!("se borrara el usuario con id {}", id.to_string());
@@ -129,11 +147,11 @@ pub fn AdminUsersView() -> Html {
                         Ok(_) => {
                             close_modal("user-delete-modal".to_string());
                             // Delete row from table
-                            let u: Vec<Usuario> = users.deref().clone()
+                            let u: Vec<Usuario> = usuarios.deref().clone()
                                 .into_iter()
                                 .filter(|u| u.usuario_id.ne(&id))
                                 .collect();
-                            users.set(u);
+                            usuarios.set(u);
                             // Or we can reload current page
                             //reload_table.set(!(*reload_table));
                         }
@@ -158,7 +176,7 @@ pub fn AdminUsersView() -> Html {
                 <CardContent>
                     <UsersTable>
                         {
-                            users_to_user_table_rows(users.deref().clone(), reducer.dispatcher())
+                            users_to_user_table_rows(usuarios.deref().clone(), reducer.dispatcher())
                         }
                     </UsersTable>
                 </CardContent>
@@ -173,7 +191,11 @@ pub fn AdminUsersView() -> Html {
             <Modal 
                 id={"user-picture-modal"}
                 title={""}
-                body={ user_picture }
+                body={
+                    html!{
+                        <img src={ format!("data:image/jpeg;base64,{}", STANDARD.encode(&imagen_usuario.deref())) } />
+                    }
+                }
                 onclose={
                     shadow_clone![reducer];
                     Callback::from(move |e: MouseEvent| {
@@ -225,7 +247,7 @@ fn users_to_user_table_rows(users: Vec<Usuario>, dispatcher: UseReducerDispatche
     users.into_iter().map(|u| {
         html!{
             <UsersTableRow
-                user={u}
+                usuario={u}
                 dispatcher={dispatcher.clone()}
             >
             </UsersTableRow>

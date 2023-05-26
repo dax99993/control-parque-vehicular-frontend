@@ -26,11 +26,6 @@ pub fn AdminProfileInfo(props: &Props) -> Html {
         None => "No asignado".to_string(),
     };
 
-    let departamento = match user.departamento{
-        Some(n) => n.to_string(),
-        None => "No asignado".to_string(),
-    };
-
     let verificado = match user.verificado {
         true => "si".to_string(),
         false => "no".to_string(),
@@ -83,7 +78,7 @@ pub fn AdminProfileInfo(props: &Props) -> Html {
                     <hr/>
 
                     <FormField label="Departamento" is_horizontal={false}>
-                        <StaticField value={ departamento }/>
+                        <StaticField value={ user.departamento.clone() }/>
                     </FormField>
 
                     <hr/>

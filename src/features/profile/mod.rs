@@ -1,4 +1,4 @@
 mod components;
-mod services;
+pub mod services;
 
 pub use components::AdminProfileView;

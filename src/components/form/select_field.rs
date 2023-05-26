@@ -25,9 +25,11 @@ pub struct SelectFieldValidatedProps {
 #[function_component]
 pub fn SelectFieldValidated(props: &SelectFieldValidatedProps) -> Html {
     shadow_clone!(props);
+    //States
     let is_init = use_state(|| true);
     log::debug!("select field selected\n{:?}\nvalues\n{:?}", props.selected, props.options);
 
+    // Callbacks
     let onclick = {
         shadow_clone!(props);
         shadow_clone!(is_init);
@@ -50,7 +52,9 @@ pub fn SelectFieldValidated(props: &SelectFieldValidatedProps) -> Html {
             handle_on_input_blur.emit((input_name, value));
         })
     };
-    
+
+
+    //HTML
     html!{
     <div class="select is-small">
         <select onchange={onclick} onblur={on_blur}>

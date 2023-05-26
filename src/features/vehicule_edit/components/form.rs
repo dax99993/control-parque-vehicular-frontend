@@ -37,15 +37,8 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     let vehiculo_actualiza = use_state(|| ActualizaVehiculo::default());  
     let vehiculo_actualiza_validacion = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_marca = get_input_callback("marca", &vehiculo_actualiza);
-    let onchange_modelo = get_input_callback("modelo", &vehiculo_actualiza);
-    let onchange_año = get_input_callback("año", &vehiculo_actualiza);
-    let onchange_numero_placa= get_input_callback("numero_placa", &vehiculo_actualiza);
-    let onchange_nombre_economico = get_input_callback("nombre_economico", &vehiculo_actualiza);
-    let onchange_numero_tarjeta = get_input_callback("numero_tarjeta", &vehiculo_actualiza);
-    let onchange_estado = get_input_callback("estado", &vehiculo_actualiza);
-    let onchange_activo = get_input_callback("activo", &vehiculo_actualiza);
 
+    // Noderefs
     let marca = NodeRef::default();
     let modelo = NodeRef::default();
     let año = NodeRef::default();
@@ -55,16 +48,8 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     let estado = NodeRef::default();
     let activo = NodeRef::default();
 
-    let validate_input_on_blur = {
-        shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
-        Callback::from(move |(name, value): (String, String)| {
-            set_form_field(name.as_str(), value, &vehiculo_actualiza);
-            validate_form_field(name.as_str(), &vehiculo_actualiza, &vehiculo_actualiza_validacion);
-        })
-    };
 
-
-    // ------- request vehicule update information ------
+    // Hooks
     // create request to update information
     let request_update_vehicule = {
         //let id = (*vehicule).vehicule_id.to_string();
@@ -75,7 +60,6 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
             request_admin_update_vehicule((*vehiculo).vehiculo_id.to_string(), (*vehiculo_actualiza).clone()).await
         })
     };
-
 
     // Update the form fields when vehicule state is done
     {
@@ -117,7 +101,6 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
         request_update_vehicule.clone())
     }
 
-
     // Picture upload
     /*
     {
@@ -153,7 +136,63 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
     }
     */
 
+    // Upload imagen vehiculo
+    {
+        shadow_clone![vehiculo];
+        shadow_clone![upload_form_reducer];
+        use_effect_with_deps(move |upload_form| {
+            // make request to update vehicule picture
+            if let Some(form) = (**upload_form).clone() {
+                let id = (*vehiculo).vehiculo_id.to_string();
+                log::debug!("form {:?}", form);
+                let multipart = form.into_reqwest_multipart();
+                let upload_form = upload_form.clone();
+                spawn_local(async move {
+                    let response = request_admin_update_vehicule_picture(id, multipart).await;
+                    match response {
+                        Ok(api_response) => {
+                            upload_form.set(None);
+                            log::debug!("Peticion actulizar imagen vehiculo exitosa {:?}", api_response);
+                            // should update vehicule picture to updated one
+                            vehiculo.set(api_response.data.clone().unwrap());
+                            // should reset the picture component
+                            //upload_form_reducer.dispatch(FileActions::Uploaded(())
+                            upload_form_reducer.dispatch(FileActions::Reset);
+                        }
+                        Err(api_error) => {
+                            log::error!("Peticion actulizar imagen vehiculo exitosa fallo {:?}", api_error);
+                        }
+                    }
+                });
+            }
+        },
+        upload_form.clone()
+        );
+    }
 
+
+    // Form Input Callbacks
+    let onchange_marca = get_input_callback("marca", &vehiculo_actualiza);
+    let onchange_modelo = get_input_callback("modelo", &vehiculo_actualiza);
+    let onchange_año = get_input_callback("año", &vehiculo_actualiza);
+    let onchange_numero_placa= get_input_callback("numero_placa", &vehiculo_actualiza);
+    let onchange_nombre_economico = get_input_callback("nombre_economico", &vehiculo_actualiza);
+    let onchange_numero_tarjeta = get_input_callback("numero_tarjeta", &vehiculo_actualiza);
+    let onchange_estado = get_input_callback("estado", &vehiculo_actualiza);
+    let onchange_activo = get_input_callback("activo", &vehiculo_actualiza);
+
+
+
+    //Callbacks
+    // Validate form inputs
+    let validate_input_on_blur = {
+        shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
+        Callback::from(move |(name, value): (String, String)| {
+            set_form_field(name.as_str(), value, &vehiculo_actualiza);
+            validate_form_field(name.as_str(), &vehiculo_actualiza, &vehiculo_actualiza_validacion);
+        })
+    };
+    
     // reset all form fields
     let onreset = {
         shadow_clone![vehiculo_actualiza, vehiculo_actualiza_validacion];
@@ -207,41 +246,10 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
         })
     };
 
-    {
-        shadow_clone![vehiculo];
-        shadow_clone![upload_form_reducer];
-        use_effect_with_deps(move |upload_form| {
-            // make request to update vehicule picture
-            if let Some(form) = (**upload_form).clone() {
-                let id = (*vehiculo).vehiculo_id.to_string();
-                log::debug!("form {:?}", form);
-                let multipart = form.into_reqwest_multipart();
-                let upload_form = upload_form.clone();
-                spawn_local(async move {
-                    let response = request_admin_update_vehicule_picture(id, multipart).await;
-                    match response {
-                        Ok(api_response) => {
-                            upload_form.set(None);
-                            log::debug!("Peticion actulizar imagen vehiculo exitosa {:?}", api_response);
-                            // should update vehicule picture to updated one
-                            vehiculo.set(api_response.data.clone().unwrap());
-                            // should reset the picture component
-                            //upload_form_reducer.dispatch(FileActions::Uploaded(())
-                            upload_form_reducer.dispatch(FileActions::Reset);
-                        }
-                        Err(api_error) => {
-                            log::error!("Peticion actulizar imagen vehiculo exitosa fallo {:?}", api_error);
-                        }
-                    }
-                });
-            }
-        },
-        upload_form.clone()
-        );
-    }
 
-
+    // Variables
     let has_errors = !(*vehiculo_actualiza_validacion).borrow().errors().is_empty();
+
 
     // HTML
     {
@@ -362,19 +370,6 @@ pub fn EditVehiculeForm(props: &EditVehiculeFormProps) -> Html {
                                 handle_on_input_blur={validate_input_on_blur.clone()}
                                 errors={&*vehiculo_actualiza_validacion.clone()}
                             />
-                        </FormField>
-
-                        
-                        <FormField label="Ultima modificacion">
-                            <div class="control is-clearfix">
-                                <input type="text" readonly={true} value={ vehiculo.modificado_en.to_string() } class="input is-static"/>
-                            </div>
-                        </FormField>
-
-                        <FormField label="Fecha de creacion">
-                            <div class="control is-clearfix">
-                                <input type="text" readonly={true} value={ vehiculo.creado_en.to_string() } class="input is-static"/>
-                            </div>
                         </FormField>
 
                         <hr/>

@@ -11,6 +11,7 @@ pub enum Error {
     InternalServerError,
     FailedRequestError,
     //
+    BytesConvertError,
     DeserializeError,
     //Catch all error
     UnexpectedError,

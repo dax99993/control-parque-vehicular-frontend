@@ -1,9 +1,16 @@
+use yew::platform::spawn_local;
 use yew::prelude::*;
+use yew_hooks::use_async;
 
 use common::models::vehicule::Vehiculo;
 
 use crate::shadow_clone;
+use crate::features::vehicules::services::request_vehicule_picture;
 use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
+
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
+use std::ops::Deref;
 
 
 #[derive(Debug, Clone, PartialEq, Properties)]
@@ -14,13 +21,34 @@ pub struct Props {
 
 #[function_component]
 pub fn VehiculeTableRow(props: &Props) -> Html {
+    // Props
     let Props { vehiculo, dispatcher } = props;
 
-    //TODO request vehiculo picture
-    // by constructing a global URL_BASE
-    let imagen_url = vehiculo.imagen_url("http://127.0.0.1:8000/");
+    //States
+    let imagen = use_state(|| vec![]);
+
+    // Hooks
+    {
+        let imagen = imagen.clone();
+        use_effect_with_deps(move |vehiculo| {
+            let imagen_filename = vehiculo.imagen.clone();
+            spawn_local(async move {
+                let response = request_vehicule_picture(imagen_filename).await;
+                log::debug!("ejecutando peticion de imagen");
+                match response {
+                    Ok(bytes) => {
+                        imagen.set(bytes.clone());
+                    }
+                    Err(_) => {
+                        log::error!("peticion de imagen fallo");
+                    }
+                }
+            });
+        }, vehiculo.clone())
+    }
 
     
+    //Callbacks
     let click_show = {
         shadow_clone![vehiculo, dispatcher];
         Callback::from(move |e: MouseEvent| {
@@ -50,11 +78,14 @@ pub fn VehiculeTableRow(props: &Props) -> Html {
     };
 
 
+    //HTML
     html!{
         <tr>
         <td class="is-image-cell">
             <figure class="is-flex is-align-items-center is-justify-content-center image is-128x128">
-                <img src={imagen_url.clone()} onclick={click_show.clone()} />
+                if !imagen.deref().is_empty() {
+                    <img src={ format!("data:image/jpeg;base64,{}", STANDARD.encode(&imagen.deref())) } onclick={click_show.clone()}/>
+                }
             </figure>
         </td>
 

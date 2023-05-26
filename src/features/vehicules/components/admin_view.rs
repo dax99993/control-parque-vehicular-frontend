@@ -8,7 +8,7 @@ use common::models::vehicule::Vehiculo;
 
 use super::{VehiculeTable, VehiculeTableRow};
 use super::super::reducers::{VehiculeTableAction, VehiculeTableReducer};
-use super::super::services::{request_admin_get_vehicules, request_admin_delete_vehicule};
+use super::super::services::{request_admin_get_vehicules, request_admin_delete_vehicule, request_vehicule_picture};
 
 use crate::shadow_clone;
 use crate::components::card::{Card, CardContent};
@@ -20,7 +20,8 @@ use crate::layout::main_section::MainSection;
 
 use crate::utils::modal::{open_modal, close_modal};
 
-//use crate::services::vehicule::request_admin_get_vehiculos;
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 
 
 #[function_component]
@@ -32,10 +33,10 @@ pub fn AdminVehiculeView() -> Html {
         user_ctx.redirect_home();
     }
 
-    // Hooks
+    //States
     let table_reducer = use_reducer(VehiculeTableReducer::default);
-    //
     let vehiculos = use_state(|| vec![]);
+    let imagen_vehiculo = use_state(|| vec![]);
     let current_page = use_state(|| 1);
     let vehiculos_por_pagina = use_state(|| 4);
     let navigator = use_navigator();
@@ -43,10 +44,10 @@ pub fn AdminVehiculeView() -> Html {
 
     let search_state = use_state(|| None::<String>);
     let selected_filter = use_state(|| None::<String>);
-    let filter_fields = vec!["Marca".to_string(), "Modelo".to_string(),
-    "Año".to_string()];
+    let filter_fields = vec!["Marca".to_string(), "Modelo".to_string(), "Año".to_string()];
 
 
+    // Hooks
     // Add navigator to table reducer for redirecting
     {
         shadow_clone![table_reducer];
@@ -86,23 +87,40 @@ pub fn AdminVehiculeView() -> Html {
         );
     }
 
-    let vehicule_picture = {
-        match table_reducer.selected_vehicule_to_show_id {
-            Some(id) => {
-                if let Some(vehiculo) = vehiculos.deref().iter().filter(|v| v.vehiculo_id.eq(&id)).map(|v| v).next() {
-                    log::debug!("Vehiculo seleccionado {:?}", &vehiculo);
-                    let picture_url = vehiculo.imagen_url("http://127.0.0.1:8000/");
-                    html!{
-                        <img src={picture_url} />
+    // Fetch imagen del vehiculo cuando se selecciona un vehiculo
+    {
+        let vehiculos = vehiculos.clone();
+        let imagen_vehiculo = imagen_vehiculo.clone();
+        use_effect_with_deps(move |table_reducer| {
+            match table_reducer.selected_vehicule_to_show_id {
+                Some(id) => {
+                    if let Some(vehiculo) = vehiculos.deref().iter().filter(|v| v.vehiculo_id.eq(&id)).map(|v| v).next() {
+                        log::debug!("Vehiculo seleccionado {:?}", &vehiculo);
+                        let imagen_filename = vehiculo.imagen.clone();
+                        let imagen_vehiculo = imagen_vehiculo.clone();
+                        spawn_local(async move {
+                            let response = request_vehicule_picture(imagen_filename).await;
+                            log::debug!("ejecutando peticion de imagen");
+                            match response {
+                                Ok(bytes) => {
+                                    imagen_vehiculo.set(bytes.clone());
+                                }
+                                Err(_) => {
+                                    log::error!("peticion de imagen fallo");
+                                    imagen_vehiculo.set(vec![]);
+                                }
+                            }
+                        });
                     }
-                } else {
-                    html!{}
                 }
-            },
-            None => html!{},
-        }
-    };
+                None => { imagen_vehiculo.set(vec![]); }
+            }
+        },
+        table_reducer.clone())
+    }
 
+
+    // Callbacks
     let onclick_delete = {
         shadow_clone![reload_table];
         let selected_vehicule_to_delete_id = table_reducer.selected_vehicule_to_delete_id.clone();
@@ -129,6 +147,8 @@ pub fn AdminVehiculeView() -> Html {
         })
     };
 
+
+    // Variables
     let total_pages = {
         if vehiculos.deref().len() < *vehiculos_por_pagina.deref() {
             *current_page 
@@ -137,6 +157,11 @@ pub fn AdminVehiculeView() -> Html {
         }
     };
 
+
+
+
+
+    //HTML
     html! {
         <MainSection route="Admin" subroute="Vehiculos" title="Vehiculos">
 
@@ -206,7 +231,11 @@ pub fn AdminVehiculeView() -> Html {
            <Modal 
                 id={"vehicule-picture-modal"}
                 title={"".to_string()}
-                body={vehicule_picture}
+                body={
+                    html!{
+                        <img src={ format!("data:image/jpeg;base64,{}", STANDARD.encode(&imagen_vehiculo.deref())) } />
+                    }
+                }
                 onclose={
                     shadow_clone![table_reducer];
                     Callback::from(move |e: MouseEvent| {

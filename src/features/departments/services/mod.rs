@@ -9,11 +9,11 @@ use crate::error::Error;
 // Admin users
 
 pub async fn request_admin_delete_department(id: String) -> Result<ApiResponse::<()>, Error> {
-    request_delete(format!("api/users/{id}")).await
+    request_delete(format!("/api/users/{id}")).await
 }
 
 
 // All users
 pub async fn request_get_departments() -> Result<ApiResponse::<Vec<Departamento>>, Error> {
-    request_get(format!("api/departments")).await
+    request_get(format!("/api/departments")).await
 }
