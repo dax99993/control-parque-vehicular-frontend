@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
-use crate::features::users::AdminUsersView;
+use super::admin::users::AdminUsersView;
 
 
 #[function_component]

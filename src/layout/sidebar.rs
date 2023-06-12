@@ -82,7 +82,6 @@ fn admin_sidebar_top() -> Html {
 
 fn admin_sidebar_menu() -> Html {
     let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
-    let onclick_user = toggle_menu("user-menu".to_owned());
 
     html!{
         <div class="menu is-menu-main">
@@ -109,27 +108,10 @@ fn admin_sidebar_menu() -> Html {
                         </li>
                     </ul>
                 </li>
-                <li id="user-menu">
-                    <a class="has-icon has-dropdown-icon" onclick={onclick_user}>
+                <Link<AppRoute> to={AppRoute::Users} >
                         <span class="icon"><i class="fa-solid fa-users"></i></span>
                         <span class="menu-item-label">{"Usuarios"}</span>
-                        <div class="dropdown-icon">
-                          <span class="icon"><i class="fa-solid fa-angle-down"></i></span>
-                        </div>
-                    </a>
-                    <ul>
-                        <li>
-                            <Link<AppRoute> to={AppRoute::Users} >
-                                    <span class="menu-item-label">{"Ver Usuarios"}</span>
-                            </Link<AppRoute>>
-                        </li>
-                        <li>
-                            <Link<AppRoute> to={AppRoute::Users} >
-                                <span class="menu-item-label">{"Registrar usuario"}</span>
-                            </Link<AppRoute>>
-                        </li>
-                    </ul>
-                </li>
+                </Link<AppRoute>>
                 <Link<AppRoute> to={AppRoute::Requests} >
                         <span class="icon"><i class="fa-solid fa-id-card"></i></span>
                         <span class="menu-item-label">{"Peticiones"}</span>

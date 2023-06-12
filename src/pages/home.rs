@@ -7,13 +7,13 @@ use crate::components::collapsible::FormCollapsible;
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 
-use crate::features::departments::DepartmentDropDown;
-
 use crate::services;
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use std::ops::Deref;
 
+
+use crate::components::toast::{use_toaster, Toast, ToastType, ToastPosition};
 
 #[function_component]
 pub fn HomeView() -> Html {
@@ -32,6 +32,8 @@ pub fn HomeView() -> Html {
 #[function_component]
 fn HomeLoggedInView() -> Html {
 
+    let toaster = use_toaster().expect("No toaster viewer");
+
     let date = NodeRef::default();
 
     let cb = {
@@ -44,18 +46,35 @@ fn HomeLoggedInView() -> Html {
         })
     };
 
+    let cb_toast = {
+        //let date = date.clone();
+        let toaster = toaster.clone();    
+        Callback::from(move |e: MouseEvent| {
+            e.prevent_default();
+
+            let toast = Toast {
+                body: "Message".into(),
+                position: ToastPosition::TopLeft,
+                r#type: ToastType::Info,
+                timeout: Some(chrono::Duration::milliseconds(2000)),
+            };
+            toaster.toast(toast);
+        })
+    };
+
     html! {
     <>
         <p>{"Home user"}</p>
 
         <FormCollapsible/>
 
-        <DepartmentDropDown/>
-
-
         <form>
             <input ref={date} type="date" lang="es-VE" onclick={cb}/>
         </form>
+
+        <button class="button" onclick={cb_toast}>
+            {"Open toast"}
+        </button>
 
     </>
     }

@@ -3,7 +3,6 @@ use yew_router::prelude::*;
 
 use uuid::Uuid;
 
-
 use crate::pages::HomeView;
 use crate::pages::NotFoundView;
 
@@ -12,8 +11,8 @@ use crate::pages::LogoutView;
 use crate::pages::SignupView;
 
 use crate::pages::VehiculesView;
-use crate::pages::EditVehiculeView;
-use crate::pages::RegisterVehiculeView;
+use crate::pages::admin::vehicules::EditVehiculeView;
+use crate::pages::admin::vehicules::RegisterVehiculeView;
 
 use crate::pages::ProfileView;
 

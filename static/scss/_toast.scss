@@ -1,0 +1,43 @@
+.toaster-container {
+    width:100%;
+    z-index:99999;
+    position:fixed;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    padding:15px;
+
+}
+
+.toaster-container[data-position^="top-"] {
+    top:0;
+}
+.toaster-container[data-position^="bottom-"] {
+    bottom:0;
+}
+.toaster-container[data-position$="-left"] {
+    left:0;
+    text-align:left;
+    align-items:flex-start;
+}
+.toaster-container[data-position$="-right"] {
+    right:0;
+    text-align:right;
+    align-items:flex-end;
+}
+.toaster-container[data-position$="-center"] {
+    left:0;
+    right:0;
+    text-align:center;
+    align-items:center;
+}
+
+
+
+.toaster {
+    width:auto;
+    pointer-events:auto;
+    display:inline-flex;
+    white-space:pre-wrap;
+    //opacity:${this.opacity};
+}

@@ -9,3 +9,4 @@ pub mod pagination;
 pub mod upload;
 pub mod filter_search;
 
+pub mod toast;

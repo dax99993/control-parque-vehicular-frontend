@@ -8,7 +8,7 @@ use crate::shadow_clone;
 use crate::error::Error;
 use crate::services::request::{get_token, store_token};
 //use crate::services::auth::*;
-use crate::features::authentication::services::auth::request_me;
+use crate::services::auth::request_me;
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {

@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
-use crate::features::vehicules::AdminVehiculeView;
+use crate::pages::admin::vehicules::AdminVehiculeView;
 
 
 #[function_component]

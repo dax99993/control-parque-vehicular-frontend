@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use uuid::Uuid;
 
-use crate::features::users::AdminUserEditView;
+use super::admin::users::AdminUserEditView;
 use crate::hooks::user_context::use_user_context;
 
 

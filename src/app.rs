@@ -7,6 +7,7 @@ use crate::layout::footer::Footer;
 use crate::layout::sidebar::Sidebar;
 use crate::context::UserContextProvider;
 use crate::routes::{switch, AppRoute};
+use crate::components::toast::ToasterViewer;
 
 
 /// The root app component
@@ -17,7 +18,9 @@ pub fn App() -> Html {
             <UserContextProvider>
                 <NavBar />
                 <Sidebar/>
-                <Switch<AppRoute> render={switch} />
+                <ToasterViewer>
+                    <Switch<AppRoute> render={switch} />
+                </ToasterViewer>
                 <Footer />
             </UserContextProvider>
         </BrowserRouter>
