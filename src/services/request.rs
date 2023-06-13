@@ -86,7 +86,17 @@ where
                         .map_err(|_| Error::DeserializeError)
                 }
 
-                400 => Err(Error::BadRequestError),
+                400 => {
+                    let message = response.json::<ApiResponse::<T>>().await
+                        .map_err(|_| Error::DeserializeError)?
+                        .message;
+                    let msg = match message {
+                        Some(m) => m.to_string(),
+                        None => String::new(),
+                    };
+
+                    Err(Error::BadRequestError(msg))
+                },
                 401 => Err(Error::UnathorizedError),
                 403 => Err(Error::ForbiddenError),
                 404 => Err(Error::NotFoundError),
@@ -130,7 +140,17 @@ where
                         .map_err(|_| Error::DeserializeError)
                 }
 
-                400 => Err(Error::BadRequestError),
+                400 => {
+                    let message = response.json::<ApiResponse::<T>>().await
+                        .map_err(|_| Error::DeserializeError)?
+                        .message;
+                    let msg = match message {
+                        Some(m) => m.to_string(),
+                        None => String::new(),
+                    };
+
+                    Err(Error::BadRequestError(msg))
+                },
                 401 => Err(Error::UnathorizedError),
                 403 => Err(Error::ForbiddenError),
                 404 => Err(Error::NotFoundError),
@@ -184,7 +204,9 @@ pub async fn request_image(url: String) -> Result<Vec<u8>, Error> {
                     }
                 }
 
-                400 => Err(Error::BadRequestError),
+                400 => {
+                    Err(Error::BadRequestError(String::new()))
+                },
                 401 => Err(Error::UnathorizedError),
                 403 => Err(Error::ForbiddenError),
                 404 => Err(Error::NotFoundError),

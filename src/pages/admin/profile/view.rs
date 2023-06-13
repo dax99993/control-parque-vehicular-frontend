@@ -2,8 +2,8 @@ use yew::prelude::*;
 //use yew_hooks::prelude::*;
 
 
-use super::AdminProfileInfo;
-use super::ChangePassword;
+use super::info::AdminProfileInfo;
+use super::change_password::ChangePassword;
 
 use crate::hooks::user_context::use_user_context;
 use crate::layout::main_section::MainSection;

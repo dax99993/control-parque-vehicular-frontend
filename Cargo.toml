@@ -24,6 +24,7 @@ getrandom = { version = "0.2.8", features = ["js"] }
 base64 = "0.21.0"
 reqwest = { version = "0.11.18", features = ["json", "multipart"] }
 common = { path = "../common/", features = ["frontend"] }
+chrono-utilities = "0.0.0-alpha1"
 
 [dependencies.web-sys]
 version = "0.3.61"

@@ -10,7 +10,6 @@ use crate::routes::AppRoute;
 use crate::utils::{remove_class, add_class, has_class, toggle_class};
 
 use gloo::utils::{document, document_element};
-use crate::features::profile::services::request_profile_image;
 
 
 use base64::engine::general_purpose::STANDARD;
@@ -126,10 +125,28 @@ fn NavBarBrandRight() -> Html {
 
 
 #[function_component]
+fn NavBarEndLoggedOut() -> Html {
+    html!{
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <Link<AppRoute> to={AppRoute::Login} classes="button is-light">
+                        { "Iniciar sesion" }
+                    </Link<AppRoute>>
+                    <Link<AppRoute> to={AppRoute::Signup} classes="button is-primary">
+                        { "Registrar" }
+                    </Link<AppRoute>>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+#[function_component]
 fn NavBarEndLoggedIn() -> Html {
     //Context
     let user_ctx = use_user_context();
-
 
     //States
     let image = use_state(|| vec![]);
@@ -137,7 +154,7 @@ fn NavBarEndLoggedIn() -> Html {
 
     //Hooks
     let request_image = use_async(async {
-        request_profile_image().await
+        crate::services::normal::request_imagen_perfil().await
     });
 
     {
@@ -156,8 +173,13 @@ fn NavBarEndLoggedIn() -> Html {
         }, request_image.clone())
     }
 
-    let nombres = user_ctx.get_user().unwrap().nombres.clone();
+    //let nombres = user_ctx.get_user().unwrap().nombres.clone();
+    let nombres = match user_ctx.get_user() {
+        Some(user) => {user.nombres.clone()},
+        None => {String::from("")}
+    };
     
+
     html!{
         <div class="navbar-end">
             <div class="navbar-item has-dropdown has-dropdown-with-icons has-divider has-user-avatar is-hoverable">
@@ -191,20 +213,3 @@ fn NavBarEndLoggedIn() -> Html {
     }
 }
 
-#[function_component]
-fn NavBarEndLoggedOut() -> Html {
-    html!{
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <Link<AppRoute> to={AppRoute::Login} classes="button is-light">
-                        { "Iniciar sesion" }
-                    </Link<AppRoute>>
-                    <Link<AppRoute> to={AppRoute::Signup} classes="button is-primary">
-                        { "Registrar" }
-                    </Link<AppRoute>>
-                </div>
-            </div>
-        </div>
-    }
-}

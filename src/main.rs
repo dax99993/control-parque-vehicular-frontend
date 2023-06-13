@@ -3,7 +3,6 @@ pub mod app;
 pub mod components;
 pub mod context;
 pub mod error;
-pub mod features;
 pub mod hooks;
 pub mod layout;
 pub mod pages;

@@ -3,7 +3,7 @@ pub enum Error {
     // Http Errors
     UnathorizedError,
     ForbiddenError,
-    BadRequestError,
+    BadRequestError(String),
     NotFoundError,
     InternalServerError,
     FailedRequestError,

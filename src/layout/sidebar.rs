@@ -60,30 +60,26 @@ pub fn Sidebar() -> Html {
     html! {
         <aside class="aside is-placed-left is-expanded" ref={sidebar_node_ref}>
             if user_ctx.is_admin() {
-                { admin_sidebar_top() }
-                { admin_sidebar_menu() }
+                { admin_sidebar() }
             } else if user_ctx.is_authenticated() {
-                { normal_sidebar_top() }
-                { normal_sidebar_menu() }
+                { normal_sidebar() }
             }
         </aside>
     }
 }
 
-fn admin_sidebar_top() -> Html {
+
+fn admin_sidebar() -> Html {
+    let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
+
     html!{
+        <>
         <div class="aside-tools">
             <div class="aside-tools-label">
                 <span><b>{"Admin"}</b></span>
             </div>
         </div>
-    }
-}
 
-fn admin_sidebar_menu() -> Html {
-    let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
-
-    html!{
         <div class="menu is-menu-main">
             <p class="menu-label">{"Administracion"}</p>
             <ul class="menu-list">
@@ -122,49 +118,34 @@ fn admin_sidebar_menu() -> Html {
                 </Link<AppRoute>>
             </ul>
         </div>
+        </>
     }
 }
 
-fn normal_sidebar_top() -> Html {
 
+fn normal_sidebar() -> Html {
     html!{
+        <>
         <div class="aside-tools">
             <div class="aside-tools-label">
                 <span><b>{"Usuario"}</b></span>
             </div>
         </div>
-    }
-}
 
-fn normal_sidebar_menu() -> Html {
-    let onclick_vehicule = toggle_menu("vehicule-menu".to_owned());
-
-    html!{
         <div class="menu is-menu-main">
-            <p class="menu-label">{"Administracion"}</p>
+            <p class="menu-label">{"Menu"}</p>
             <ul class="menu-list">
-                <li id="vehicule-menu">
-                    <a class="has-icon has-dropdown-icon" onclick={onclick_vehicule}>
+                <Link<AppRoute> to={AppRoute::Vehicules} >
                         <span class="icon"><i class="fa-solid fa-car"></i></span>
                         <span class="menu-item-label">{"Vehiculos"}</span>
-                        <div class="dropdown-icon">
-                          <span class="icon"><i class="fa-solid fa-angle-down"></i></span>
-                        </div>
-                    </a>
-                    <ul>
-                        <li>
-                            <Link<AppRoute> to={AppRoute::Vehicules} >
-                                    <span class="menu-item-label">{"Ver vehiculos"}</span>
-                            </Link<AppRoute>>
-                        </li>
-                    </ul>
-                </li>
+                </Link<AppRoute>>
                 <Link<AppRoute> to={AppRoute::Requests} >
                         <span class="icon"><i class="fa-solid fa-id-card"></i></span>
                         <span class="menu-item-label">{"Peticiones"}</span>
                 </Link<AppRoute>>
             </ul>
         </div>
+        </>
     }
 }
 

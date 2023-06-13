@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
-use crate::features::profile::AdminProfileView;
+use crate::pages::admin::profile::AdminProfileView;
+use crate::pages::normal::profile::NormalProfileView;
 use crate::hooks::user_context::use_user_context;
 
 
@@ -18,7 +19,7 @@ pub fn ProfileView() -> Html {
         if user_ctx.is_admin() {
             <AdminProfileView/>
         } else {
-            <p>{"normal profile page"}</p>
+            <NormalProfileView/>
         }
     }
 }

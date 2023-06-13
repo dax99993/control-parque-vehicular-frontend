@@ -1,10 +1,9 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use super::super::services::request_change_password;
-
 use crate::components::card::{Card, CardContent};
 use crate::components::form::{Form, FormField, InputFieldValidated};
+use crate::components::toast::{use_toaster, ToastBuilder};
 
 
 #[function_component]
@@ -31,19 +30,24 @@ use crate::utils::forms::{validate_form_field, reset_input};
 
 #[function_component]
 pub fn ChangePasswordForm() -> Html {
+    //Context
+    let toaster = use_toaster().expect("No ToastViewer");
+
+    //States
     let password = use_state(|| CambiarMiPassword::default());
     let password_validation = use_state(|| Rc::new(RefCell::new(ValidationErrors::new())));
 
-    let onchange_current_password= get_input_callback("password_actual", &password);
-    let onchange_new_password = get_input_callback("nuevo_password", &password);
-    let onchange_re_new_password = get_input_callback("re_nuevo_password", &password);
-
-    
+    //Fields Noderef
     let current_password = NodeRef::default();
     let new_password= NodeRef::default();
     let re_new_password= NodeRef::default();
 
-    
+    //Callbacks
+    let onchange_current_password= get_input_callback("password_actual", &password);
+    let onchange_new_password = get_input_callback("nuevo_password", &password);
+    let onchange_re_new_password = get_input_callback("re_nuevo_password", &password);
+
+
     let validate_input_on_blur = {
         shadow_clone![password, password_validation];
         Callback::from(move |(name, value): (String, String)| {
@@ -56,16 +60,54 @@ pub fn ChangePasswordForm() -> Html {
     let request_change_password_me = {
         shadow_clone![password];
         use_async(async move {
-            request_change_password((*password).clone()).await
+            crate::services::normal::request_cambiar_password((*password).clone()).await
         })
     };
+
+
+    // Notify success
+    {
+        let toaster = toaster.clone();
+        use_effect_with_deps(move |request| {
+            if let Some(response) = &request.data {
+                log::debug!("api response\n{:?}", &response);
+                // Add modal to notify a relogin must be done
+                let toast = ToastBuilder::new()
+                    .is_success()
+                    .at_top_center()
+                    .with_timeout(Some(3000))
+                    .with_body(html!{<p>{"Contraseña actualizada!"}</p>})
+                    .build();
+                toaster.toast(toast);
+            }
+            if let Some(api_error) = &request.error {
+                let msg = match api_error {
+                    crate::error::Error::BadRequestError(m) => m.clone(),
+                    _ => String::new(),
+                };
+                let toast = ToastBuilder::new()
+                    .is_danger()
+                    .at_top_center()
+                    .with_timeout(Some(3000))
+                    .with_body(html!{<>
+                        <p>{"La contraseña no se pudo actualizar!"}</p>
+                        <hr/>
+                        <p><strong>{msg}</strong></p>
+                        </>})
+                    .build();
+                toaster.toast(toast);
+            }
+        },
+        request_change_password_me.clone())
+    }
+
 
     // Submit valid form
     let onsubmit = {
         shadow_clone![password, password_validation];
         shadow_clone![current_password, new_password, re_new_password];
         shadow_clone![request_change_password_me];
-        Callback::from(move |e: MouseEvent| {
+        Callback::from(move |e: SubmitEvent| {
             e.prevent_default();
 
             match password.validate() {
@@ -73,8 +115,6 @@ pub fn ChangePasswordForm() -> Html {
                     reset_input(&current_password);
                     reset_input(&new_password);
                     reset_input(&re_new_password);
-                    // Add modal to notify a relogin must be done
-                    // make request to database
                     request_change_password_me.run();
                 }
                 Err(e) => {
@@ -83,26 +123,6 @@ pub fn ChangePasswordForm() -> Html {
             }
         })
     };
-
-
-    {
-        //shadow_clone![request_change_password];
-        use_effect_with_deps(move |request| {
-            if let Some(response) = &request.data {
-                log::debug!("api response\n{:?}", &response);
-                /*
-                if let Some(vehicule) = &response.data {
-                    log::debug!("successful vehicule creation\n{:?}", vehicule);
-                    user_ctx.redirect_to(AppRoute::VehiculeEdit { id: vehicule.vehicule_id.clone() });
-                }
-                */
-            }
-            if let Some(api_error) = &request.error {
-                log::error!("change password request error\n{:?}", api_error);
-            }
-        },
-        request_change_password_me.clone())
-    }
 
     // reset all form fields
     let onreset = {
@@ -123,7 +143,7 @@ pub fn ChangePasswordForm() -> Html {
     let has_errors = !password_validation.deref().borrow().errors().is_empty();
 
     html!{
-        <Form method="get">
+        <Form method="get" onsubmit={onsubmit}>
             <FormField label="Contraseña actual">
                 <InputFieldValidated 
                     input_type="password"
@@ -167,7 +187,6 @@ pub fn ChangePasswordForm() -> Html {
                 <div class="field is-grouped">
                   <div class="control">
                     <button type="submit" 
-                        onclick={onsubmit}
                         class={classes!["button", if has_errors { "is-danger" } else { "is-primary" }]}
                     >
                       <span>{ "Cambiar" }</span>

@@ -1,5 +1,6 @@
 pub mod button;
 pub mod card;
+pub mod calendar;
 pub mod collapsible;
 pub mod dropdown;
 pub mod form;

@@ -2,6 +2,7 @@ use yew::prelude::*;
 
 use crate::hooks::user_context::use_user_context;
 use crate::pages::admin::vehicules::AdminVehiculeView;
+use crate::pages::normal::vehicules::NormalVehiculesView;
 
 
 #[function_component]
@@ -16,7 +17,7 @@ pub fn VehiculesView() -> Html {
         if user_ctx.is_admin() {
             <AdminVehiculeView/>
         } else {
-            <p>{"Vehicule normal user page"}</p>
+            <NormalVehiculesView/>
         }
     }
 }

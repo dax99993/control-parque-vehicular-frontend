@@ -1,4 +1,5 @@
 pub mod admin;
+pub mod normal;
 
 
 mod not_found;
