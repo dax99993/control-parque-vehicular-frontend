@@ -7,9 +7,13 @@ use crate::shadow_clone;
 #[derive(Debug, PartialEq, Clone, Properties)]
 pub struct ModalProps {
     pub id: String,
+    #[prop_or_default]
     pub title: Option<String>,
+    #[prop_or_default]
     pub body: Html,
+    #[prop_or_default]
     pub footer: Option<Html>,
+    #[prop_or_default]
     pub onclose: Option<Callback<MouseEvent>>,
 }
 

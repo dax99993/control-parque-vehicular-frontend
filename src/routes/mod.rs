@@ -76,7 +76,7 @@ pub fn switch(route: AppRoute) -> Html {
         // Profile routes
         AppRoute::UserProfile => html! { <ProfileView/> },
         // Request routes
-        AppRoute::Requests => html! { {"requests"} },
+        AppRoute::Requests => html! { <crate::pages::RequestsView/> },
         // Report routes
         AppRoute::Reports => html! { {"reports"} },
         // Nofound route

@@ -493,8 +493,8 @@ impl Calendar {
         let date_selection = 
         if let Some(date) = self.selected_date {
             let day = date.day();
-            // this should be a string in the language instead of the number
-            let weekday = date.weekday();
+            let weekdays = ctx.props().lang.weekdays();
+            let weekday = weekdays.get(date.weekday().num_days_from_sunday() as usize).unwrap();
             let months = ctx.props().lang.months();
             let month = months.get(date.month0() as usize).unwrap();
             let year = date.year();

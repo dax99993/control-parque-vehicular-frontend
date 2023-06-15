@@ -28,7 +28,6 @@ pub fn SignupView() -> Html {
 }
 
 use yew::platform::spawn_local;
-use yew_hooks::prelude::*;
 use yew_router::prelude::*;
 
 use std::rc::Rc;
@@ -42,12 +41,12 @@ use common::models::user::SignupUsuario;
 use crate::shadow_clone;
 use crate::components::form::{Form, FormField, InputFieldValidated};
 use crate::components::button::{Button, ButtonType};
-use crate::components::toast::{use_toaster, Toast, ToastType, ToastPosition, ToastBuilder};
+use crate::components::toast::{use_toaster, ToastBuilder};
 
 use crate::services::auth::request_signup;
 use crate::routes::AppRoute;
 //use crate::services::auth::request_signup;
-use crate::utils::forms::{validate_form_field, reset_input};
+use crate::utils::forms::validate_form_field;
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct Props {

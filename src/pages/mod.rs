@@ -1,34 +1,29 @@
 pub mod admin;
 pub mod normal;
 
-
-mod not_found;
 mod home;
-// Auth
-mod login;
-mod logout;
-mod signup;
-// Vehicules
-mod vehicules;
-// Profile
-mod profile;
-// Users
-mod users;
-mod user_edit;
-// Reports
-// Requests
-
-
 pub use home::HomeView;
-pub use not_found::NotFoundView;
-
+//Auth
+mod login;
 pub use login::LoginView;
+mod logout;
 pub use logout::LogoutView;
+mod signup;
 pub use signup::SignupView;
-
+//Vehicule
+mod vehicules;
 pub use vehicules::VehiculesView;
-
-pub use profile::ProfileView;
-
+//Users
+mod users;
 pub use users::UsersView;
+mod user_edit;
 pub use user_edit::EditUserView;
+//Profile
+mod profile;
+pub use profile::ProfileView;
+//Notfound
+mod not_found;
+pub use not_found::NotFoundView;
+//Request
+mod request_vehicule;
+pub use request_vehicule::RequestsView;

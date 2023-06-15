@@ -2,12 +2,12 @@ use gloo::utils::{document, document_element};
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use yew_hooks::use_click_away;
+//use yew_hooks::use_click_away;
 
 use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 use crate::shadow_clone;
-use crate::utils::{toggle_class, remove_class, add_class, has_class};
+use crate::utils::{toggle_class, remove_class, add_class};
 
 
 //TODO: Create a sidebar for normal user and move current one to SidebarAdmin

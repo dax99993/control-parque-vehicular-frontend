@@ -1,10 +1,7 @@
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use std::ops::Deref;
-
 use crate::components::dropdown::DropDown;
-
 
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct FilterSearchProps{

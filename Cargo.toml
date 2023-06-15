@@ -25,6 +25,7 @@ base64 = "0.21.0"
 reqwest = { version = "0.11.18", features = ["json", "multipart"] }
 common = { path = "../common/", features = ["frontend"] }
 chrono-utilities = "0.0.0-alpha1"
+chrono-tz = { version = "0.8.2", features = ["serde"] }
 
 [dependencies.web-sys]
 version = "0.3.61"

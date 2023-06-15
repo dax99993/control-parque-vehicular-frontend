@@ -1,12 +1,10 @@
 use yew::prelude::*;
 
 use yew::platform::spawn_local;
-use yew_hooks::use_async;
 
 use common::models::vehicule::Vehiculo;
 
 use crate::shadow_clone;
-use super::reducer::{VehiculeTableAction, VehiculeTableReducer};
 
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
@@ -20,7 +18,7 @@ pub struct TableProps {
 }
 
 #[function_component]
-pub fn VehiculeTable(props: &TableProps) -> Html {
+pub fn Table(props: &TableProps) -> Html {
     shadow_clone!(props);
 
     html!{
@@ -52,15 +50,14 @@ pub fn VehiculeTable(props: &TableProps) -> Html {
 }
 
 
-
 #[derive(Debug, Clone, PartialEq, Properties)]
 pub struct TableRowProps {
    pub vehiculo: Vehiculo, 
-   pub dispatcher: UseReducerDispatcher<VehiculeTableReducer>,
+   pub dispatcher: UseReducerDispatcher<TableReducer>,
 }
 
 #[function_component]
-pub fn VehiculeTableRow(props: &TableRowProps) -> Html {
+pub fn TableRow(props: &TableRowProps) -> Html {
     // Props
     let TableRowProps{ vehiculo, dispatcher } = props;
 
@@ -94,7 +91,7 @@ pub fn VehiculeTableRow(props: &TableRowProps) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = vehiculo.vehiculo_id.clone();
-            dispatcher.dispatch(VehiculeTableAction::ShowVehiculePicture(id));
+            dispatcher.dispatch(TableAction::ShowVehiculePicture(id));
         })
     };
     
@@ -103,7 +100,7 @@ pub fn VehiculeTableRow(props: &TableRowProps) -> Html {
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             let id = vehiculo.vehiculo_id.clone();
-            dispatcher.dispatch(VehiculeTableAction::RequestVehicule(id));
+            dispatcher.dispatch(TableAction::RequestVehicule(id));
         })
     };
 
@@ -147,5 +144,84 @@ pub fn VehiculeTableRow(props: &TableRowProps) -> Html {
     }
 }
 
+use uuid::Uuid;
+use yew_router::prelude::Navigator;
+
+use crate::routes::AppRoute;
+use crate::utils::modal::{open_modal, close_modal};
 
 
+pub enum TableAction {
+    AddNavigator(Navigator),
+    RequestVehicule(Uuid),
+    ShowVehiculePicture(Uuid),
+    ResetSelectedShow,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct TableReducer {
+    pub selected_vehicule_to_show_id: Option<Uuid>,
+    pub navigator: Option<Navigator>,
+}
+
+impl Default for TableReducer {
+    fn default() -> Self {
+        Self {
+            selected_vehicule_to_show_id: None,
+            navigator: None, 
+        }
+    }
+}
+
+impl Reducible for TableReducer {
+    type Action = TableAction;
+
+    fn reduce(self: std::rc::Rc<Self>, action: Self::Action) -> std::rc::Rc<Self> {
+        let mut selected_vehicule_to_show_id = self.selected_vehicule_to_show_id.clone();
+        let mut navigator = self.navigator.clone();
+
+        
+        match action {
+            TableAction::AddNavigator(nav) => {
+                navigator = Some(nav);
+            }
+            TableAction::RequestVehicule(id) => {
+                if let Some(nav) = navigator.clone() {
+                    //nav.push(&AppRoute::VehiculeRequest { id });
+                    log::debug!("redirect to vehicule request with id {id}");
+                } else {
+                    log::error!("navigator is None!");
+                }
+            }
+            TableAction::ShowVehiculePicture(id) => {
+                open_modal("vehicule-picture-modal".to_string());
+                selected_vehicule_to_show_id = Some(id);
+            }
+            TableAction::ResetSelectedShow => {
+                selected_vehicule_to_show_id = None;
+            }
+        }
+
+        Self {
+            selected_vehicule_to_show_id,
+            navigator,
+        }.into()    
+    }
+}
+
+
+pub fn vehicule_to_table_row(
+    vehiculos: Vec<Vehiculo>,
+    dispatcher: UseReducerDispatcher<TableReducer>,
+) -> Vec<Html> {
+    vehiculos.into_iter().map(|v| {
+        html!{
+            <TableRow
+                vehiculo={v}
+                dispatcher={dispatcher.clone()}
+            >
+            </TableRow>
+        }
+    })
+    .collect()
+}

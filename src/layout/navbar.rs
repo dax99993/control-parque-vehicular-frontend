@@ -2,10 +2,8 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use yew_hooks::use_async;
 
-use common::models::user::Usuario;
-
 use crate::shadow_clone;
-use crate::hooks::user_context::{use_user_context, UseUserContextHandle};
+use crate::hooks::user_context::use_user_context;
 use crate::routes::AppRoute;
 use crate::utils::{remove_class, add_class, has_class, toggle_class};
 

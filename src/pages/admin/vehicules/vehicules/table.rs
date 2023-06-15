@@ -1,7 +1,6 @@
 use yew::prelude::*;
 
 use yew::platform::spawn_local;
-use yew_hooks::use_async;
 
 use common::models::vehicule::Vehiculo;
 
